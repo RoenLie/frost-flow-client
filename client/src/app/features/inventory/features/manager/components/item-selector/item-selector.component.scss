@@ -1,0 +1,18 @@
+@import "mixins";
+
+:host {
+   overflow: auto;
+
+   display: grid;
+   grid-auto-flow: row dense;
+   grid-auto-rows: min-content;
+
+   row-gap: 1rem;
+
+   height: 100%;
+   padding: 0.5rem;
+
+   background-color: rgba(20, 20, 20, 1);
+
+   @include scrollbar;
+}

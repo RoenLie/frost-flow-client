@@ -1,0 +1,5 @@
+<fl-list-item *ngFor="let item of invItemService.items; index as i"
+   [ngClass]="{active:item?.id === invItemService.activeItem.value?.id}"
+   (click)="invItemService.select(i)">
+   {{item.name}}
+</fl-list-item>

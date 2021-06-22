@@ -1,0 +1,13 @@
+:host {
+  position: relative;
+
+  overflow: hidden;
+
+  display: grid;
+  place-items: start;
+  grid-auto-rows: min-content;
+
+  width: 40vw;
+
+  padding: 1em;
+}

@@ -1,0 +1,13 @@
+<section [resizeHost]="{ templateColumns: '1fr 1fr 2fr' }">
+   <div [resizeOptions]="{ index: 0, minWidth: 150 }" resizable="right">
+      <div style="position: absolute; top: 0; right: 0;">item selector</div>
+      <fl-item-selector></fl-item-selector>
+   </div>
+   <div [resizeOptions]="{ index: 1, minWidth: 150 }" resizable="right">
+      <div style="position: absolute; top: 0; right: 0;">flow selector</div>
+      <fl-flow-selector></fl-flow-selector>
+   </div>
+   <div [resizeOptions]="{ index: 2, minWidth: 150 }">
+      <fl-flow-details></fl-flow-details>
+   </div>
+</section>

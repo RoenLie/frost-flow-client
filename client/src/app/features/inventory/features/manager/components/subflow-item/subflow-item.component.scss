@@ -1,0 +1,29 @@
+@import "mixins";
+
+
+:host {
+   display: grid;
+   place-items: center;
+   padding: 0.25rem;
+   border-radius: 0.5rem;
+   cursor: pointer;
+
+   @include shadowStyle;
+
+   &.complete {
+      color: hsl(82, 77%, 39%);
+   }
+
+   &.ongoing {
+      color: hsl(56, 91%, 64%);
+   }
+
+   &.error {
+      color: hsl(360, 69%, 43%);
+   }
+}
+
+svg-icon {
+   display: grid;
+   place-items: center;
+}

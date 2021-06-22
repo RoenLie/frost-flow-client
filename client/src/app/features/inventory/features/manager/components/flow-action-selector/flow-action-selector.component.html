@@ -1,0 +1,3 @@
+<fl-flow-action *ngFor="let action of flowActionService.actions; index as i" (click)="action.function()"
+   [svgPath]="action.svgPath" [svgStyle]="svgStyle">
+</fl-flow-action>

@@ -1,0 +1,20 @@
+<span class="icon" tabindex="1"
+  (click)="defaultLayoutService.navigationLeftOpen = true">
+  <svg-icon title="Menu"
+    src="assets/svg/bars-solid.svg"
+    [svgStyle]="{'height.px':'30', 'width.px':'30'}">
+  </svg-icon>
+</span>
+
+<a routerLink="">
+  <span class="icon" tabindex="1">
+    <svg-icon title="User profile"
+      [src]="brandService.logoPath"
+      [svgStyle]="{'height.px':'35', 'width.px':'35'}">
+    </svg-icon>
+  </span>
+</a>
+
+<span class="text">
+  {{brandService.navTitle}}
+</span>

@@ -1,0 +1,43 @@
+:host {
+   display: grid;
+}
+
+.content {
+   display: grid;
+
+   grid-template-columns: auto auto 1fr auto;
+   grid-template-rows: auto auto 1fr;
+   grid-template-areas:
+      "list-tabs-home list-tabs list-tabs list-tabs"
+      "list-selector list-selector big-list-header big-list-header"
+      "list-selector list-selector big-list record-preview";
+
+   epi-list-selector {
+      grid-area: list-selector;
+   }
+
+   epi-list-tabs-home {
+      grid-area: list-tabs-home;
+   }
+
+   epi-list-tabs {
+      grid-area: list-tabs;
+   }
+
+   epi-big-list-header {
+      grid-area: big-list-header
+   }
+
+   epi-big-list {
+      grid-area: big-list;
+   }
+
+   epi-record-preview {
+      grid-area: record-preview;
+   }
+
+   >* {
+      border: 1px solid;
+      border-color: rgba(150, 150, 150, 0.5);
+   }
+}

@@ -1,0 +1,26 @@
+:host {
+   display: grid;
+
+   grid-template-rows: 1fr;
+   grid-template-columns: auto 1fr;
+   grid-template-areas:
+      "left-nav viewport";
+}
+
+.left-nav {
+   grid-area: left-nav;
+
+   display: grid;
+   grid-auto-flow: row dense;
+   grid-auto-rows: min-content;
+   row-gap: 1rem;
+
+   place-items: start center;
+
+   padding: 0.75rem;
+}
+
+.viewport {
+   grid-area: viewport;
+   display: grid;
+}

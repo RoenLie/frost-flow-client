@@ -1,0 +1,17 @@
+<button (click)="getSelectedRows()">log selected row nodes</button>
+
+<ag-grid-angular #agGrid class="ag-theme-alpine-dark-custom"
+   [columnDefs]="columnDefs" [defaultColDef]="defaultColDef"
+   [rowModelType]="rowModelType" [serverSideStoreType]="serverSideStoreType"
+   [cacheBlockSize]="cacheBlockSize" [maxBlocksInCache]="maxBlocksInCache"
+   [animateRows]="animateRows" [rowData]="rowData"
+   [enableRangeSelection]="enableRangeSelection"
+   [autoGroupColumnDef]="autoGroupColumnDef"
+   [groupUseEntireRow]="groupUseEntireRow"
+   [groupRowRendererParams]="groupRowRendererParams"
+   [groupMultiAutoColumn]="groupMultiAutoColumn"
+   [suppressRowClickSelection]="suppressRowClickSelection"
+   [suppressMenuHide]="suppressMenuHide" [rowGroupPanelShow]="rowGroupPanelShow"
+   [frameworkComponents]="frameworkComponents" [rowSelection]="rowSelection"
+   (filterChanged)="onFilterChanged($event)" (gridReady)="onGridReady($event)">
+</ag-grid-angular>

@@ -1,0 +1,17 @@
+<div class="title-wrapper">
+  <span class="icon">
+    <svg-icon
+      [src]="brandService.logoPath"
+      [svgStyle]="{'height.px':'35', 'width.px':'35'}">
+    </svg-icon>
+  </span>
+  
+  <span class="text">
+    {{brandService.navTitle}}
+  </span>
+</div>
+
+<app-menu
+  *ngFor="let group of menu"
+  [menu]="group.menuItems"
+  ></app-menu>

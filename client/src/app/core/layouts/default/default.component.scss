@@ -1,0 +1,22 @@
+.layout-wrapper {
+   display: grid;
+   grid-template-rows: auto 1fr;
+   grid-template-columns: 1fr;
+
+   height: 100%;
+   width: 100%;
+}
+
+.main-wrapper {
+   position: relative;
+   grid-row: 2;
+   grid-column: 1;
+   height: var(--view-height);
+}
+
+router-outlet~* {
+   position: absolute;
+   overflow: hidden;
+   height: 100%;
+   width: 100%;
+}

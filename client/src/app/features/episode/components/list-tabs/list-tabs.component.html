@@ -1,0 +1,19 @@
+<div class="tab"
+   [ngClass]="{'active': listTabs.activeTab.value?.sys_id == tab?.sys_id}"
+   *ngFor="let tab of listTabs.tabs.value" (click)="click($event, tab)"
+   (auxclick)="auxClick($event, tab)">
+   <div>
+      {{ tab.sys_id.split("-")[0] }}
+   </div>
+   <div>
+      <svg-icon class="hover-icon" (click)="close(tab)"
+         src="assets/svg/times-solid.svg" [svgStyle]="{
+            'height.em':'1.2',
+            'width.em':'1.2',
+            'display': 'grid',
+            'place-items': 'center',
+            'cursor': 'pointer'
+         }">
+      </svg-icon>
+   </div>
+</div>

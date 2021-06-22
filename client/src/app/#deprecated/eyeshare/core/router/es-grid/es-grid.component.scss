@@ -1,0 +1,57 @@
+:host {
+  display: grid;
+  padding: 1em;
+
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
+
+  grid-template-areas:
+    "domains domains domains"
+    "tabs tabs tabs"
+    "actions table document"
+    "liness liness liness";
+
+  >:nth-child(1) {
+    grid-area: domains;
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: space-between;
+  }
+
+  >:nth-child(2) {
+    grid-area: tabs;
+    border-top: none;
+  }
+
+  >:nth-child(3) {
+    grid-area: actions;
+    border-top: none;
+    border-bottom: none;
+  }
+
+  >:nth-child(4) {
+    grid-area: table;
+    border: none;
+  }
+
+  >:nth-child(5) {
+    grid-area: document;
+    border-top: none;
+    border-bottom: none;
+    min-width: 20vw;
+    max-width: 80vw;
+  }
+
+  >:nth-child(6) {
+    grid-area: liness;
+    max-height: 80vh;
+  }
+
+  >* {
+    border: 1px solid darkolivegreen;
+
+    hr {
+      border: 1px solid darkolivegreen;
+    }
+  }
+}

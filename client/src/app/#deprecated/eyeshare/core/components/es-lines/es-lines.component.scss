@@ -1,0 +1,12 @@
+:host {
+  overflow: hidden;
+  position: relative;
+
+  display: grid;
+  place-items: start center;
+
+  grid-auto-flow: column;
+  row-gap: 0.5em;
+
+  padding: 1em;
+}

@@ -1,0 +1,31 @@
+// @import "ag-grid-community/dist/styles/ag-grid.css";
+// @import "ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
+// @import "ag-grid-community/dist/styles/ag-theme-balham-dark.css";
+
+@import "../node_modules/ag-grid-community/src/styles/ag-grid.scss";
+@import "../node_modules/ag-grid-community/src/styles/ag-theme-alpine-dark/sass/ag-theme-alpine-dark-mixin.scss";
+
+@import "mixins";
+
+.ag-theme-alpine-dark-custom {
+   @include ag-theme-alpine-dark();
+
+   .ag-root {
+      @include scrollbar;
+   }
+
+   .ag-row {
+      .ag-checkbox-input-wrapper {
+         transition: opacity 0.15s linear;
+         opacity: 0.2;
+
+         &:hover {
+            opacity: 1;
+         }
+      }
+
+      .ag-checked {
+         opacity: 1;
+      }
+   }
+}

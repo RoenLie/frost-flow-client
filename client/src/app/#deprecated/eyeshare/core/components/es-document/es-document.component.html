@@ -1,0 +1,9 @@
+<div>
+  <div>Active context: {{this.contextService.value.type.description}}</div>
+  <div>context counter: {{this.contextService.value.count}}</div>
+  <button (click)="countUp()" >+1</button>
+</div>
+<form [formGroup]="documentForm">
+  <es-input formControlName="value"></es-input>
+  <button (click)="submitForm()">Submit</button>
+</form>

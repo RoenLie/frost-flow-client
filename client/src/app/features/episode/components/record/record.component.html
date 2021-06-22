@@ -1,0 +1,22 @@
+<form [formGroup]="formGroup" *ngIf="form">
+   <section>
+      <header>
+         <h1>{{form.formConfig.name}}</h1>
+      </header>
+   </section>
+
+   <section>
+      <fl-input
+         *ngFor="let prop of formGroup.controls | keyvalue | sortByOrder: form.controlConfig"
+         [formControlName]="prop.key"
+         [label]="form?.controlConfig[prop.key].label">
+      </fl-input>
+   </section>
+
+   <section>
+      <!-- <button (click)="save()" [disabled]="!formGroup.valid">Save</button>
+      <button (click)="submit()" [disabled]="!formGroup.valid">Submit</button> -->
+      <button [disabled]="!formGroup.valid">Save</button>
+      <button [disabled]="!formGroup.valid">Submit</button>
+   </section>
+</form>

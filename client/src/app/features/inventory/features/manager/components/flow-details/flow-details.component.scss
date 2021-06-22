@@ -1,0 +1,54 @@
+:host {
+   position: relative;
+
+   height: 100%;
+   padding: 0.5rem;
+
+   background-color: rgba(20, 20, 20, 1);
+
+   display: grid;
+   grid-template-columns: 1fr;
+   grid-template-rows: auto auto 1fr;
+   row-gap: 0.5rem;
+
+   grid-template-areas:
+      "actions"
+      "subflows"
+      "form";
+
+   >:nth-child(1) {
+      grid-area: actions;
+      overflow: hidden;
+      position: relative;
+
+      padding: 0.5rem;
+   }
+
+   >:nth-child(2) {
+      grid-area: subflows;
+      overflow: hidden;
+      position: relative;
+
+      padding: 0.5rem;
+   }
+
+   >:nth-child(3) {
+      grid-area: form;
+      overflow: hidden;
+      position: relative;
+
+      padding: 0.5rem;
+
+      display: grid;
+      grid-template-rows: 1fr;
+      grid-template-columns: 1fr;
+   }
+
+   >* {
+      border: 1px solid darkolivegreen;
+
+      hr {
+         border: 1px solid darkolivegreen;
+      }
+   }
+}

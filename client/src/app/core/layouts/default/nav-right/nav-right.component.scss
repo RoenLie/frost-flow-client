@@ -1,0 +1,13 @@
+:host {
+   position: absolute;
+   z-index: 9;
+   right: 0;
+   bottom: 0;
+   height: var(--view-height);
+
+   background-color: rgba(var(--bg-nav-top-1));
+   border-left: 2px solid rgba(var(--border-nav-top-1));
+
+   min-width: 15em;
+   max-width: 75vw;
+}

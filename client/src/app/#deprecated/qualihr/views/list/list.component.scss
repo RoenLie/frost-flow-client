@@ -1,0 +1,68 @@
+:host {
+  --clamp-width: 10em, 75%, 75em;
+}
+
+hr {
+  width: 100%;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.wrapper {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content:  flex-start;
+  align-items: center;
+
+  height: 100%;
+
+  overflow: hidden;
+  
+  padding: 2em;
+
+  .search, .list {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+  }
+
+  .search {
+    width: clamp(var(--clamp-width));
+  }
+  
+  .list {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+
+    grid-auto-rows: max-content;
+    row-gap: 1em;
+
+    &::-webkit-scrollbar {
+      width: 0.75em;
+      height: 0.75em;
+    }
+  
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.15);
+    }
+  
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .item {
+      width: clamp(var(--clamp-width));
+
+      .panel-actions {
+        justify-content: space-between;
+
+        >div {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+    }
+  }
+}

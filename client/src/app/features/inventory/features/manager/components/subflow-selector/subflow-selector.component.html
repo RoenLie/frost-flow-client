@@ -1,0 +1,8 @@
+<fl-subflow-item *ngFor="let subflow of subflowService.subflows; index as i"
+   (click)="subflowService.select(i)" [ngClass]="{
+      active:subflow?.id == subflowService.activeSubflow.value?.id,
+      complete: subflow.status == 'complete',
+      ongoing: subflow.status == 'ongoing',
+      error: subflow.status == 'error'
+   }" [svgPath]="subflow.iconPath" [svgStyle]="svgStyle">
+</fl-subflow-item>

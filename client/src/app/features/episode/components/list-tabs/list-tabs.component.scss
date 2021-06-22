@@ -1,0 +1,15 @@
+@import "_mixins";
+@include hoverIcon;
+@include tab;
+
+:host {
+   @include scrollbar;
+   display: grid;
+   grid-auto-flow: column dense;
+   grid-auto-columns: min-content;
+
+   padding: 0 0.25rem;
+
+   column-gap: 0.25rem;
+   overflow-x: auto;
+}

@@ -1,0 +1,47 @@
+:host {
+   display: grid;
+   row-gap: 0.5rem;
+   grid-template-rows: 1fr;
+}
+
+form {
+   display: grid;
+   grid-template-areas:
+      "header"
+      "inputs"
+      "actions";
+
+   grid-template-rows: auto 1fr auto;
+   grid-template-columns: 1fr;
+
+   >section:nth-child(1) {
+      grid-area: header;
+
+      display: grid;
+      place-items: center;
+   }
+
+   >section:nth-child(2) {
+      grid-area: inputs;
+      overflow: hidden;
+      position: relative;
+      padding: 0.5rem;
+
+      display: grid;
+      grid-auto-flow: row dense;
+      grid-auto-rows: min-content;
+      row-gap: 0.5rem;
+   }
+
+   >section:nth-child(3) {
+      grid-area: actions;
+      overflow: hidden;
+      position: relative;
+      padding: 0.5rem;
+
+      display: grid;
+      place-items: center flex-end;
+      grid-auto-flow: column dense;
+      grid-auto-rows: min-content;
+   }
+}

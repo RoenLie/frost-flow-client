@@ -1,0 +1,8 @@
+<div class="left-nav">
+   <div *ngFor="let nav of navigation">
+      <svg-icon [src]="nav.svgPath" [svgStyle]="nav.svgStyle"></svg-icon>
+   </div>
+</div>
+<div class="viewport">
+   <ng-content></ng-content>
+</div>

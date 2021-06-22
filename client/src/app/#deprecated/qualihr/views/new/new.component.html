@@ -1,0 +1,51 @@
+<div class="wrapper">
+  <form
+    #formDirective="ngForm"
+    [formGroup]="formGroup"
+    (ngSubmit)="submitSuggestion(formDirective)">
+    
+    <h2>
+      Create a new suggestion for the HR department!
+    </h2>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Category</mat-label>
+      <mat-select
+        formControlName="category"
+        name="category"
+        required>
+        <mat-option
+          *ngFor="let category of categories"
+          [value]="category.value">
+          {{category.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  
+    <mat-form-field appearance="outline">
+      <mat-label>Suggestion title</mat-label>
+      <input
+        matInput name="title"
+        required
+        placeholder="title"
+        autocomplete="_"
+        formControlName="title"
+        />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        required
+        name="description"
+        placeholder="My suggestion..."
+        formControlName="description">
+      </textarea>
+    </mat-form-field>
+
+    <button mat-raised-button type="submit" [disabled]="!formGroup.valid">
+      Submit
+    </button>
+  </form>
+</div>

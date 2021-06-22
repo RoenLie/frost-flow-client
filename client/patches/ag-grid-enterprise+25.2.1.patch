@@ -1,0 +1,27 @@
+diff --git a/node_modules/ag-grid-enterprise/dist/ag-grid-enterprise.cjs.js b/node_modules/ag-grid-enterprise/dist/ag-grid-enterprise.cjs.js
+index 92d4bb5..1355e11 100644
+--- a/node_modules/ag-grid-enterprise/dist/ag-grid-enterprise.cjs.js
++++ b/node_modules/ag-grid-enterprise/dist/ag-grid-enterprise.cjs.js
+@@ -242,14 +242,14 @@ var LicenseManager = /** @class */ (function (_super) {
+         this.watermarkMessage = "Trial Period Expired";
+     };
+     LicenseManager.prototype.outputMissingLicenseKey = function () {
+-        console.error('****************************************************************************************************************');
+-        console.error('***************************************** AG Grid Enterprise License *******************************************');
+-        console.error('****************************************** License Key Not Found ***********************************************');
+-        console.error('* All AG Grid Enterprise features are unlocked.                                                                *');
+-        console.error('* This is an evaluation only version, it is not licensed for development projects intended for production.     *');
+-        console.error('* If you want to hide the watermark, please email info@ag-grid.com for a trial license.                        *');
+-        console.error('****************************************************************************************************************');
+-        console.error('****************************************************************************************************************');
++      //   console.error('****************************************************************************************************************');
++      //   console.error('***************************************** AG Grid Enterprise License *******************************************');
++      //   console.error('****************************************** License Key Not Found ***********************************************');
++      //   console.error('* All AG Grid Enterprise features are unlocked.                                                                *');
++      //   console.error('* This is an evaluation only version, it is not licensed for development projects intended for production.     *');
++      //   console.error('* If you want to hide the watermark, please email info@ag-grid.com for a trial license.                        *');
++      //   console.error('****************************************************************************************************************');
++      //   console.error('****************************************************************************************************************');
+         this.watermarkMessage = "For Trial Use Only";
+     };
+     LicenseManager.prototype.outputIncompatibleVersion = function (formattedExpiryDate, formattedReleaseDate) {

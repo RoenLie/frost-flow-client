@@ -1,0 +1,18 @@
+<div class="layout-wrapper">
+   <app-nav-top></app-nav-top>
+
+   <app-nav-left
+     [@toggleLeft]
+     *ngIf="defaultLayoutService.navigationLeftOpen">
+   </app-nav-left>
+
+   <app-nav-right
+     [@toggleRight]
+     *ngIf="defaultLayoutService
+       .navigationRightOpen">
+   </app-nav-right>
+
+   <div class="main-wrapper" [@routeAnimations]="routeAnimation(outlet)">
+     <router-outlet #outlet="outlet"></router-outlet>
+   </div>
+ </div>

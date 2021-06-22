@@ -1,0 +1,5 @@
+<fl-flow-item *ngFor="let flow of invFlowService.flows; index as i"
+   [ngClass]="{active:flow?.id === invFlowService.activeFlow.value?.id}"
+   (click)="invFlowService.select(i)">
+   {{flow.name}}
+</fl-flow-item>

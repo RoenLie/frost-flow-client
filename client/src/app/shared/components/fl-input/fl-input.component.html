@@ -1,0 +1,8 @@
+<label [for]="id">{{label}}</label>
+<input #input type="text" autocomplete="_"
+   [ngClass]="{'invalid': control?.errors && !control?.pristine, 'disabled': inputDisabled}"
+   [id]="id" [placeholder]="placeholder" [(ngModel)]="value"
+   [disabled]="inputDisabled">
+<span *ngIf="control?.errors && !control?.pristine">
+   {{control?.errors | formControllError}}
+</span>
