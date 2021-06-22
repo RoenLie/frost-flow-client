@@ -1,0 +1,60 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+   "compileOnSave": false,
+   "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "resolveJsonModule": true,
+      "baseUrl": "./",
+      "paths": {
+         "@core/*": [
+            "src/app/core/*"
+         ],
+         "@shared/*": [
+            "src/app/shared/*"
+         ],
+         "@features/*": [
+            "src/app/features/*"
+         ],
+         "@eyeshare/*": [
+            "src/app/deprecated/eyeshare/*"
+         ],
+         "@root/*": [
+            "src/app/deprecated/root/*"
+         ],
+         "@three/*": [
+            "src/app/deprecated/three/*"
+         ],
+         "@/*": [
+            "src/*"
+         ]
+      },
+      "outDir": "./dist/out-tsc",
+      "forceConsistentCasingInFileNames": true,
+      "strict": true,
+      "strictPropertyInitialization": false,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "sourceMap": true,
+      "declaration": false,
+      "downlevelIteration": true,
+      "experimentalDecorators": true,
+      "moduleResolution": "node",
+      "importHelpers": true,
+      "target": "es2015",
+      "module": "esnext",
+      "lib": [
+         "es2019",
+         "es2018",
+         "dom"
+      ]
+   },
+   "angularCompilerOptions": {
+      "enableI18nLegacyMessageIdFormat": false,
+      "strictInjectionParameters": true,
+      "strictInputAccessModifiers": true,
+      "fullTemplateTypeCheck": true,
+      "strictTemplates": true,
+      "enableIvy": true,
+      "allowEmptyCodegenFiles": true
+   }
+}
