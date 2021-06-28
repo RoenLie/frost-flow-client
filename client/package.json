@@ -1,5 +1,5 @@
 {
-   "name": "project-flow",
+   "name": "frost-flow-client",
    "version": "0.0.1",
    "scripts": {
       "ng": "ng",
@@ -29,6 +29,7 @@
       "ag-grid-enterprise": "^25.2.1",
       "angular-svg-icon": "^11.2.0",
       "dat.gui": "^0.7.7",
+      "frostflow-web-components": "latest",
       "rxjs": "~7.0.1",
       "three": "^0.128.0",
       "tslib": "^2.2.0",

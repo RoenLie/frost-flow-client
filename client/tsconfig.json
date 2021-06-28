@@ -4,6 +4,7 @@
    "compilerOptions": {
       "allowSyntheticDefaultImports": true,
       "resolveJsonModule": true,
+      "rootDir": "./",
       "baseUrl": "./",
       "paths": {
          "@core/*": [

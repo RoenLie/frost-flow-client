@@ -1296,6 +1296,11 @@
     merge-source-map "^1.1.0"
     schema-utils "^2.7.0"
 
+"@lit/reactive-element@^1.0.0-rc.2":
+  version "1.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.0.0-rc.2.tgz#f24dba16ea571a08dca70f1783bd2ca5ec8de3ee"
+  integrity sha512-cujeIl5Ei8FC7UHf4/4Q3bRJOtdTe1vpJV/JEBYCggedmQ+2P8A2oz7eE+Vxi6OJ4nc0X+KZxXnBoH4QrEbmEQ==
+
 "@ngneat/hot-toast@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@ngneat/hot-toast/-/hot-toast-2.0.1.tgz#1b3763a0bf63a8cd0f378d54238ba385524d8eb5"
@@ -1508,6 +1513,11 @@
   version "0.128.0"
   resolved "https://registry.yarnpkg.com/@types/three/-/three-0.128.0.tgz#e5ce4c42d138a64dd90e83dbdb9919cf0d424d8e"
   integrity sha512-Jwq5XYUkzAcPTo34hlGAQGUyAI0b2F3aCCFWG/v7ZhJBEG5HGcusMSr70GhDlT8Gs0f02QnSPZ2RCA1MrCOa/w==
+
+"@types/trusted-types@^1.0.1":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@types/trusted-types/-/trusted-types-1.0.6.tgz#569b8a08121d3203398290d602d84d73c8dcf5da"
+  integrity sha512-230RC8sFeHoT6sSUlRO6a8cAnclO06eeiq1QDfiv2FGCLWFvvERWgwIQD4FWqD9A69BN7Lzee4OXwoMVnnsWDw==
 
 "@types/webpack-sources@^0.1.5":
   version "0.1.8"
@@ -3815,6 +3825,13 @@ fresh@0.5.2:
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
 
+frostflow-web-components@latest:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/frostflow-web-components/-/frostflow-web-components-0.0.1.tgz#0126397b0df03782410a96d3fdaad45aaea59747"
+  integrity sha512-LYOHy8IyndwDHfBuJvsZnTAoXMC7qRKmUera+S8PpCsi3NjLzk3Nx8g6AqbtC5rZSlsrEN8flht3QHDco2/aiw==
+  dependencies:
+    lit "^2.0.0-rc.2"
+
 fs-extra@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
@@ -5099,6 +5116,30 @@ lines-and-columns@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
+
+lit-element@^3.0.0-rc.2:
+  version "3.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-3.0.0-rc.2.tgz#883d0b6fd7b846226d360699d1b713da5fc7e1b7"
+  integrity sha512-2Z7DabJ3b5K+p5073vFjMODoaWqy5PIaI4y6ADKm+fCGc8OnX9fU9dMoUEBZjFpd/bEFR9PBp050tUtBnT9XTQ==
+  dependencies:
+    "@lit/reactive-element" "^1.0.0-rc.2"
+    lit-html "^2.0.0-rc.3"
+
+lit-html@^2.0.0-rc.3:
+  version "2.0.0-rc.3"
+  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-2.0.0-rc.3.tgz#1c216e548630e18d3093d97f4e29563abce659af"
+  integrity sha512-Y6P8LlAyQuqvzq6l/Nc4z5/P5M/rVLYKQIRxcNwSuGajK0g4kbcBFQqZmgvqKG+ak+dHZjfm2HUw9TF5N/pkCw==
+  dependencies:
+    "@types/trusted-types" "^1.0.1"
+
+lit@^2.0.0-rc.2:
+  version "2.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/lit/-/lit-2.0.0-rc.2.tgz#724a2d621aa098001d73bf7106f3a72b7b5948ef"
+  integrity sha512-BOCuoJR04WaTV8UqTKk09cNcQA10Aq2LCcBOiHuF7TzWH5RNDsbCBP5QM9sLBSotGTXbDug/gFO08jq6TbyEtw==
+  dependencies:
+    "@lit/reactive-element" "^1.0.0-rc.2"
+    lit-element "^3.0.0-rc.2"
+    lit-html "^2.0.0-rc.3"
 
 loader-runner@^4.2.0:
   version "4.2.0"

@@ -3,7 +3,7 @@
    "version": 1,
    "newProjectRoot": "projects",
    "projects": {
-      "project-flow": {
+      "frost-flow-client": {
          "projectType": "application",
          "schematics": {
             "@schematics/angular:component": {
@@ -21,7 +21,7 @@
             "build": {
                "builder": "@angular-devkit/build-angular:browser",
                "options": {
-                  "outputPath": "dist/project-flow",
+                  "outputPath": "dist/frost-flow-client",
                   "index": "src/index.html",
                   "main": "src/main.ts",
                   "polyfills": "src/polyfills.ts",
@@ -85,10 +85,10 @@
                "options": {},
                "configurations": {
                   "production": {
-                     "browserTarget": "project-flow:build:production"
+                     "browserTarget": "frost-flow-client:build:production"
                   },
                   "development": {
-                     "browserTarget": "project-flow:build:development"
+                     "browserTarget": "frost-flow-client:build:development"
                   }
                },
                "defaultConfiguration": "development"
@@ -96,7 +96,7 @@
             "extract-i18n": {
                "builder": "@angular-devkit/build-angular:extract-i18n",
                "options": {
-                  "browserTarget": "project-flow:build"
+                  "browserTarget": "frost-flow-client:build"
                }
             },
             "test": {
@@ -137,10 +137,10 @@
                },
                "configurations": {
                   "production": {
-                     "devServerTarget": "project-flow:serve:production"
+                     "devServerTarget": "frost-flow-client:serve:production"
                   },
                   "development": {
-                     "devServerTarget": "project-flow:serve:development"
+                     "devServerTarget": "frost-flow-client:serve:development"
                   }
                },
                "defaultConfiguration": "development"
@@ -152,5 +152,5 @@
          }
       }
    },
-   "defaultProject": "project-flow"
+   "defaultProject": "frost-flow-client"
 }
