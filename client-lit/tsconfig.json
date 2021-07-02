@@ -16,10 +16,12 @@
       "outDir": "out-tsc",
       "sourceMap": true,
       "inlineSources": true,
-      "rootDir": "./",
-      "incremental": true
+      "rootDir": "./"
    },
    "include": [
-      "**/*.ts"
+      "**/*.d.ts",
+      "**/*.ts",
+      "web-dev-server.config.mjs",
+      "**/*.js",
    ]
 }

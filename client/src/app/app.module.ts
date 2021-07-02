@@ -11,7 +11,6 @@ import { AuthService } from "@core/services/auth.service";
 import { AppComponent } from "@/app/app.component";
 import { AppRoutingModule } from "@/app/app-routing.module";
 
-
 @NgModule( {
    declarations: [
       AppComponent,

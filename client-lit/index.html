@@ -13,19 +13,17 @@
       body {
          margin: 0;
          padding: 0;
+         box-sizing: border-box;
          font-family: sans-serif;
          background-color: #ededed;
       }
    </style>
    <title>frost-flow-client</title>
-   <script
-      src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-   <script src="../node_modules/lit/polyfill-support.js"></script>
-   <script type="module" src="./out-tsc/src/FrostFlowClient.js"></script>
 </head>
 
 <body>
-   <frost-flow-client></frost-flow-client>
+   <div id="outlet"></div>
+   <script type="module" src="./out-tsc/src/index.js"></script>
 </body>
 
 </html>
