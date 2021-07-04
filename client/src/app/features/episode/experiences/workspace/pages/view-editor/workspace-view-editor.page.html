@@ -1,0 +1,25 @@
+<epi-side-nav>
+   <div class="content">
+      <div class="view-selector-container">
+         <div>
+            <label for="tables">Table selector</label>
+            <select name="tables" id="tables">
+               <option *ngFor="let table of viewEditorService.tables"
+                  [value]="table">
+                  {{table}}
+               </option>
+            </select>
+         </div>
+         <div>
+            <div *ngFor="let view of viewEditorService.views; let i = index"
+               [ngClass]="{'active': viewEditorService.activeView.getValue() == view}"
+               (click)="viewEditorService.setActiveView(i)">
+               {{view.name}}
+            </div>
+         </div>
+      </div>
+      <div class="view-designer-container">
+         designer goes here
+      </div>
+   </div>
+</epi-side-nav>

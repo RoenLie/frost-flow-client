@@ -1,0 +1,30 @@
+:host {
+   display: grid;
+}
+
+.content {
+   display: grid;
+
+   grid-template-columns: auto 1fr;
+   grid-template-rows: auto 1fr;
+   grid-template-areas:
+      "list-tabs-home list-tabs"
+      "record record";
+
+   epi-list-tabs-home {
+      grid-area: list-tabs-home;
+   }
+
+   epi-list-tabs {
+      grid-area: list-tabs;
+   }
+
+   epi-record {
+      grid-area: record;
+   }
+
+   >* {
+      border: 1px solid;
+      border-color: rgba(150, 150, 150, 0.5);
+   }
+}

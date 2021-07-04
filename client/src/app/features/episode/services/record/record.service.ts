@@ -1,6 +1,8 @@
+import { environment } from "@/environments/environment";
 import { Injectable } from '@angular/core';
-import { AbstractControlOptions, FormGroup, ValidatorFn, Validators } from "@angular/forms";
+import { ValidatorFn } from "@angular/forms";
 import { asyncRes } from "@shared/utilities/asyncRes";
+import { type } from "@shared/utilities/type";
 import { BehaviorSubject } from "rxjs";
 import { pairwise } from "rxjs/operators";
 
@@ -19,16 +21,32 @@ export class RecordService {
    constructor () {
       this.#tableAndId.pipe( pairwise() ).subscribe( async ( [ prev, cur ] ) => {
          if ( !cur.id || !cur.table || prev.id === cur.id ) return;
-         this.data = await this.getRecordData( cur.table, cur.id );
-      } );
+         this.data = ( await this.getRecordData( cur.table, cur.id ) ).data[ 0 ];
 
-      this.form.next( formCombined );
+         const form = formCombined;
+         form.data = this.data;
+
+         for ( const key in form.groupConfig ) {
+            if ( !form.data[ key ] ) continue;
+
+            if ( type( form.groupConfig[ key ][ 0 ] ) == "Object" ) {
+               form.groupConfig[ key ][ 0 ] = {
+                  ...form.groupConfig[ key ][ 0 ],
+                  value: form.data[ key ]
+               };
+            } else {
+               form.groupConfig[ key ][ 0 ] = form.data[ key ];
+            }
+         }
+
+         this.form.next( form );
+      } );
    }
 
    async getRecordData( table: string, id: string ) {
       if ( !table || !id ) return;
 
-      const url: RequestInfo = `http://localhost:8025/postgres/get/${ table }/${ id }`;
+      const url: RequestInfo = `${ environment.serverIp }/postgres/get/${ table }/${ id }`;
       const request: RequestInit = {
          method: "get",
          headers: { "Content-Type": "application/json; charset=utf-8" }

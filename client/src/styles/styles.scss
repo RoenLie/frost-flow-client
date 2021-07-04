@@ -18,6 +18,14 @@
    --nav-top-height: 4em;
 
    --view-height: calc(100vh - var(--nav-top-height) - 1px);
+
+   --base-border-weak: 1px solid rgba(150, 150, 150, 0.5);
+   --base-border-medium: 2px solid rgba(150, 150, 150, 0.75);
+   --base-border-strong: 2px solid rgba(150, 150, 150, 1);
+
+   --highlight-weak: rgba(150, 150, 150, 0.5);
+   --highlight-medium: rgba(150, 150, 150, 0.75);
+   --highlight-strong: rgba(150, 150, 150, 1);
 }
 
 *,

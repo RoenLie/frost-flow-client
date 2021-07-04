@@ -1,6 +1,7 @@
 <div class="left-nav">
-   <div *ngFor="let nav of navigation">
-      <svg-icon [src]="nav.svgPath" [svgStyle]="nav.svgStyle"></svg-icon>
+   <div *ngFor="let nav of navigation let i = index">
+      <svg-icon [src]="nav.svgPath" [svgStyle]="nav.svgStyle"
+         (click)="navigateToRoute(nav, i)"></svg-icon>
    </div>
 </div>
 <div class="viewport">

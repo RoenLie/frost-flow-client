@@ -22,14 +22,22 @@ import { WorkspaceRecordPage } from "@features/episode/experiences/workspace/pag
 import { RecordComponent } from "@features/episode/components/record/record.component";
 import { FlInputModule } from "@shared/components/fl-input/fl-input.module";
 import { SortByOrderPipe } from "@shared/pipes/sortby-order.pipe";
+import { WorkspaceViewEditorPage } from "@features/episode/experiences/workspace/pages/view-editor/workspace-view-editor.page";
+import { WorkspaceDashboardPage } from "@features/episode/experiences/workspace/pages/dashboard/workspace-dashboard.page";
 
 
 const routes: Routes = [
+   {
+      path: "dashboard", component: WorkspaceDashboardPage
+   },
    {
       path: "list", component: WorkspaceListPage
    },
    {
       path: "record", component: WorkspaceRecordPage
+   },
+   {
+      path: "view_editor", component: WorkspaceViewEditorPage
    },
    {
       path: "**", redirectTo: "list",
@@ -51,8 +59,10 @@ const routes: Routes = [
    declarations: [
       ListSelectorComponent,
       SplitContainerComponent,
+      WorkspaceDashboardPage,
       WorkspaceListPage,
       WorkspaceRecordPage,
+      WorkspaceViewEditorPage,
       ListTabsComponent,
       ListTabsHomeComponent,
       RecordTabsComponent,

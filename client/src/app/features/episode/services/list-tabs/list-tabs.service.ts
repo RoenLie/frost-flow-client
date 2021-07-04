@@ -77,8 +77,9 @@ export class ListTabsService {
       arr.splice( tabIndex, 1 );
       this.tabs.next( arr );
 
+
       // if there is no active value, go home.
-      if ( !this.activeTab.value ) {
+      if ( !this.activeTab.value || !this.tabs.value.length ) {
          this.goHome();
          return;
       }

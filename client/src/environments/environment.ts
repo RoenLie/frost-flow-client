@@ -4,6 +4,7 @@
 
 export const environment = {
    production: false,
+   serverIp: "//localhost:8025",
    firebaseConfig: {
       apiKey: "",
       authDomain: "",

@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { environment } from "@/environments/environment";
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { OpenRecordRenderer } from "@features/episode/ag-grid-components/cell-renderers/list-open-record/list-open-record";
 import { ActionHeader } from "@features/episode/ag-grid-components/header-components/list-action-header";
@@ -125,7 +125,8 @@ export class BigListComponent implements OnInit, AfterViewInit {
    }
 
    async getRowsAsync( params: any ) {
-      const url: RequestInfo = "http://localhost:8025/postgres/olympic_winners";
+      // const url: RequestInfo = "http://localhost:8025/postgres/olympic_winners";
+      const url: RequestInfo = `${ environment.serverIp }/postgres/olympic_winners`;
       const request: RequestInit = {
          method: "post",
          body: JSON.stringify( params.request ),
@@ -150,7 +151,7 @@ export class BigListComponent implements OnInit, AfterViewInit {
    }
 
    async getSetFilter( params: any ) {
-      const url: RequestInfo = "http://localhost:8025/postgres/getsetfilter";
+      const url: RequestInfo = `${ environment.serverIp }/postgres/getsetfilter`;
       const request: RequestInit = {
          method: "post",
          body: JSON.stringify( params.colDef ),
