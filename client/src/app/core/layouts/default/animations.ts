@@ -63,12 +63,12 @@ export const bounce = trigger( 'routeAnimations', [
 
 export const toggleLeft = trigger( 'toggleLeft', [
    transition( ':enter', [
-      style( { left: "-25%", opacity: 0.5 } ),
-      animate( '0.25s linear', style( { left: "!", opacity: "!" } ) )
+      style( { transform: "translateX(-100%)", opacity: 0.5 } ),
+      animate( '0.25s linear', style( { transform: "!", opacity: "!" } ) )
    ]
    ),
    transition( ':leave', [
-      animate( '0.25s linear', style( { left: "-25%", opacity: 0.5 } ) )
+      animate( '0.25s linear', style( { transform: "translateX(-100%)", opacity: 0.5 } ) )
    ]
    )
 ] );

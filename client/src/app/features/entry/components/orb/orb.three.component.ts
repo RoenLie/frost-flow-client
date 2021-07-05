@@ -129,7 +129,7 @@ export class OrbThreeComponent implements AfterViewInit, OnDestroy {
    initObjects() {
       console.time( "initObjects" );
       const vertices = [];
-      const spriteCount = 900;
+      const spriteCount = 300;
       for ( let i = 0; i < spriteCount; i++ ) {
          const x = Math.random() * 60 - 30;
          const y = Math.random() * 60 - 30;
@@ -184,7 +184,7 @@ export class OrbThreeComponent implements AfterViewInit, OnDestroy {
          audio1: { type: "f", value: 0.0 },
          adj: { type: "f", value: 0.0 },
          orbOpacity: { type: "f", value: 1.0 },
-         intensity: { type: "f", value: 1.0 },
+         intensity: { type: "f", value: 2.0 },
          iChannel0: { type: 't', value: this.textures[ 'tex1' ] }
       };
       this.backgroundUniforms.iResolution.value.x = this.hostRect.width;
@@ -205,7 +205,7 @@ export class OrbThreeComponent implements AfterViewInit, OnDestroy {
 
       const geometry = new PlaneGeometry( 1, 1 );
       this.backgroundPlane = new THREE.Mesh( geometry, material );
-      this.backgroundPlane.scale.set( 110 * aspect, 110, 1 );
+      this.backgroundPlane.scale.set( 100 * aspect, 100, 1 );
 
       this.scene.add( this.backgroundPlane );
    }
@@ -300,7 +300,6 @@ export class OrbThreeComponent implements AfterViewInit, OnDestroy {
       this.camera.aspect = width / height;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize( width, height );
-      this.backgroundPlane.scale.set( 110 * this.camera.aspect, 110, 1 );
       this.backgroundUniforms.iResolution.value.x = width;
       this.backgroundUniforms.iResolution.value.y = height;
       this.backgroundUniforms.adj.value = .2 - this.hostRect.height / this.hostRect.width;

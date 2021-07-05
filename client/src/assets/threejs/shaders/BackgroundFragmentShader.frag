@@ -53,7 +53,7 @@ float spiral(vec2 p,float scl)
   float r = length(p);
   r = log(r);
   float a = atan(p.y, p.y);
-  return abs(mod(scl*(r-2./scl*a),tau)-1.)*1.;
+  return abs(mod(scl*(r-2./scl*a),tau)-1.)*1.4;
 }
 
 
@@ -62,7 +62,7 @@ float Sin01(float t) {
 }
 
 float SineEggCarton(vec3 p) {
-    return .1 + abs(sin(p.x) - cos(p.y) + sin(p.z)) * 1.2* orbOpacity;
+    return .1 + abs(sin(p.x) - cos(p.y) + sin(p.z)) * 1.1 * orbOpacity;
 }
 
 float Map(vec3 p, float scale) {
@@ -96,7 +96,7 @@ void main() {
 
   vec3 rd = normalize(vec3(2.0 * coord - iResolution.xy, -iResolution.y));
 
-    vec3 ro = vec3(-iMouse.x*.0002, iMouse.y*.0002 , -1.4*(1.0-orbOpacity) -.5 +mix(2.5, 2.0, adj + Sin01( (0.05 ) * iTime))) ;
+    vec3 ro = vec3(-iMouse.x*.0002, iMouse.y*.0002 , -1.4*(0.8-orbOpacity) -.5 +mix(2.5, 2.0, adj + Sin01( (0.05 ) * iTime))) ;
     R(rd.xz, 0.2 * iTime);
     R(ro.xz, 0.2 * iTime);
     R(rd.yz, 0.1 * iTime);
