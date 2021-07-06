@@ -1,59 +1,47 @@
-import React, { useState } from 'react';
-import './App.scss';
-import {
-   BrowserRouter as Router,
-   Switch,
-   Route,
-} from "react-router-dom";
+import React, { Suspense } from 'react';
+import { Switch, Route, BrowserRouter, Link } from "react-router-dom";
 import Layout, { layoutService } from "./features/layout/layout";
-
+import { routes } from "./routes";
 
 
 export default function App() {
    return (
-      <Router>
-         <Layout>
-            {/* A <Switch> looks through its children <Route>s and
-               renders the first one that matches the current URL. */}
+      <BrowserRouter>
+         <Suspense fallback={ <div>Loading...</div> }>
             <Switch>
-               <Route path="/home">
-                  <Home />
-               </Route>
-               <Route path="/about">
-                  <About />
-               </Route>
-               <Route path="/users">
-                  <Users />
-               </Route>
-               <Route path="/">
-                  <Home />
-               </Route>
+               { routes.map( ( route, i ) => (
+                  <LayoutRouteWithSubRoutes key={ i } { ...route } />
+               ) ) }
             </Switch>
-         </Layout>
-      </Router>
+         </Suspense>
+      </BrowserRouter>
    );
 }
 
-
-function Home() {
-   return <h2>Home</h2>;
+// A special wrapper for <Route> that knows how to
+// handle "sub"-routes by passing them in a `routes`
+// prop to the component it renders.
+export function RouteWithSubRoutes( route: any ) {
+   return (
+      <Route
+         path={ route.path }
+         render={ props => (
+            // pass the sub-routes down to keep nesting
+            <route.component { ...props } routes={ route.routes } />
+         ) }
+      />
+   );
 }
 
-function About() {
-   const AdminLayout = React.lazy( () => import( './features/layout/admin/admin.layout' ) );
-
-   const changeToAdminLayout = () => {
-      layoutService.setComponent( AdminLayout );
-   };
+const LayoutRouteWithSubRoutes = ( route: any ) => {
+   layoutService.setLayout[ route.layout || 'default' ]();
 
    return (
-      <>
-         <h2>About</h2>
-         <button onClick={ changeToAdminLayout }>Change to Admin Layout</button>
-      </>
+      <Layout>
+         <Route
+            path={ route.path }
+            render={ props => ( <route.component { ...props } routes={ route.routes } /> ) }
+         />
+      </Layout>
    );
-}
-
-function Users() {
-   return <h2>Users</h2>;
-}
+};

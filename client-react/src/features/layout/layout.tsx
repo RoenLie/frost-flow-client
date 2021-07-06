@@ -1,57 +1,41 @@
-import React, { Suspense, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { Suspense } from 'react';
 
-
-const DefaultLayout = React.lazy( () => import( './default/default.layout' ) );
-const AdminLayout = React.lazy( () => import( './admin/admin.layout' ) );
-
-
-class LayoutService {
-   readonly component: any = DefaultLayout;
-   setComponent: Function = () => { };
+export interface RootLayouts {
+   [ key: string ]: Function;
+   default: Function;
+   admin: Function;
 }
-export const layoutService = new LayoutService();
 
-export default ( { children }: any ) => {
 
-   const [ layoutComponent, setLayoutComponent ] = useState( layoutService.component );
-   layoutService.setComponent = setLayoutComponent;
-
-   const history = useHistory();
-
-   const navigate = ( path: string, layoutComponent?: any ) => {
-
-      history.push( {
-         pathname: path,
-         state: {
-            component: 'your tag value'
-         }
-      } );
-
-      if ( layoutComponent )
-         layoutService.setComponent( layoutComponent );
+class RootLayoutService {
+   layouts: RootLayouts = {
+      default: React.lazy( () => import( './default/default.layout' ) ),
+      admin: React.lazy( () => import( './admin/admin.layout' ) )
    };
 
+   layout: any = this.layouts.default;
+
+   public get setLayout() {
+      const layoutGenerators: RootLayouts = Object
+         .keys( this.layouts )
+         .reduce( ( prev: any, cur: string ) => {
+            prev[ cur ] = () => this.layout = this.layouts[ cur ] || this.layouts.default;
+            return prev;
+         }, {} );
+
+      return layoutGenerators;
+   }
+}
+
+
+export const layoutService = new RootLayoutService();
+
+
+export default ( { children }: any ) => {
    return (
       <>
-         <div>
-            <header>Hei</header>
-            <nav>
-               <ul>
-                  <li>
-                     <div onClick={ () => navigate( '/', DefaultLayout ) }>HOME</div>
-                  </li>
-                  <li>
-                     <div onClick={ () => navigate( '/about' ) }>ABOUT</div>
-                  </li>
-                  <li>
-                     <div onClick={ () => navigate( '/users', AdminLayout ) }>USERS</div>
-                  </li>
-               </ul>
-            </nav>
-         </div>
-         <Suspense fallback={ <div>Loading...</div> }>
-            { React.createElement( layoutComponent, {}, children ) }
+         <Suspense fallback={ <div>Loading layout...</div> }>
+            { React.createElement( layoutService.layout, {}, children ) }
          </Suspense>
       </>
    );
