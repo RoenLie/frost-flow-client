@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Switch } from "react-router-dom";
-import { RouteWithSubRoutes } from "../App";
+import { RouteWithSubRoutes } from "core";
 
 
 export default ( { routes }: any ) => {
@@ -9,6 +9,9 @@ export default ( { routes }: any ) => {
       <div>
          <h2>About</h2>
          <ul>
+            <li>
+               <Link to="/home">HOME</Link>
+            </li>
             <li>
                <Link to="/about/cv">CV</Link>
             </li>

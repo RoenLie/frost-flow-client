@@ -1,10 +1,13 @@
 import React from 'react';
-import './admin.layout.scss';
+import styles from './styles.module.css';
+
 
 export default ( { children }: any ) => {
    return (
       <>
-         <section className="header">Admin layout</section>
+         <section className={ styles.header }>
+            <div className={ styles.test }>ADMIN LAYOUT</div>
+         </section>
          <div>
             { children }
          </div>

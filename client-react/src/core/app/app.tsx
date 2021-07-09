@@ -1,10 +1,10 @@
-import React, { Suspense } from 'react';
-import { Switch, Route, BrowserRouter, Link } from "react-router-dom";
-import Layout, { layoutService } from "./features/layout/layout";
-import { routes } from "./routes";
+import React, { Suspense, useMemo } from 'react';
+import { Switch, Route, BrowserRouter } from "react-router-dom";
+import { routes } from "routes";
+import { Layout, layoutService } from "features";
 
 
-export default function App() {
+export const App = () => {
    return (
       <BrowserRouter>
          <Suspense fallback={ <div>Loading...</div> }>
@@ -16,25 +16,28 @@ export default function App() {
          </Suspense>
       </BrowserRouter>
    );
-}
+};
 
 // A special wrapper for <Route> that knows how to
 // handle "sub"-routes by passing them in a `routes`
 // prop to the component it renders.
-export function RouteWithSubRoutes( route: any ) {
-   return (
-      <Route
-         path={ route.path }
-         render={ props => (
-            // pass the sub-routes down to keep nesting
-            <route.component { ...props } routes={ route.routes } />
-         ) }
-      />
-   );
-}
+export const RouteWithSubRoutes = ( route: any ) => (
+   <Route
+      path={ route.path }
+      render={ props => (
+         // pass the sub-routes down to keep nesting
+         <route.component { ...props } routes={ route.routes } />
+      ) }
+   />
+);
 
 const LayoutRouteWithSubRoutes = ( route: any ) => {
-   layoutService.setLayout[ route.layout || 'default' ]();
+
+   useMemo( () => {
+      layoutService.setLayout[ route.layout || 'default' ]();
+      console.log( "layout changed" );
+   }, [ route.layout ] );
+
 
    return (
       <Layout>

@@ -1,0 +1,8 @@
+.header {
+   background-color: coral;
+
+   & .test {
+      background-color: black;
+      color: white;
+   }
+}

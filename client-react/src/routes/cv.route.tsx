@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-export default function CV() {
+export default () => {
    console.log( "cv component was found" );
 
    return (

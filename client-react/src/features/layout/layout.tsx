@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 
+
 export interface RootLayouts {
    [ key: string ]: Function;
    default: Function;
@@ -31,7 +32,7 @@ class RootLayoutService {
 export const layoutService = new RootLayoutService();
 
 
-export default ( { children }: any ) => {
+export const Layout = ( { children }: any ) => {
    return (
       <>
          <Suspense fallback={ <div>Loading layout...</div> }>

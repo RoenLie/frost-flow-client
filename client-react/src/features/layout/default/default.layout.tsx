@@ -1,13 +1,14 @@
 import React from 'react';
-import './default.layout.scss';
+import styles from './styles.module.css';
+
 
 export default ( { children }: any ) => {
    return (
-      <>
-         <section className="header">Default layout</section>
-         <div>
+      <div className={ styles.main }>
+         <section className={ styles.header }>Default layout</section>
+         <div className={ styles.content }>
             { children }
          </div>
-      </>
+      </div>
    );
 };
