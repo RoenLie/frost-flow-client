@@ -1,2 +1,2 @@
-export * from './toast';
-export * from './toast-portal';
+export * from './toast/toast.comp';
+export * from './toast-portal/toast-portal.comp';

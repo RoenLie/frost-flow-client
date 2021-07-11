@@ -15,7 +15,7 @@ interface ISvgIconProps {
 }
 
 class SvgIconService {
-   svgs: any;
+   svgs: { [ key: string ]: any; } = {};
    add = ( name: string, svg: any ) => this.svgs[ name ] = svg;
 }
 export const svgIconService = new SvgIconService();
@@ -25,13 +25,14 @@ export const SvgIcon = ( { size, width, svgName }: ISvgIconProps ) => {
 
    const iconSize = {
       small: '1rem',
-      medium: '2rem',
+      medium: '1.5rem',
       large: '3rem',
-      xlarge: '4rem'
+      xlarge: '5rem'
    };
 
    const iconStyle = {
-      width: size ? iconSize[ size ] : width ? width : iconSize[ 'medium' ]
+      width: size ? iconSize[ size ] : width ? width : iconSize[ 'medium' ],
+      height: size ? iconSize[ size ] : width ? width : iconSize[ 'medium' ]
    };
 
    return (

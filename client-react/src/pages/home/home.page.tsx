@@ -3,7 +3,7 @@ import { SvgIcon } from "core";
 import { Link } from "react-router-dom";
 
 
-export default () => {
+export const HomePage = () => {
    return <>
       <h2>Home</h2>
       <Link to="/about">

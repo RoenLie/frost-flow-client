@@ -28,14 +28,5 @@
       "vite": "^2.4.0",
       "vite-plugin-react-svg": "^0.2.0",
       "vite-tsconfig-paths": "^3.3.13"
-   },
-   "eslintConfig_maybe": {
-      "plugins": [
-         "react-hooks"
-      ],
-      "rules": {
-         "react-hooks/rules-of-hooks": "error",
-         "react-hooks/exhaustive-deps": "warn"
-      }
    }
 }

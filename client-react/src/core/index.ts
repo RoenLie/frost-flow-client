@@ -1,2 +1,2 @@
-export * from './app';
-export * from './svg';
+export * from './app/app';
+export * from './svg/svg';
