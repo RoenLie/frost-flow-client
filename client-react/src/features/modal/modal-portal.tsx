@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import ReactDOM from "react-dom";
+import { createPortal } from "react-dom";
 import { useModalPortal } from "hooks/useModalPortal";
 import { uuid } from "shared";
 import styles from './styles.module.css';
@@ -25,23 +25,20 @@ const ModalPortal = ( { ...props }, ref: any ) => {
       },
    } ) );
 
-   return loaded
-      ? (
-         ReactDOM.createPortal(
-            modals.length
-               ? <div className={ styles.modalContainer }>
-                  {
-                     modals.map( ( { component: Component, id }, i: number ) => (
-                        <ModalWrapper key={ i } onClose={ () => removeModal( id ) }>
-                           <Component className={ styles.modalComponent }></Component>
-                        </ModalWrapper>
-                     ) )
-                  }
-               </div>
-               : <></>,
-            document.getElementById( portalId ) as Element
-         )
-      ) : <></>;
+   return loaded ? ( createPortal(
+      modals.length
+         ? <div className={ styles.modalContainer }>
+            { modals.map( ( { component: Component, id }, i: number ) => (
+               <ModalWrapper key={ i } onClose={ () => removeModal( id ) }
+                  component={ Component }>
+               </ModalWrapper>
+            ) ) }
+         </div>
+         : <></>,
+
+      document.getElementById( portalId ) as Element
+   )
+   ) : <></>;
 };
 
 

@@ -1,5 +1,7 @@
 import React from 'react';
 
-export const Modal = () => {
-   return <div>MODAL</div>;
+export const Modal = ( { onClose }: any ) => {
+   return (
+      <div onClick={ onClose }>MODAL</div>
+   );
 };

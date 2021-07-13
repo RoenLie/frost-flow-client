@@ -24,6 +24,8 @@ body {
    --red-deep-1: rgba(81, 35, 35, 1);
 
    --border-radius-1: 0.2rem;
+   --border-radius-2: 0.4rem;
+   --border-radius-3: 0.6rem;
 
    --scrollbar-height-1: 0.75rem;
    --scrollbar-width-1: 0.75rem;

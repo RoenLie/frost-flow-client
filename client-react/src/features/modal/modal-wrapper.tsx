@@ -1,22 +1,46 @@
+import React, { createContext, createRef, useEffect, useMemo, useState } from "react";
 import { SvgIcon } from "core";
-import React, { createRef, useEffect, useMemo, useState } from "react";
 import styles from './styles.module.css';
 
 
-export const ModalWrapper = ( { onClose, children }: any ) => {
+export const ModalWrapperContext = createContext( { onClose: () => { } } );
+export const ModalWrapper = ( { onClose, component: Modal }: any ) => {
    const [ position, setPosition ] = useState( [ 0, 0 ] );
    const [ dynamicPos, setDynamicPos ] = useState( [ 0, 0 ] );
+   const [ visible, setVisible ] = useState( false );
    const wrapperRef = createRef<HTMLDivElement>();
    const cursorOffset = [ 0, 0 ];
 
-
+   // onLoad hook
    useEffect( () => {
       const rects = wrapperRef.current?.getBoundingClientRect();
       if ( !rects ) return;
-      if ( rects.x == position[ 0 ] && rects.y == position[ 1 ] ) return;
 
-      setPosition( [ rects.x, rects.y ] );
+      const center = [ window.innerWidth / 2, window.innerHeight / 2 ];
+
+      const modCenter = [
+         center[ 0 ] - rects.width / 2,
+         center[ 1 ] - rects.height / 2
+      ];
+
+      setVisible( true );
+      setPosition( modCenter );
    }, [] );
+
+   // onDestroy hook
+   useEffect( () => () => { events.unsubscribe(); }, [] );
+
+   const style = useMemo( () => {
+      if ( !dynamicPos[ 0 ] && !dynamicPos[ 1 ] ) {
+         const styleObj: any = { left: `${ position[ 0 ] }px`, top: `${ position[ 1 ] }px` };
+         if ( !visible ) styleObj.opacity = 0;
+         return styleObj;
+      }
+
+      return { transform: `translate(${ dynamicPos[ 0 ] }px, ${ dynamicPos[ 1 ] }px)` };
+   },
+      [ dynamicPos, position ]
+   );
 
    const events: any = {
       element: undefined as any,
@@ -69,33 +93,21 @@ export const ModalWrapper = ( { onClose, children }: any ) => {
       }
    };
 
-   const style = useMemo(
-      () => {
-         if ( !dynamicPos[ 0 ] && !dynamicPos[ 1 ] ) {
-            return { left: `${ position[ 0 ] }px`, top: `${ position[ 1 ] }px` };
-         } else {
-            return { transform: `translate(${ dynamicPos[ 0 ] }px, ${ dynamicPos[ 1 ] }px)` };
-         }
-      },
-      [ dynamicPos, position ]
-   );
-
-   // onDestroy hook
-   useEffect( () => () => { events.unsubscribe(); }, [] );
-
    return (
       <div ref={ wrapperRef }
          className={ styles.modalWrapper }
-         style={ style }
-         onMouseDown={ events.mousedown }>
-         <section>
+         style={ style }>
+         <section onMouseDown={ events.mousedown } className={ styles.header }>
             <div onClick={ onClose }>
-               <SvgIcon svgName="times_solid"></SvgIcon>
+               <SvgIcon svgName="times_solid" size="small"></SvgIcon>
             </div>
          </section>
-         <section>
-            { children }
+         <section className={ styles.content }>
+            <Modal onClose={ onClose }></Modal>
          </section>
       </div>
    );
 };
+
+
+
