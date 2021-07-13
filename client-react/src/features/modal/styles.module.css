@@ -1,9 +1,13 @@
 .modalContainer {
    width: 100vw;
    height: 100vh;
+}
 
-   display: grid;
-   place-items: center;
+.modalWrapper {
+   position: fixed;
+   height: 10rem;
+   width: 10rem;
+   background-color: pink;
 }
 
 .modalComponent {

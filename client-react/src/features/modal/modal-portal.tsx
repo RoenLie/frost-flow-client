@@ -1,8 +1,9 @@
-import { useModalPortal } from "hooks/useModalPortal";
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import ReactDOM from "react-dom";
+import { useModalPortal } from "hooks/useModalPortal";
 import { uuid } from "shared";
 import styles from './styles.module.css';
+import { ModalWrapper } from "features/modal/modal-wrapper";
 
 
 export interface IModalPortal {
@@ -20,7 +21,7 @@ const ModalPortal = ( { ...props }, ref: any ) => {
 
    useImperativeHandle( ref, () => ( {
       addModal( modal: any ) {
-         setModals( [ ...modals, modal ] );
+         setModals( [ ...modals, { component: modal, id: uuid() } ] );
       },
    } ) );
 
@@ -30,8 +31,10 @@ const ModalPortal = ( { ...props }, ref: any ) => {
             modals.length
                ? <div className={ styles.modalContainer }>
                   {
-                     modals.map( ( M: any, i: number ) => (
-                        <M key={ i } className={ styles.modalComponent }></M>
+                     modals.map( ( { component: Component, id }, i: number ) => (
+                        <ModalWrapper key={ i } onClose={ () => removeModal( id ) }>
+                           <Component className={ styles.modalComponent }></Component>
+                        </ModalWrapper>
                      ) )
                   }
                </div>

@@ -46,6 +46,7 @@ svgIconService.svgs = {
    signal_solid: React.lazy( () => import( 'assets/svg/signal-solid.svg?component' ) ),
    sync_alt_solid: React.lazy( () => import( 'assets/svg/sync-alt-solid.svg?component' ) ),
    times_circle_regular: React.lazy( () => import( 'assets/svg/times-circle-regular.svg?component' ) ),
+   times_solid: React.lazy( () => import( 'assets/svg/times-solid.svg?component' ) ),
    trash_alt_regular: React.lazy( () => import( 'assets/svg/trash-alt-regular.svg?component' ) ),
    undo_solid: React.lazy( () => import( 'assets/svg/undo-solid.svg?component' ) ),
    user_solid: React.lazy( () => import( 'assets/svg/user-solid.svg?component' ) ),
