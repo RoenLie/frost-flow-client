@@ -84,4 +84,8 @@
    &::-webkit-scrollbar-thumb {
       background: var(--scrollbar-thumb-1);
    }
+
+   &::-webkit-scrollbar-corner {
+      background: rgba(0, 0, 0, 0);
+   }
 }

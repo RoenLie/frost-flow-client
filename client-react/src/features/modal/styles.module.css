@@ -1,6 +1,9 @@
 .modalContainer {
    width: 100vw;
    height: 100vh;
+
+   display: grid;
+   place-items: center;
 }
 
 .modalWrapper {
@@ -18,12 +21,16 @@
    transition: opacity 0.25s linear;
 
    display: grid;
-   grid-template-rows: 1.5rem 1fr;
+   grid-template-rows: 1.5rem 1fr auto;
+
+
+   & .moveable {
+      cursor: move;
+   }
 
    & .header {
       display: flex;
       justify-content: flex-end;
-      cursor: move;
 
       &>* {
          display: grid;
@@ -41,6 +48,43 @@
 
    & .content {
       padding: 0.5rem;
+      overflow: auto;
+      display: grid;
+      place-items: start center;
+
+      &::-webkit-scrollbar {
+         width: var(--scrollbar-height-1);
+         height: var(--scrollbar-width-1);
+      }
+
+      &::-webkit-scrollbar-track {
+         background: var(--scrollbar-track-1);
+      }
+
+      &::-webkit-scrollbar-thumb {
+         background: var(--scrollbar-thumb-1);
+      }
+
+      &::-webkit-scrollbar-corner {
+         background: rgba(0, 0, 0, 0);
+      }
+   }
+
+   & .footer {
+      display: flex;
+      justify-content: flex-end;
+
+
+      &>* {
+         display: grid;
+         place-items: center;
+         opacity: 0.2;
+         cursor: nwse-resize;
+
+         & :hover {
+            color: var(--red-deep-1);
+         }
+      }
    }
 }
 

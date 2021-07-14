@@ -2,7 +2,7 @@ import { SvgIcon } from "core";
 import { ForwardModalPortal } from "features";
 import { Modal } from "features/modal/modal";
 import { IModalPortal } from "features/modal/modal-portal";
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import { routes } from "routes/routes";
 import styles from './styles.module.css';
@@ -22,6 +22,10 @@ export default ( { children }: any ) => {
    const createModal = () => {
       modalRef.current?.addModal( Modal );
    };
+
+   useEffect( () => {
+      createModal();
+   }, [] );
 
    return (
       <div className={ styles.main }>

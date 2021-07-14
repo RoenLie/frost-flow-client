@@ -20,17 +20,17 @@ const ModalPortal = ( { ...props }, ref: any ) => {
    };
 
    useImperativeHandle( ref, () => ( {
-      addModal( modal: any ) {
-         setModals( [ ...modals, { component: modal, id: uuid() } ] );
+      addModal( modal: any, moveable: boolean = true, resizeable: boolean = true ) {
+         setModals( [ ...modals, { component: modal, id: uuid(), moveable, resizeable } ] );
       },
    } ) );
 
    return loaded ? ( createPortal(
       modals.length
          ? <div className={ styles.modalContainer }>
-            { modals.map( ( { component: Component, id }, i: number ) => (
+            { modals.map( ( { component: Component, id, moveable, resizeable }, i: number ) => (
                <ModalWrapper key={ i } onClose={ () => removeModal( id ) }
-                  component={ Component }>
+                  component={ Component } moveable={ moveable } resizeable={ resizeable } size="xlarge">
                </ModalWrapper>
             ) ) }
          </div>
