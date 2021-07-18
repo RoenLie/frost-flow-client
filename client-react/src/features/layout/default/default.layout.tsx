@@ -1,12 +1,10 @@
-import { SvgIcon } from "core";
-import { ForwardModalPortal } from "features";
-import { Modal } from "features/modal/modal";
-import { IModalPortal } from "features/modal/modal-portal";
-import React, { useEffect, useRef } from 'react';
+import React, { Suspense, useRef } from 'react';
 import { Link, useLocation } from "react-router-dom";
+import { ForwardToastPortal, IToastPortal, ToastRefContext } from "components";
+import { ForwardModalPortal, IModalPortal, ModalRefContext, Modal } from "features";
+import { SvgIcon } from "core";
 import { routes } from "routes/routes";
 import styles from './styles.module.css';
-
 
 
 export default ( { children }: any ) => {
@@ -16,46 +14,53 @@ export default ( { children }: any ) => {
    const toFirstChildRoute = ( route: any ) => route.routes ? route.routes[ 0 ].path : route.path;
 
    const firstPath = getFirstPath( location.pathname );
+   const modalRefContext = useRef<IModalPortal>();
+   const toastRefContext = useRef<IToastPortal>();
 
-   const modalRef = useRef<IModalPortal>();
 
-   const createModal = () => {
-      modalRef.current?.addModal( Modal );
-   };
+   return ( <>
+      <ModalRefContext.Provider value={ modalRefContext }>
+         <ToastRefContext.Provider value={ toastRefContext }>
+            <div className={ styles.main }>
 
-   useEffect( () => {
-      createModal();
-   }, [] );
+               <div className={ styles.header }>
+                  <div className={ styles.headerLeftNav }></div>
 
-   return (
-      <div className={ styles.main }>
+                  <div className={ styles.headerCenterNav }>
+                     { routes
+                        .filter( r => r.label )
+                        .map( ( route: any, i: number ) => (
 
-         <div className={ styles.header }>
-            <div className={ styles.headerLeftNav }></div>
+                           <Link key={ i } to={ toFirstChildRoute( route ) } title={ route.label }>
+                              <div className={ firstPath == getFirstPath( route.path ) ? styles.active : '' }>
+                                 { route.label }
+                              </div>
+                           </Link>
 
-            <div className={ styles.headerCenterNav }>
-               { routes
-                  .filter( r => r.label )
-                  .map( ( route: any, i: number ) => (
+                        ) ) }
+                  </div>
 
-                     <Link key={ i } to={ toFirstChildRoute( route ) } title={ route.label }>
-                        <div className={ firstPath == getFirstPath( route.path ) ? styles.active : '' }>
-                           { route.label }
-                        </div>
-                     </Link>
+                  <div className={ styles.headerRightNav }
+                     onClick={ () => {
+                        modalRefContext.current?.addModal( Modal );
+                     } }
+                  >
+                     <div><SvgIcon svgName="user_solid" /></div>
+                  </div>
+               </div>
 
-                  ) ) }
-            </div>
 
-            <div className={ styles.headerRightNav } onClick={ createModal }>
-               <div><SvgIcon svgName="user_solid" /></div>
+               <section className={ styles.content }>
+                  <Suspense fallback={ <div>⟳</div> }>
+                     { children }
+                  </Suspense>
+               </section>
 
-            </div>
-         </div>
+            </div >
+         </ToastRefContext.Provider>
+      </ModalRefContext.Provider>
 
-         <section className={ styles.content }>{ children }</section>
-
-         <ForwardModalPortal ref={ modalRef }></ForwardModalPortal>
-      </div >
-   );
+      <ForwardModalPortal ref={ modalRefContext }></ForwardModalPortal>
+      <ForwardToastPortal ref={ toastRefContext }></ForwardToastPortal>
+   </> );
 };

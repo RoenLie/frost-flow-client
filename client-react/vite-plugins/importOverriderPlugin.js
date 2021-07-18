@@ -1,35 +1,52 @@
 import { readFileSync } from "fs";
+const path = require('path');
 import MagicString from 'magic-string';
 
 
 export default function importOverriderPlugin(options = {
-   verbose: true,
+   verbose: false,
    sourceMap: true,
-   entry: "C:/Programming/projects/frost-flow/frost-flow-client/client-react/src/overrides/index.ts"
+   entry: path.join(process.cwd(), '/src/overrides/index.ts')
 }) {
    let overrides = {};
+   let parser = undefined;
+
+   const resolveOverrides = () => {
+      const overrideData = readFileSync(options.entry);
+      var ast = parser(overrideData);
+
+      const overrideBuilder = ast.body
+         .filter((node) => !!node.type != 'ExportNamedDeclaration')
+         .reduce((carrier, current) => [...carrier, ...current.specifiers], [])
+         .reduce((builder, specifier) => {
+            builder[specifier.exported.name] = true;
+            return builder;
+         }, {});
+
+      overrides = overrideBuilder;
+
+      if (options.verbose) {
+         console.log('\nOverridden exports');
+         console.log(overrides);
+      }
+   };
 
    return {
       // enforce: 'pre',
       name: 'import-overrider-plugin',
-
+      overrides: [],
       buildStart() {
-         const overrideData = readFileSync(options.entry);
-         var ast = this.parse(overrideData);
-
-         ast.body
-            .filter((node) => !!node.type != 'ExportNamedDeclaration')
-            .reduce((carrier, current) => [...carrier, ...current.specifiers], [])
-            .forEach((specifier) => overrides[specifier.exported.name] = true);
-
-         console.log("\nOverridden exports");
-         console.log(overrides);
+         parser = this.parse;
+         resolveOverrides();
       },
 
-      async transform(code, id) {
+      handleHotUpdate() {
+         resolveOverrides();
+      },
+
+      transform(code, id) {
          const fileTypeRegex = /\.(ts|tsx|js|jsx)$/;
          if (!fileTypeRegex.test(id)) return null;
-         // if (!/\home.page.tsx$/.test(id)) return null;
 
          try {
             var ast = this.parse(code);
@@ -68,23 +85,21 @@ export default function importOverriderPlugin(options = {
 
             const importBuilder = [];
             importBuilder.push(`import {${overridden.join(',')}} from "overrides"`);
-            importBuilder.push(`import {${standard.join(',')}} from ${node.source.raw}`);
 
-            const newImports = importBuilder.join(';') + ';';
+            standard.length ? importBuilder.push(`import {${standard.join(',')}} from ${node.source.raw}`) : null;
 
-            if (overridden.length) {
-               magicString.overwrite(node.start, node.end, newImports);
-               hasChanged = true;
-            }
+            const newImports = `${importBuilder.join(';')};`;
+
+            magicString.overwrite(node.start, node.end, newImports);
+            hasChanged = true;
          });
 
-         if (!hasChanged) {
+         if (!hasChanged)
             return {
                code: code,
                ast: ast,
                map: options.sourceMap ? magicString.generateMap({ hires: true }) : null
             };
-         }
 
          return {
             code: magicString.toString(),

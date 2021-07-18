@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import styles from './styles.module.css';
 
 
@@ -37,7 +37,9 @@ export const SvgIcon = ( { size, width, svgName }: ISvgIconProps ) => {
 
    return (
       <div style={ iconStyle } className={ styles.svgWrapper }>
-         <Icon />
+         <Suspense fallback={ <div>⟳</div> }>
+            <Icon />
+         </Suspense>
       </div >
    );
 };

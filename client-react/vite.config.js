@@ -12,7 +12,7 @@ export default defineConfig({
       tsconfigPaths(),
       reactSvgPlugin({ useSVGO: true /* optimize svg by SVGO*/ }),
       importOverriderPlugin({
-         verbose: true,
+         verbose: false,
          sourceMap: true,
          entry: "src/overrides/index.ts"
       })

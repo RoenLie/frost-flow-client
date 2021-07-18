@@ -1,12 +1,6 @@
 import React from 'react';
 import { SvgIcon } from "core";
 import { Link } from "react-router-dom";
-import { iocTest1, iocTest2 } from "shared"; $: 'ioc';
-
-
-console.clear();
-iocTest1();
-iocTest2();
 
 
 export const HomePage = () => {

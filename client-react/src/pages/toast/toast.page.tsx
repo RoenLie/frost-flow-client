@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import styles from './styles.module.css';
 import { ForwardToastPortal, IToastPortal } from 'components';
 
+
 export const ToastApp = () => {
    const toastRef = useRef<IToastPortal>();
    const [ text, setText ] = useState( '' );
@@ -9,8 +10,14 @@ export const ToastApp = () => {
    const [ autoClose, setAutoClose ] = useState( false );
 
    const addToast = () => {
-      toastRef.current?.addMessage( { mode, message: text } );
+      toastRef.current?.addMessage( {
+         mode,
+         message: text,
+         autoClose: true,
+         autoCloseTime: Math.floor( ( Math.random() * 10000 ) + 2000 )
+      } );
    };
+
 
    return (
       <div className={ styles.main }>
@@ -57,7 +64,7 @@ export const ToastApp = () => {
             </form>
          </div>
 
-         <ForwardToastPortal ref={ toastRef } autoClose={ autoClose } />
+         {/* <ForwardToastPortal ref={ toastRef } autoClose={ autoClose } /> */ }
       </div>
    );
 };

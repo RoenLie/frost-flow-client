@@ -1,15 +1,13 @@
 import React, { Suspense, useMemo } from 'react';
-import { Switch, Route, BrowserRouter, Redirect, useHistory } from "react-router-dom";
+import { Switch, Route, BrowserRouter, Redirect, useHistory, useLocation } from "react-router-dom";
 import { routes } from "routes/routes";
 import { Layout, layoutService } from "features";
 
 
 export const App = () => {
-   // console.log( 'App rendered' );
-
    return (
       <BrowserRouter>
-         <Suspense fallback={ <div>Loading...</div> }>
+         <Suspense fallback={ <div>Loading route...</div> }>
             <Switch>
                { routes.map( ( route, i ) => (
                   <LayoutRouteWithSubRoutes key={ i } { ...route } />
@@ -30,10 +28,9 @@ export const RouteWithSubRoutes = ( route: any ) => (
          path={ route.path }
          exact={ route.exact }
          render={ props => ( // pass the sub-routes down to keep nesting
-            <>
-               <route.component { ...props } routes={ route.routes } />
-               { route.redirect ? <Redirect to={ route.redirect?.to } /> : <></> }
-            </>
+            route.redirect
+               ? <Redirect to={ route.redirect?.to } />
+               : <route.component { ...props } routes={ route.routes } />
          ) }
       />
    </>
@@ -42,35 +39,36 @@ export const RouteWithSubRoutes = ( route: any ) => (
 
 const LayoutRouteWithSubRoutes = ( route: any ) => {
    useMemo(
-      () => {
-         layoutService.setLayout[ route.layout || 'default' ]();
-      },
+      () => layoutService.setLayout[ route.layout || 'default' ](),
       [ route.layout ]
    );
 
+   const location = useLocation();
+
    return (
       <Layout>
-         {
-            route.redirect
-               ? (
-                  <>
-                     <Route
-                        path={ route.path }
-                        exact={ route.redirect?.exact }
-                        render={ props => ( // pass the sub-routes down to keep nesting
-                           <route.component { ...props } routes={ route.routes } />
-                        ) }
-                     />
-                     <Redirect to={ route.redirect?.to } />
-                  </>
-               )
-               : (
-                  <Route
-                     path={ route.path }
-                     exact={ route.exact }
-                     render={ props => <route.component { ...props } routes={ route.routes } /> }
-                  />
-               )
+         { route.redirect
+            ? route.routes
+
+               ? <Route
+                  path={ route.path }
+                  exact={ route.exact }
+                  render={ props =>
+                     <>
+                        <route.component { ...props } routes={ route.routes }></route.component>
+                        { route.redirect.from.some( ( r: string ) => r == location.pathname )
+                           ? < Redirect to={ route.redirect?.to } />
+                           : <></> }
+                     </>
+                  }
+               />
+               : < Redirect to={ route.redirect?.to } />
+
+            : <Route
+               path={ route.path }
+               exact={ route.exact }
+               render={ props => <route.component { ...props } routes={ route.routes } /> }
+            />
          }
       </Layout>
    );

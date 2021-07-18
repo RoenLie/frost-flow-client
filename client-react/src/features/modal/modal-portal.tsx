@@ -6,12 +6,11 @@ import styles from './styles.module.css';
 import { ModalWrapper } from "features/modal/modal-wrapper";
 
 
-export interface IModalPortal {
-   addModal: ( modal: any ) => void;
-}
+export const ModalRefContext = React.createContext( {} as React.MutableRefObject<IModalPortal | undefined> );
+export interface IModalPortal { addModal: ( modal: any ) => void; }
 
 
-const ModalPortal = ( { ...props }, ref: any ) => {
+const ModalPortal = ( { ...props }: any, ref: any ) => {
    const { loaded, portalId } = useModalPortal();
    const [ modals, setModals ]: [ any[], Function ] = useState( [] );
 
@@ -20,20 +19,23 @@ const ModalPortal = ( { ...props }, ref: any ) => {
    };
 
    useImperativeHandle( ref, () => ( {
-      addModal( modal: any, moveable: boolean = true, resizeable: boolean = true ) {
-         setModals( [ ...modals, { component: modal, id: uuid(), moveable, resizeable } ] );
+      addModal( modal: any, options = {} as any ) {
+         const { moveable = true, resizeable = true, size = 'large' } = options;
+         setModals( [ ...modals, { component: modal, id: uuid(), moveable, resizeable, size } ] );
       },
    } ) );
 
+
    return loaded ? ( createPortal(
       modals.length
-         ? <div className={ styles.modalContainer }>
-            { modals.map( ( { component: Component, id, moveable, resizeable }, i: number ) => (
-               <ModalWrapper key={ i } onClose={ () => removeModal( id ) }
-                  component={ Component } moveable={ moveable } resizeable={ resizeable } size="xlarge">
-               </ModalWrapper>
-            ) ) }
-         </div>
+         ? (
+            <ModalRefContext.Provider value={ ref }>
+               <div className={ styles.modalContainer }>
+                  { modals.map( ( props ) =>
+                     <ModalWrapper key={ props.id } onClose={ () => removeModal( props.id ) } { ...props } /> )
+                  }
+               </div>
+            </ModalRefContext.Provider> )
          : <></>,
 
       document.getElementById( portalId ) as Element

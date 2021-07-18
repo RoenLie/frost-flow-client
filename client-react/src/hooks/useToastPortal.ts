@@ -9,7 +9,7 @@ export const useToastPortal = () => {
    useEffect( () => {
       const div: any = document.createElement( 'div' );
       div.id = portalId;
-      div.style = 'position: fixed; top: 10px; right: 10px';
+      div.style = 'position: fixed; top: 1rem; right: 1rem';
       document.getElementsByTagName( 'body' )[ 0 ].prepend( div );
 
       setLoaded( true );

@@ -6,6 +6,7 @@ import { element } from "prop-types";
 
 export type ModalSize = 'small' | 'medium' | 'large' | 'xlarge' | 'full';
 export interface IModalWrapperProps {
+   id?: string;
    onClose: () => void;
    component: any;
    resizeable: boolean;
@@ -15,11 +16,10 @@ export interface IModalWrapperProps {
 }
 
 
-export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable, size }: IModalWrapperProps ) => {
+export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable, size, id }: IModalWrapperProps ) => {
    const [ position, setPosition ] = useState( [ 0, 0 ] );
    const [ dynamicPos, setDynamicPos ] = useState( [ 0, 0 ] );
    const [ dimensions, setDimensions ] = useState( [ '0px', '0px' ] );
-   const [ visible, setVisible ] = useState( false );
    const wrapperRef = useRef<HTMLDivElement>( null );
    const cursorOffset = [ 0, 0 ];
    const modalSizes = {
@@ -39,22 +39,26 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
 
       if ( size ) {
          setDimensions( [ modalSizes[ size ][ 0 ], modalSizes[ size ][ 1 ] ] );
-      } else {
-         const center = [ window.innerWidth / 2, window.innerHeight / 2 ];
-         const modCenter = [ center[ 0 ] - rects.width / 2, center[ 1 ] - rects.height / 2 ];
-
-         setDimensions( [ rects.width + 'px', rects.height + 'px' ] );
-         setPosition( modCenter );
+         return;
       }
 
-      setVisible( true );
+      const center = [ window.innerWidth / 2, window.innerHeight / 2 ];
+      const modCenter = [ center[ 0 ] - rects.width / 2, center[ 1 ] - rects.height / 2 ];
+
+      setDimensions( [ rects.width + 'px', rects.height + 'px' ] );
+      setPosition( modCenter );
    }, [] );
 
    // onDestroy hook
-   useEffect( () => () => { modalMoveEvents.unsubscribe(); }, [] );
+   useEffect( () => () => { modalMoveEvents.unsubscribe(); modalResizeEvents.unsubscribe(); }, [] );
 
    const wrapperStyle = useMemo( () => {
       const styleObj: { [ key: string ]: any; } = { width: dimensions[ 0 ], height: dimensions[ 1 ] };
+      if ( !wrapperRef.current ) {
+         styleObj.opacity = 0;
+         styleObj.position = 'relative';
+         return styleObj;
+      }
 
       if ( dynamicPos[ 0 ] && dynamicPos[ 1 ] ) {
          styleObj.transform = `translate(${ dynamicPos[ 0 ] }px,${ dynamicPos[ 1 ] }px)`;
@@ -64,11 +68,12 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
       if ( position[ 0 ] && position[ 1 ] ) {
          styleObj.left = `${ position[ 0 ] }px`;
          styleObj.top = `${ position[ 1 ] }px`;
-      } else {
-         styleObj.position = 'relative';
+         return styleObj;
       }
 
-      if ( !visible ) styleObj.opacity = 0;
+      const rects = wrapperRef.current.getBoundingClientRect();
+      styleObj.left = `${ rects.left - rects.width / 2 }px`;
+      styleObj.top = `${ rects.top - rects.height / 2 }px`;
 
       return styleObj;
    },
@@ -188,9 +193,10 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
    return (
       <div ref={ wrapperRef }
          className={ styles.modalWrapper }
-         style={ wrapperStyle }>
-
+         style={ wrapperStyle }
+      >
          <section onMouseDown={ modalMoveEvents.mousedown } className={ headerClasses }>
+            <div>test{ id }</div>
             <div onClick={ onClose }>
                <SvgIcon svgName="times_solid" size="small"></SvgIcon>
             </div>
@@ -210,6 +216,3 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
       </div>
    );
 };
-
-
-

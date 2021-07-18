@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { App } from 'core';
 import './main.css';
 import { svgIconService } from 'core';
+import { ForwardModalPortal } from "features";
 
 
 svgIconService.svgs = {
