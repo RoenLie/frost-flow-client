@@ -1,5 +1,6 @@
 import { uuid } from "shared";
 
+
 export class ModalPortalService {
    modals: any[] = [];
    setModals: Function = () => { };
@@ -12,3 +13,5 @@ export class ModalPortalService {
       this.setModals( [ ...this.modals, { component: modal, id: uuid(), moveable, resizeable, size } ] );
    }
 }
+
+export const rootModalService = new ModalPortalService();

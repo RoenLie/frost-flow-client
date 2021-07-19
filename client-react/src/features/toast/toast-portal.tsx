@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom";
 import React, { useState } from "react";
 import { Toast } from "./toast";
-import { useToastPortal, ToastWrapper, ToastPortalService } from '.';
+import { useToastPortal, ToastPortalService, MemoToastWrapper } from 'features/toast';
 import styles from './styles.module.css';
 
 
@@ -20,7 +20,7 @@ export const ToastPortal = ( { serviceProvider, ToastTemplate }: IToastPortalPro
    return loaded ? ( ReactDOM.createPortal( toasts.length
       ? <div className={ styles.toastContainer }>
          { toasts.map( t => (
-            <ToastWrapper key={ t.id }
+            <MemoToastWrapper key={ t.id }
                autoClose={ t.autoClose }
                autoCloseTime={ t.autoCloseTime }
                onClose={ () => removeToast( t.id ) }
@@ -29,7 +29,7 @@ export const ToastPortal = ( { serviceProvider, ToastTemplate }: IToastPortalPro
                   ? <ToastTemplate mode={ t.mode } message={ t.message } onClose={ () => removeToast( t.id ) } />
                   : <Toast mode={ t.mode } message={ t.message } onClose={ () => removeToast( t.id ) } />
                }
-            </ToastWrapper>
+            </MemoToastWrapper>
          ) ) }
       </div>
       : <></>,

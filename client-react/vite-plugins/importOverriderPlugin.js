@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-const path = require('path');
+import { path } from "path";
 import MagicString from 'magic-string';
 
 
@@ -63,7 +63,8 @@ export default function importOverriderPlugin(options = {
          const relevantAstBodyNodes = [];
          ast.body.forEach((node, index) => {
             if (node.type != 'LabeledStatement') return;
-            relevantAstBodyNodes.push(ast.body[index - 1]);
+            if (node.body.expression.value != 'ioc') return;
+            relevantAstBodyNodes.push(ast.body[index + 1]);
          });
 
          // go through the relevant body nodes and perform actions.
@@ -86,7 +87,9 @@ export default function importOverriderPlugin(options = {
             const importBuilder = [];
             importBuilder.push(`import {${overridden.join(',')}} from "overrides"`);
 
-            standard.length ? importBuilder.push(`import {${standard.join(',')}} from ${node.source.raw}`) : null;
+            standard.length
+               ? importBuilder.push(`import {${standard.join(',')}} from ${node.source.raw}`)
+               : null;
 
             const newImports = `${importBuilder.join(';')};`;
 

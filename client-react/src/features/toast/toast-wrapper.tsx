@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 
 
 export const ToastWrapper = ( { children, autoClose, autoCloseTime, onClose }: any ) => {
@@ -27,3 +27,5 @@ export const ToastWrapper = ( { children, autoClose, autoCloseTime, onClose }: a
       </div>
    );
 };
+
+export const MemoToastWrapper = memo( ToastWrapper );

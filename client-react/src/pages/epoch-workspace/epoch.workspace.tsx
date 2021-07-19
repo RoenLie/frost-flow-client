@@ -1,18 +1,18 @@
 import React from 'react';
 import styles from './styles.module.css';
-import { rootModalPortalService, rootToastPortalService } from "features/layout";
-import { Modal } from "features/modal";
-import { iocTest1, iocTest2 } from "shared"; $: 'ioc';
+import { Modal, rootModalService } from "features/modal";
+import { rootToastService } from "features/toast";
+$: 'ioc'; import { iocTest1, iocTest2 } from "shared";
 
 
-// console.clear();
-// iocTest1();
-// iocTest2();
+console.clear();
+iocTest1();
+iocTest2();
 
 
 export const EpochWorkspace = ( { routes }: any ) => {
    const addToast = () => {
-      rootToastPortalService.addMessage( {
+      rootToastService.addMessage( {
          mode: 'info',
          message: 'TOAST',
          autoClose: true,
@@ -21,7 +21,7 @@ export const EpochWorkspace = ( { routes }: any ) => {
    };
 
    const addModal = () => {
-      rootModalPortalService.addModal( Modal );
+      rootModalService.addModal( Modal );
    };
 
 

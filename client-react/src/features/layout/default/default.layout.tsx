@@ -3,14 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 import { SvgIcon } from "core";
 import { routes } from "routes/routes";
 import styles from './styles.module.css';
-import { ModalPortalService } from "features/modal/modal.service";
-import { ToastPortalService } from "features/toast/toast.service";
+import { rootModalService } from "features/modal/modal.service";
+import { rootToastService } from "features/toast/toast.service";
 import { Modal, ModalPortal } from "features/modal";
 import { ToastPortal } from "features/toast";
 
 
-export const rootToastPortalService = new ToastPortalService();
-export const rootModalPortalService = new ModalPortalService();
 export default ( { children }: any ) => {
    const location = useLocation();
 
@@ -41,7 +39,7 @@ export default ( { children }: any ) => {
             </div>
 
             <div className={ styles.headerRightNav }
-               onClick={ () => { rootModalPortalService.addModal( Modal ); } }
+               onClick={ () => { rootModalService.addModal( Modal ); } }
             >
                <div><SvgIcon svgName="user_solid" /></div>
             </div>
@@ -56,12 +54,7 @@ export default ( { children }: any ) => {
 
       </div >
 
-      <ModalPortal serviceProvider={ rootModalPortalService }></ModalPortal>
-      <ToastPortal serviceProvider={ rootToastPortalService }></ToastPortal>
+      <ModalPortal serviceProvider={ rootModalService }></ModalPortal>
+      <ToastPortal serviceProvider={ rootToastService }></ToastPortal>
    </> );
-};
-
-
-function JENS() {
-   return <div>THE JENSMASTER</div>;
 };

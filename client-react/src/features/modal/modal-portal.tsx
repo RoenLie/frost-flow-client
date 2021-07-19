@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from "react-dom";
-import { useModalPortal, ModalWrapper, ModalPortalService } from ".";
+import { useModalPortal, ModalPortalService, MemoModalWrapper } from ".";
 import styles from './styles.module.css';
 
 
@@ -20,7 +20,7 @@ export const ModalPortal = ( { serviceProvider }: { serviceProvider: ModalPortal
          ? (
             <div className={ styles.modalContainer }>
                { modals.map( ( props ) =>
-                  <ModalWrapper key={ props.id } onClose={ () => removeModal( props.id ) } { ...props } /> )
+                  <MemoModalWrapper key={ props.id } onClose={ () => removeModal( props.id ) } { ...props } /> )
                }
             </div> )
          : <></>,

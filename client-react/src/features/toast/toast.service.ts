@@ -12,3 +12,5 @@ export class ToastPortalService {
       this.setToasts( [ ...this.toasts, { id: uuid(), ...toast } ] );
    }
 }
+
+export const rootToastService = new ToastPortalService();

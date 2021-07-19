@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { SvgIcon } from "core";
 import styles from './styles.module.css';
 
@@ -215,3 +215,5 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
       </div>
    );
 };
+
+export const MemoModalWrapper = memo( ModalWrapper );
