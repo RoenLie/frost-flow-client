@@ -15,12 +15,11 @@ export const ToastWrapper = ( { children, autoClose, autoCloseTime, onClose }: a
          console.log( removing, autoClose, autoCloseTime );
          if ( autoClose )
             removalTimeout = setTimeout( () => setRemoving( removing + 1 ), autoCloseTime );
+
+         return () => clearTimeout( removalTimeout );
       },
       [ autoClose ]
    );
-
-   // onDestroy hook
-   useEffect( () => () => clearTimeout( removalTimeout ), [] );
 
    return (
       <div>

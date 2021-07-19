@@ -10,10 +10,23 @@ import { ToastWrapper } from "components/toast-portal/toast-wrapper";
 export interface IToastPortal { addMessage: ( toast: any ) => void; }
 export const ToastRefContext = React.createContext( {} as React.MutableRefObject<IToastPortal | undefined> );
 
+export class ToastPortalService {
+   toasts: any[] = [];
+   setToasts: Function = () => { };
+   bind( toasts: any[], setToasts: Function ) {
+      this.toasts = toasts;
+      this.setToasts = setToasts;
+   }
+   addMessage( toast: any ) {
+      this.setToasts( [ ...this.toasts, { id: uuid(), ...toast } ] );
+   }
+}
 
-const ToastPortal = ( { ToastTemplate }: any, ref: any ) => {
+const ToastPortal = ( { serviceProvider, ToastTemplate }: { [ key: string ]: any, serviceProvider: ToastPortalService; }, ref: any ) => {
    const [ toasts, setToasts ]: [ any[], Function ] = useState( [] );
    const { loaded, portalId } = useToastPortal();
+
+   serviceProvider.bind( toasts, setToasts );
 
    const removeToast = ( id: string ) => {
       setToasts( toasts.filter( ( t: any ) => t.id !== id ) );

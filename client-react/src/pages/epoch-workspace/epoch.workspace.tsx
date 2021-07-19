@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styles from './styles.module.css';
-import { Modal, ModalRefContext } from "features";
+import { Modal } from "features";
 import { iocTest1, iocTest2 } from "shared"; $: 'ioc';
-import { ToastRefContext } from "components";
+import { rootModalPortalService, rootToastPortalService } from "features/layout/default/default.layout";
 
 
 // console.clear();
@@ -11,11 +11,8 @@ import { ToastRefContext } from "components";
 
 
 export const EpochWorkspace = ( { routes }: any ) => {
-   const modalContext = useContext( ModalRefContext );
-   const toastContext = useContext( ToastRefContext );
-
    const addToast = () => {
-      toastContext.current?.addMessage( {
+      rootToastPortalService.addMessage( {
          mode: 'info',
          message: 'TOAST',
          autoClose: true,
@@ -24,7 +21,7 @@ export const EpochWorkspace = ( { routes }: any ) => {
    };
 
    const addModal = () => {
-      modalContext.current?.addModal( Modal );
+      rootModalPortalService.addModal( Modal );
    };
 
 
