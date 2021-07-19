@@ -1,8 +1,8 @@
 import React from 'react';
 import styles from './styles.module.css';
-import { Modal } from "features";
+import { rootModalPortalService, rootToastPortalService } from "features/layout";
+import { Modal } from "features/modal";
 import { iocTest1, iocTest2 } from "shared"; $: 'ioc';
-import { rootModalPortalService, rootToastPortalService } from "features/layout/default/default.layout";
 
 
 // console.clear();

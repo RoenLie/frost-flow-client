@@ -1,7 +1,6 @@
-import React, { createRef, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { SvgIcon } from "core";
 import styles from './styles.module.css';
-import { element } from "prop-types";
 
 
 export type ModalSize = 'small' | 'medium' | 'large' | 'xlarge' | 'full';

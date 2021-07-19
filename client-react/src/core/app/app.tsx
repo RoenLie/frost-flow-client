@@ -1,5 +1,5 @@
 import React, { Suspense, useMemo } from 'react';
-import { Switch, Route, BrowserRouter, Redirect, useHistory, useLocation } from "react-router-dom";
+import { Switch, Route, BrowserRouter, Redirect, useLocation } from "react-router-dom";
 import { routes } from "routes/routes";
 import { Layout, layoutService } from "features";
 
@@ -44,6 +44,7 @@ const LayoutRouteWithSubRoutes = ( route: any ) => {
    );
 
    const location = useLocation();
+
 
    return (
       <Layout>
