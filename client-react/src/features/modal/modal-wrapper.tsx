@@ -1,25 +1,43 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, MouseEventHandler, useEffect, useMemo, useRef, useState } from "react";
 import { SvgIcon } from "core";
 import styles from './styles.module.css';
 
 
 export type ModalSize = 'small' | 'medium' | 'large' | 'xlarge' | 'full';
+
+
 export interface IModalWrapperProps {
    id?: string;
-   onClose: () => void;
    component: any;
-   resizeable: boolean;
-   moveable: boolean;
+   onClose?: () => void;
+   resizeable?: boolean;
+   moveable?: boolean;
    size?: ModalSize;
-   children: never[];
+   logger?: IModalLogger;
+   children?: never[];
 }
 
 
-export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable, size, id }: IModalWrapperProps ) => {
+export interface IModalLogger {
+   logInfo: ( msg: string ) => void;
+}
+
+
+class DefaultModalLogger implements IModalLogger {
+   logInfo( msg: string ) {
+      // console.log( msg, new Date().toTimeString().split( ' ' )[ 0 ] );
+   }
+}
+
+
+export const ModalWrapper = (
+   { id, component: Modal, onClose, resizeable, moveable, size, logger = new DefaultModalLogger() }: IModalWrapperProps
+) => {
+   const wrapperRef = useRef<HTMLDivElement>( null );
    const [ position, setPosition ] = useState( [ 0, 0 ] );
    const [ dynamicPos, setDynamicPos ] = useState( [ 0, 0 ] );
    const [ dimensions, setDimensions ] = useState( [ '0px', '0px' ] );
-   const wrapperRef = useRef<HTMLDivElement>( null );
+
    const cursorOffset = [ 0, 0 ];
    const modalSizes = {
       small: [ 'clamp(20rem, 20vw, 30rem)', 'clamp(20rem, 20vh, 30rem)' ],
@@ -30,69 +48,17 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
    };
 
    if ( size == "full" ) { resizeable = false; moveable = false; }
+   // moveable = false;
 
-   // onLoad hook
-   useEffect( () => {
-      const rects = wrapperRef.current?.getBoundingClientRect();
-      if ( !rects ) return;
-
-      if ( size ) {
-         setDimensions( [ modalSizes[ size ][ 0 ], modalSizes[ size ][ 1 ] ] );
-         return;
-      }
-
-      const center = [ window.innerWidth / 2, window.innerHeight / 2 ];
-      const modCenter = [ center[ 0 ] - rects.width / 2, center[ 1 ] - rects.height / 2 ];
-
-      setDimensions( [ rects.width + 'px', rects.height + 'px' ] );
-      setPosition( modCenter );
-   }, [] );
-
-   // onDestroy hook
-   useEffect( () => () => { modalMoveEvents.unsubscribe(); modalResizeEvents.unsubscribe(); }, [] );
-
-   const wrapperStyle = useMemo( () => {
-      const styleObj: { [ key: string ]: any; } = { width: dimensions[ 0 ], height: dimensions[ 1 ] };
-      if ( !wrapperRef.current ) {
-         styleObj.opacity = 0;
-         styleObj.position = 'relative';
-         return styleObj;
-      }
-
-      if ( dynamicPos[ 0 ] && dynamicPos[ 1 ] ) {
-         styleObj.transform = `translate(${ dynamicPos[ 0 ] }px,${ dynamicPos[ 1 ] }px)`;
-         return styleObj;
-      }
-
-      if ( position[ 0 ] && position[ 1 ] ) {
-         styleObj.left = `${ position[ 0 ] }px`;
-         styleObj.top = `${ position[ 1 ] }px`;
-         return styleObj;
-      }
-
-      const rects = wrapperRef.current.getBoundingClientRect();
-      styleObj.left = `${ rects.left - rects.width / 2 }px`;
-      styleObj.top = `${ rects.top - rects.height / 2 }px`;
-
-      return styleObj;
-   },
-      [ dynamicPos, position, dimensions, wrapperRef ]
-   );
-
-   const headerClasses = useMemo( () => {
-      return [ styles.header, moveable ? styles.moveable : '' ].filter( Boolean ).join( ' ' );
-   },
-      [ moveable ]
-   );
-
-   const modalMoveEvents: any = {
-      element: undefined as any,
-      getRects: () => modalMoveEvents.element.getBoundingClientRect(),
-      mousedown: ( e: MouseEvent ) => {
+   const modalMoveEvents = {
+      element: null as HTMLElement | null,
+      subscriptions: [] as Array<[ keyof WindowEventMap, any ]>,
+      getRects() { return this.element?.getBoundingClientRect(); },
+      mousedown( e: MouseEvent ) {
          if ( !moveable ) return;
 
-         modalMoveEvents.element = wrapperRef.current;
-         const rects = modalMoveEvents.element?.getBoundingClientRect();
+         this.element = wrapperRef.current;
+         const rects = this.element?.getBoundingClientRect();
          if ( !rects ) return;
 
          const rect = [ rects.left, rects.top ];
@@ -101,22 +67,25 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
          cursorOffset[ 0 ] = curs[ 0 ] - rect[ 0 ];
          cursorOffset[ 1 ] = curs[ 1 ] - rect[ 1 ];
 
-         modalMoveEvents.subscribe();
+         this.subscribe();
       },
-      mouseup: () => {
-         modalMoveEvents.unsubscribe();
-         const rects = modalMoveEvents.element.getBoundingClientRect();
+      mouseup() {
+         this.unsubscribe();
+
+         const rects = this.element?.getBoundingClientRect();
+         if ( !rects ) return;
+
          setDynamicPos( [ 0, 0 ] );
          setPosition( [ rects.x, rects.y ] );
       },
-      mousemove: ( e: MouseEvent ) => {
-         if ( e.buttons !== 1 ) modalMoveEvents.unsubscribe();
+      mousemove( e: MouseEvent ) {
+         if ( e.buttons !== 1 ) this.unsubscribe();
          e.preventDefault();
 
          const curs = [ e.clientX, e.clientY ];
          const modCurs = [ curs[ 0 ] - cursorOffset[ 0 ], curs[ 1 ] - cursorOffset[ 1 ] ];
 
-         const rects = modalMoveEvents.element.getBoundingClientRect() as ClientRect;
+         const rects = this.element?.getBoundingClientRect() as ClientRect;
 
          const offset = [
             modCurs[ 0 ] + rects.width < window.innerWidth && modCurs[ 0 ] > 1 ? modCurs[ 0 ]
@@ -129,24 +98,31 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
 
          setDynamicPos( [ offset[ 0 ], offset[ 1 ] ] );
       },
-      subscribe: () => {
-         addEventListener( 'mousemove', modalMoveEvents.mousemove );
-         addEventListener( 'mouseup', modalMoveEvents.mouseup );
+      subscribe() {
+         logger.logInfo( 'modalMoveEvents subscribe' );
+
+         this.subscriptions.push( [ 'mousemove', this.mousemove.bind( this ) ] );
+         this.subscriptions.push( [ 'mouseup', this.mouseup.bind( this ) ] );
+
+         this.subscriptions.forEach( ( sub ) => addEventListener( sub[ 0 ], sub[ 1 ] ) );
       },
-      unsubscribe: () => {
-         removeEventListener( 'mousemove', modalMoveEvents.mousemove );
-         removeEventListener( 'mouseup', modalMoveEvents.mouseup );
+      unsubscribe() {
+         logger.logInfo( 'modalMoveEvents unsubscribe' );
+
+         this.subscriptions.forEach( ( sub ) => removeEventListener( sub[ 0 ], sub[ 1 ] ) );
       }
    };
 
-   const modalResizeEvents: any = {
-      element: undefined as any,
-      getRects: () => modalResizeEvents.element.getBoundingClientRect(),
-      mousedown: ( e: MouseEvent ) => {
+   const modalResizeEvents = {
+      element: null as HTMLElement | null,
+      subscriptions: [] as Array<[ keyof WindowEventMap, any ]>,
+      getRects() { return this.element?.getBoundingClientRect(); },
+      mousedown( e: MouseEvent ) {
          if ( !resizeable ) return;
 
-         modalResizeEvents.element = wrapperRef.current;
-         const rects = modalResizeEvents.element?.getBoundingClientRect();
+         this.element = wrapperRef.current;
+
+         const rects = this.element?.getBoundingClientRect();
          if ( !rects ) return;
 
          const rect = [ rects.right, rects.bottom ];
@@ -155,16 +131,20 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
          cursorOffset[ 0 ] = rect[ 0 ] - curs[ 0 ];
          cursorOffset[ 1 ] = rect[ 1 ] - curs[ 1 ];
 
-         modalResizeEvents.subscribe();
+         this.subscribe();
       },
-      mouseup: () => {
-         modalResizeEvents.unsubscribe();
+      mouseup() {
+         this.unsubscribe();
       },
-      mousemove: ( e: MouseEvent ) => {
-         if ( e.buttons !== 1 ) modalResizeEvents.unsubscribe();
+      mousemove( e: MouseEvent ) {
+         logger.logInfo( 'mouse moving' );
+
+         if ( e.buttons !== 1 ) this.unsubscribe();
          e.preventDefault();
 
-         const rects = modalResizeEvents.getRects();
+         const rects = this.getRects();
+         if ( !rects ) return;
+
          const { innerWidth: wWidth, innerHeight: wHeight } = window;
 
          const cursorX = e.clientX + cursorOffset[ 0 ];
@@ -179,23 +159,115 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
 
          setDimensions( size as string[] );
       },
-      subscribe: () => {
-         addEventListener( 'mousemove', modalResizeEvents.mousemove );
-         addEventListener( 'mouseup', modalResizeEvents.mouseup );
+      subscribe() {
+         logger.logInfo( 'modalResizeEvents subscribe' );
+
+         this.subscriptions.push( [ 'mousemove', this.mousemove.bind( this ) ] );
+         this.subscriptions.push( [ 'mouseup', this.mouseup.bind( this ) ] );
+
+         this.subscriptions.forEach( ( sub ) => addEventListener( sub[ 0 ], sub[ 1 ] ) );
       },
-      unsubscribe: () => {
-         removeEventListener( 'mousemove', modalResizeEvents.mousemove );
-         removeEventListener( 'mouseup', modalResizeEvents.mouseup );
+      unsubscribe() {
+         logger.logInfo( 'modalResizeEvents unsubscribe' );
+
+         this.subscriptions.forEach( ( sub ) => removeEventListener( sub[ 0 ], sub[ 1 ] ) );
       }
    };
+
+   const windowResizeEvents = {
+      resize() {
+         logger.logInfo( 'resizing window' );
+      },
+      subscribe() {
+         logger.logInfo( 'subscribing to window resize events' );
+
+         window.addEventListener( 'resize', this.resize );
+      },
+      unsubscribe() {
+         logger.logInfo( 'unsubscribing to window resize events' );
+         window.removeEventListener( 'resize', this.resize );
+      }
+   };
+
+   // onload before render hook.
+   useMemo( () => {
+      logger.logInfo( 'onload before render hook.' );
+      if ( size ) setDimensions( [ modalSizes[ size ][ 0 ], modalSizes[ size ][ 1 ] ] );
+   }, [] );
+
+   // onload after render hook.
+   useEffect( () => {
+      logger.logInfo( 'onload after render hook.' );
+      windowResizeEvents.subscribe();
+      return () => windowResizeEvents.unsubscribe();
+   }, [] );
+
+   // onDestroy hook
+   useEffect( () => () => {
+      modalMoveEvents.unsubscribe();
+      modalResizeEvents.unsubscribe();
+   }, [] );
+
+   // runs twice, on load. last time it runs it gets the correct rects.
+   useEffect( () => {
+      if ( !wrapperRef.current ) return;
+      const rects = wrapperRef.current.getBoundingClientRect();
+      const center = [ window.innerWidth / 2, window.innerHeight / 2 ];
+      const modCenter = [ center[ 0 ] - rects.width / 2, center[ 1 ] - rects.height / 2 ];
+      setPosition( modCenter );
+   }, [ wrapperRef.current ] );
+
+   // reacts to header parameters to change classes
+   const headerClasses = useMemo( () => {
+      return [ styles.header, moveable ? styles.moveable : '' ].filter( Boolean ).join( ' ' );
+   },
+      [ moveable ]
+   );
+
+   // reacts to changes in style params to set the correct styling on element
+   const wrapperStyle = useMemo( () => {
+      const styleObj: { [ key: string ]: any; } = { width: dimensions[ 0 ], height: dimensions[ 1 ] };
+
+      if ( !wrapperRef.current ) {
+         styleObj.opacity = 0;
+         styleObj.left = '50%';
+         styleObj.top = '50%';
+         styleObj.transform = 'translate(-50%, -50%)';
+
+         return styleObj;
+      }
+
+      if ( !moveable ) {
+         styleObj.left = '50%';
+         styleObj.top = '50%';
+         styleObj.transform = 'translate(-50%, -50%)';
+      }
+
+      if ( dynamicPos[ 0 ] && dynamicPos[ 1 ] && moveable ) {
+         styleObj.transform = `translate(${ dynamicPos[ 0 ] }px,${ dynamicPos[ 1 ] }px)`;
+         return styleObj;
+      }
+
+      if ( position[ 0 ] && position[ 1 ] && moveable ) {
+         styleObj.left = `${ position[ 0 ] }px`;
+         styleObj.top = `${ position[ 1 ] }px`;
+      }
+
+      return styleObj;
+   },
+      [ dynamicPos, position, dimensions ]
+   );
+
 
    return (
       <div ref={ wrapperRef }
          className={ styles.modalWrapper }
          style={ wrapperStyle }
       >
-         <section onMouseDown={ modalMoveEvents.mousedown } className={ headerClasses }>
-            <div>test{ id }</div>
+         <section className={ headerClasses }
+            onMouseDown={
+               modalMoveEvents.mousedown.bind( modalMoveEvents ) as unknown as MouseEventHandler<HTMLDivElement>
+            }>
             <div onClick={ onClose }>
                <SvgIcon svgName="times_solid" size="small"></SvgIcon>
             </div>
@@ -207,7 +279,9 @@ export const ModalWrapper = ( { onClose, component: Modal, resizeable, moveable,
 
          <section className={ styles.footer }>
             { resizeable ? (
-               <div onMouseDown={ modalResizeEvents.mousedown }>
+               <div onMouseDown={
+                  modalResizeEvents.mousedown.bind( modalResizeEvents ) as unknown as MouseEventHandler<HTMLDivElement>
+               }>
                   <SvgIcon svgName="signal_solid" size="small"></SvgIcon>
                </div>
             ) : <></> }

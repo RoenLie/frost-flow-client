@@ -16,7 +16,7 @@ export const Modal = ( { onClose }: any ) => {
       <div style={ style }>
          <h1>MODAL CONTENT</h1>
          <h4>{ uniqueId }</h4>
-         <button onClick={ () => rootModalService.addModal( Modal ) }>NEW MODAL FROM CONTEXT</button>
+         <button onClick={ () => rootModalService.addModal( { component: Modal } ) }>NEW MODAL FROM CONTEXT</button>
       </div>
    );
 };

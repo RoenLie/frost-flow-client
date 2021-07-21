@@ -8,6 +8,8 @@
 
 .modalWrapper {
    position: fixed;
+
+
    min-height: 10rem;
    min-width: 10rem;
    background:

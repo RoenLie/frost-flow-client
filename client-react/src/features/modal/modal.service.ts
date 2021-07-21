@@ -1,3 +1,4 @@
+import { IModalWrapperProps } from "features/modal";
 import { uuid } from "shared";
 
 
@@ -8,9 +9,17 @@ export class ModalPortalService {
       this.modals = modals;
       this.setModals = setModals;
    }
-   addModal( modal: any, options = {} as any ) {
-      const { moveable = true, resizeable = true, size = 'large' } = options;
-      this.setModals( [ ...this.modals, { component: modal, id: uuid(), moveable, resizeable, size } ] );
+   addModal( options: IModalWrapperProps ) {
+      options = {
+         ...options,
+         resizeable: options.resizeable != undefined ? options.resizeable : true,
+         moveable: options.moveable != undefined ? options.moveable : true,
+         size: options.size != undefined ? options.size : 'large',
+      };
+
+      console.log( options );
+
+      this.setModals( [ ...this.modals, { ...options, id: uuid(), } ] );
    }
 }
 

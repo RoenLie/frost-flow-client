@@ -2,12 +2,10 @@ import React from 'react';
 import styles from './styles.module.css';
 import { Modal, rootModalService } from "features/modal";
 import { rootToastService } from "features/toast";
-$: 'ioc'; import { iocTest1, iocTest2 } from "shared";
-
-
-console.clear();
-iocTest1();
-iocTest2();
+// $: 'ioc'; import { iocTest1, iocTest2 } from "shared";
+// console.clear();
+// iocTest1();
+// iocTest2();
 
 
 export const EpochWorkspace = ( { routes }: any ) => {
@@ -21,7 +19,7 @@ export const EpochWorkspace = ( { routes }: any ) => {
    };
 
    const addModal = () => {
-      rootModalService.addModal( Modal );
+      rootModalService.addModal( { component: Modal } );
    };
 
 

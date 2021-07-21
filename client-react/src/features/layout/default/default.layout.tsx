@@ -39,7 +39,7 @@ export default ( { children }: any ) => {
             </div>
 
             <div className={ styles.headerRightNav }
-               onClick={ () => { rootModalService.addModal( Modal ); } }
+               onClick={ () => { rootModalService.addModal( { component: Modal } ); } }
             >
                <div><SvgIcon svgName="user_solid" /></div>
             </div>
