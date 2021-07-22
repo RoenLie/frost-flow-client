@@ -9,13 +9,14 @@
       "types": [
          "vite/client"
       ],
+      "strict": true,
       "allowJs": false,
       "skipLibCheck": false,
       "esModuleInterop": false,
       "allowSyntheticDefaultImports": true,
       "allowUnusedLabels": true,
-      "strict": true,
       "forceConsistentCasingInFileNames": true,
+      "strictPropertyInitialization": false,
       "module": "ESNext",
       "moduleResolution": "Node",
       "resolveJsonModule": true,

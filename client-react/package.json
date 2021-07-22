@@ -10,7 +10,8 @@
       "react": "next",
       "react-dom": "next",
       "react-router-dom": "^5.2.0",
-      "uuid": "^8.3.2"
+      "uuid": "^8.3.2",
+      "valtio": "^1.0.7"
    },
    "devDependencies": {
       "@types/babel__core": "7.1.14",

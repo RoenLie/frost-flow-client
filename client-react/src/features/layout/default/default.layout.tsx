@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { memo, Suspense } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import { SvgIcon } from "core";
 import { routes } from "routes/routes";
@@ -11,11 +11,10 @@ import { ToastPortal } from "features/toast";
 
 export default ( { children }: any ) => {
    const location = useLocation();
-
    const getFirstPath = ( path: string ) => path.split( '/' ).filter( Boolean )[ 0 ];
    const toFirstChildRoute = ( route: any ) => route.routes ? route.routes[ 0 ].path : route.path;
-
    const firstPath = getFirstPath( location.pathname );
+   const openProfile = () => rootModalService.addModal( { component: Modal } );
 
 
    return ( <>
@@ -38,13 +37,12 @@ export default ( { children }: any ) => {
                   ) ) }
             </div>
 
-            <div className={ styles.headerRightNav }
-               onClick={ () => { rootModalService.addModal( { component: Modal } ); } }
-            >
-               <div><SvgIcon svgName="user_solid" /></div>
+            <div className={ styles.headerRightNav } onClick={ openProfile }>
+               <div>
+                  <SvgIcon svgName="user_solid" />
+               </div>
             </div>
          </div>
-
 
          <section className={ styles.content }>
             <Suspense fallback={ <div>⟳</div> }>
@@ -52,9 +50,8 @@ export default ( { children }: any ) => {
             </Suspense>
          </section>
 
+         <ModalPortal serviceProvider={ rootModalService }></ModalPortal>
+         <ToastPortal serviceProvider={ rootToastService }></ToastPortal>
       </div >
-
-      <ModalPortal serviceProvider={ rootModalService }></ModalPortal>
-      <ToastPortal serviceProvider={ rootToastService }></ToastPortal>
    </> );
 };

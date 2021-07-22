@@ -48,7 +48,6 @@ export const ModalWrapper = (
    };
 
    if ( size == "full" ) { resizeable = false; moveable = false; }
-   // moveable = false;
 
    const modalMoveEvents = {
       element: null as HTMLElement | null,

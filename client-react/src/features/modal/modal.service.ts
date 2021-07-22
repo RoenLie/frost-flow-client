@@ -3,8 +3,8 @@ import { uuid } from "shared";
 
 
 export class ModalPortalService {
-   modals: any[] = [];
-   setModals: Function = () => { };
+   modals: any[];
+   setModals: Function;
    bind( modals: any[], setModals: Function ) {
       this.modals = modals;
       this.setModals = setModals;
@@ -17,7 +17,8 @@ export class ModalPortalService {
          size: options.size != undefined ? options.size : 'large',
       };
 
-      console.log( options );
+      if ( !this.setModals || !this.modals )
+         throw "Service must be input as a prop in a ModalPortal component.";
 
       this.setModals( [ ...this.modals, { ...options, id: uuid(), } ] );
    }

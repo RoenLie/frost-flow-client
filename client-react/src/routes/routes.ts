@@ -1,13 +1,13 @@
-import React from "react";
+import { lazy } from "react";
 
 
 const routeComponents = {
-   home: React.lazy( () => import( './home.route' ) ),
-   epoch: React.lazy( () => import( './epoch.route' ) ),
-   epochHome: React.lazy( () => import( './epoch.home.route' ) ),
-   epochWorkspace: React.lazy( () => import( './epoch.workspace.route' ) ),
-   toast: React.lazy( () => import( './toast.route' ) ),
-   notFound: React.lazy( () => import( './not-found.route' ) )
+   home: lazy( () => import( './home.route' ) ),
+   epoch: lazy( () => import( './epoch.route' ) ),
+   epochHome: lazy( () => import( './epoch.home.route' ) ),
+   epochWorkspace: lazy( () => import( './epoch.workspace.route' ) ),
+   toast: lazy( () => import( './toast.route' ) ),
+   notFound: lazy( () => import( './not-found.route' ) )
 };
 
 
@@ -16,7 +16,7 @@ export const routes = [
       label: 'Home',
       path: '/home',
       component: routeComponents.home,
-      layout: 'default'
+      layout: 'admin'
    },
    {
       label: 'Epoch',
