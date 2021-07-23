@@ -14,7 +14,7 @@ export class ModalPortalService {
          ...options,
          resizeable: options.resizeable != undefined ? options.resizeable : true,
          moveable: options.moveable != undefined ? options.moveable : true,
-         size: options.size != undefined ? options.size : 'large',
+         size: options.size != undefined ? options.size : 'xlarge',
       };
 
       if ( !this.setModals || !this.modals )

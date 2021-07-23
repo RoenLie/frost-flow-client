@@ -16,7 +16,7 @@ export const routes = [
       label: 'Home',
       path: '/home',
       component: routeComponents.home,
-      layout: 'admin'
+      layout: 'default'
    },
    {
       label: 'Epoch',

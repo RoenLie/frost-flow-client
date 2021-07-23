@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from "react-dom";
 import { useModalPortal, ModalPortalService, MemoModalWrapper } from ".";
 import styles from './styles.module.css';
@@ -10,9 +10,7 @@ export const ModalPortal = ( { serviceProvider }: { serviceProvider: ModalPortal
 
    serviceProvider.bind( modals, setModals );
 
-   const removeModal = ( id: string ) => {
-      setModals( modals.filter( ( m: any ) => m.id !== id ) );
-   };
+   const removeModal = ( id: string ) => setModals( modals.filter( ( m: any ) => m.id !== id ) );
 
 
    return loaded ? ( createPortal(

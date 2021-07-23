@@ -174,17 +174,38 @@ export const ModalWrapper = (
    };
 
    const windowResizeEvents = {
+      element: null as HTMLElement | null,
+      getRects() { return this.element?.getBoundingClientRect(); },
+      boundResize: Function as () => void,
       resize() {
          logger.logInfo( 'resizing window' );
+
+         const rects = this.getRects();
+         if ( !rects ) return;
+
+         const { innerWidth: wWidth, innerHeight: wHeight } = window;
+
+         const x = rects.left > 0 && rects.right < wWidth
+            ? rects.x : wWidth - rects.width > 0
+               ? wWidth - rects.width - 1 : 1;
+         const y = rects.top > 0 && rects.bottom < wHeight
+            ? rects.y : wHeight - rects.height > 0
+               ? wHeight - rects.height - 1 : 1;
+
+         setPosition( [ x, y ] );
       },
       subscribe() {
+         if ( !moveable ) return;
          logger.logInfo( 'subscribing to window resize events' );
 
-         window.addEventListener( 'resize', this.resize );
+         this.element = wrapperRef.current;
+         this.boundResize = this.resize.bind( this );
+
+         addEventListener( 'resize', this.boundResize );
       },
       unsubscribe() {
          logger.logInfo( 'unsubscribing to window resize events' );
-         window.removeEventListener( 'resize', this.resize );
+         removeEventListener( 'resize', this.boundResize );
       }
    };
 

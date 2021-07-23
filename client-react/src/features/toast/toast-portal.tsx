@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom";
+import { createPortal } from "react-dom";
 import React, { useState } from "react";
 import { Toast } from "./toast";
 import { useToastPortal, ToastPortalService, MemoToastWrapper } from 'features/toast';
@@ -12,12 +12,10 @@ export const ToastPortal = ( { serviceProvider, ToastTemplate }: IToastPortalPro
 
    serviceProvider.bind( toasts, setToasts );
 
-   const removeToast = ( id: string ) => {
-      setToasts( toasts.filter( ( t: any ) => t.id !== id ) );
-   };
+   const removeToast = ( id: string ) => setToasts( toasts.filter( ( t: any ) => t.id !== id ) );
 
 
-   return loaded ? ( ReactDOM.createPortal( toasts.length
+   return loaded ? ( createPortal( toasts.length
       ? <div className={ styles.toastContainer }>
          { toasts.map( t => (
             <MemoToastWrapper key={ t.id }

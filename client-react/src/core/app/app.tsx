@@ -1,24 +1,20 @@
-import React, { memo, Suspense, useMemo } from 'react';
+import React, { Suspense } from 'react';
 import { Switch, Route, BrowserRouter, Redirect, useLocation } from "react-router-dom";
 import { routes } from "routes/routes";
-import { Layout, layoutService } from "features";
+import { Layout } from "features";
 
 
-export const App = memo( () => {
-   console.log( "app render" );
-
-   return (
-      <BrowserRouter>
-         <Suspense fallback={ <div>Loading route...</div> }>
-            <Switch>
-               { routes.map( ( route, i ) => (
-                  <LayoutRouteWithSubRoutes key={ i } { ...route } />
-               ) ) }
-            </Switch>
-         </Suspense>
-      </BrowserRouter>
-   );
-} );
+export const App = () => (
+   <BrowserRouter>
+      <Suspense fallback={ <div>Loading route...</div> }>
+         <Switch>
+            { routes.map( ( route, i ) => (
+               <LayoutRouteWithSubRoutes key={ i } { ...route } />
+            ) ) }
+         </Switch>
+      </Suspense>
+   </BrowserRouter>
+);
 
 
 // A special wrapper for <Route> that knows how to
@@ -44,13 +40,12 @@ const LayoutRouteWithSubRoutes = ( route: any ) => {
       <Layout layout={ route.layout }>
          { route.redirect
             ? route.routes
-
                ? <Route
                   path={ route.path }
                   exact={ route.exact }
                   render={ props =>
                      <>
-                        <route.component { ...props } routes={ route.routes }></route.component>
+                        <route.component { ...props } routes={ route.routes } />
                         { route.redirect.from.some( ( r: string ) => r == location.pathname )
                            ? < Redirect to={ route.redirect?.to } />
                            : <></> }
@@ -58,7 +53,6 @@ const LayoutRouteWithSubRoutes = ( route: any ) => {
                   }
                />
                : < Redirect to={ route.redirect?.to } />
-
             : <Route
                path={ route.path }
                exact={ route.exact }

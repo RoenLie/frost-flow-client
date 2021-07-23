@@ -1,4 +1,4 @@
-import React, { memo, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { Link, useLocation } from "react-router-dom";
 import { SvgIcon } from "core";
 import { routes } from "routes/routes";
