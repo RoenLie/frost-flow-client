@@ -1,0 +1,10 @@
+.host {
+   padding: 0.5rem 1rem;
+   cursor: pointer;
+
+   background-color: var(--dark-2);
+
+   &:hover {
+      background-color: var(--dark-1)
+   }
+}

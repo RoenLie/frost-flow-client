@@ -133,6 +133,9 @@ export class BigListComponent implements OnInit, AfterViewInit {
          headers: { "Content-Type": "application/json; charset=utf-8" }
       };
 
+      console.log( params );
+
+
       try {
          var response: any = await fetch( url, request );
          response = await response.json();

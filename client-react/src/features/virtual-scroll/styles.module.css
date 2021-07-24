@@ -1,0 +1,24 @@
+.host {
+   &::-webkit-scrollbar {
+      height: var(--scrollbar-height-2);
+      width: var(--scrollbar-width-1);
+   }
+
+   &::-webkit-scrollbar-track {
+      background: var(--scrollbar-track-1);
+   }
+
+   &::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb-1);
+   }
+
+   &::-webkit-scrollbar-corner {
+      background: rgba(0, 0, 0, 0);
+   }
+}
+
+.viewport {
+   overflow: "hidden";
+   willChange: "transform";
+   position: "relative";
+}

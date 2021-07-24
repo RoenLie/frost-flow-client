@@ -1,0 +1,41 @@
+.host {
+   display: grid;
+   height: 100%;
+
+   grid-template-columns: auto auto 1fr auto;
+   grid-template-rows: auto auto 1fr;
+   grid-template-areas:
+      "list-tabs-home list-tabs list-tabs list-tabs"
+      "list-selector list-selector list-header list-header"
+      "list-selector list-selector list record-preview";
+
+   & .listSelector {
+      grid-area: list-selector;
+      border-right: 2px solid var(--dark-3);
+      border-top: 2px solid var(--dark-3);
+   }
+
+   & .listTabsHome {
+      grid-area: list-tabs-home;
+      border-right: 2px solid var(--dark-3);
+   }
+
+   & .listTabs {
+      grid-area: list-tabs;
+   }
+
+   & .listHeader {
+      grid-area: list-header;
+      border-top: 2px solid var(--dark-3);
+      border-bottom: 2px solid var(--dark-3);
+   }
+
+   & .list {
+      grid-area: list;
+   }
+
+   & .recordPreview {
+      grid-area: record-preview;
+      border-left: 2px solid var(--dark-3);
+   }
+}

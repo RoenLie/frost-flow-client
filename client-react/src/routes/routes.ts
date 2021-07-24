@@ -6,6 +6,7 @@ const routeComponents = {
    epoch: lazy( () => import( './epoch.route' ) ),
    epochHome: lazy( () => import( './epoch.home.route' ) ),
    epochWorkspace: lazy( () => import( './epoch.workspace.route' ) ),
+   epochList: lazy( () => import( './epoch.list.route' ) ),
    toast: lazy( () => import( './toast.route' ) ),
    notFound: lazy( () => import( './not-found.route' ) )
 };
@@ -36,10 +37,24 @@ export const routes = [
             component: routeComponents.epochHome
          },
          {
+            label: 'List',
+            path: '/epoch/list',
+            layout: 'default',
+            icon: 'list_solid',
+            component: routeComponents.epochList
+         },
+         {
             label: 'Workspace',
             path: '/epoch/workspace',
             layout: 'default',
-            icon: 'list_solid',
+            icon: 'dice_d6_solid',
+            component: routeComponents.epochWorkspace
+         },
+         {
+            label: 'Settings',
+            path: '/epoch/settings',
+            layout: 'default',
+            icon: 'cog_solid',
             component: routeComponents.epochWorkspace
          }
       ]
