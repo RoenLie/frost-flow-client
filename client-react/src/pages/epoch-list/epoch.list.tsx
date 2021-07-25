@@ -1,26 +1,51 @@
-import { ListGrid, ListHeader, ListPreview, ListTab, ListTabs, ListTree } from "components";
+import {
+   IDatasource,
+   ListGrid,
+   ListHeader,
+   ListPreview,
+   ListTab,
+   ListTabs,
+   ListTree,
+   TRequest,
+   TSuccessParams
+} from "components";
 import React, { HTMLAttributes } from 'react';
+import { asyncRes } from "shared/helpers/asyncRes";
 import styles from './styles.module.css';
 
 
 export interface IEpochListProps extends HTMLAttributes<HTMLElement> { };
 export const EpochList = ( { }: IEpochListProps ) => {
+   const datasource: IDatasource = {
+      getRows: getRowsAsync,
+      options: {
+         batchSize: 25
+      }
+   };
+
+   const tabs = [
+      { label: 'tab1' },
+      { label: 'tab2' },
+      { label: 'tab3' },
+      { label: 'tab4' }
+   ];
+
    return (
       <section className={ styles.host }>
          <ListTree className={ styles.listSelector } />
          <ListTab className={ styles.listTabsHome } label="HOME" />
          <ListTabs className={ styles.listTabs } tabs={ tabs } />
          <ListHeader className={ styles.listHeader } />
-         <ListGrid className={ styles.list } />
+         <ListGrid className={ styles.list } datasource={ datasource } />
          <ListPreview className={ styles.recordPreview } />
       </section>
    );
 };
 
 
-async function getRowsAsync( params = { request: {} } ) {
-   params.request = {
-      endRow: 10000,
+const getRowsAsync = async ( {
+   request = {
+      endRow: 49,
       filterModel: {},
       groupKeys: [],
       pivotCols: [],
@@ -29,46 +54,24 @@ async function getRowsAsync( params = { request: {} } ) {
       sortModel: [],
       startRow: 0,
       valueCols: []
-   };
-
+   } as TRequest,
+   fail = () => { },
+   success = ( { }: TSuccessParams ) => { }
+} ) => {
    const url: RequestInfo = `//localhost:8025/postgres/olympic_winners`;
-   const request: RequestInit = {
+   const fetchRequest: RequestInit = {
       method: "post",
-      body: JSON.stringify( params.request ),
-      headers: { "Content-Type": "application/json; charset=utf-8" }
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify( request )
    };
 
-   try {
-      var response: any = await fetch( url, request );
-      response = await response.json();
-   } catch ( error ) {
-      console.error( error );
-      // params.fail();
-      return;
-   }
+   const [ res, err ] = await asyncRes( fetch( url, fetchRequest ) );
+   if ( err ) { console.error( err ); fail(); return; }
 
-   console.log( response );
+   const response = await res.json();
 
-   // params.success( {
-   //    rowData: response.rows || [],
-   //    rowCount: response.lastRow || 0,
-   // } );
+   success( {
+      rowData: response.rows || [],
+      lastRow: response.lastRow || 0,
+   } );
 };
-
-getRowsAsync();
-
-
-const tabs = [
-   {
-      label: 'tab1'
-   },
-   {
-      label: 'tab2'
-   },
-   {
-      label: 'tab3'
-   },
-   {
-      label: 'tab4'
-   }
-];

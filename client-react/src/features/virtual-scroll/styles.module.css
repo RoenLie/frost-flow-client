@@ -17,8 +17,22 @@
    }
 }
 
-.viewport {
-   overflow: "hidden";
-   willChange: "transform";
-   position: "relative";
+.listHeader {
+   width: 100%;
+   position: sticky;
+   top: 0;
+   z-index: 1;
+
+   height: 2rem;
+   background-color: var(--dark-2);
+
+   display: flex;
+   flex-flow: row nowrap;
+   align-items: center;
+}
+
+.listRow {
+   display: flex;
+   flex-flow: row nowrap;
+   align-items: center;
 }

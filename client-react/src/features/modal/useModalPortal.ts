@@ -9,7 +9,7 @@ export const useModalPortal = () => {
    useEffect( () => {
       const div: any = document.createElement( 'div' );
       div.id = portalId;
-      div.style = 'position: fixed; top: 0px; left: 0px;';
+      div.style = 'position: fixed; top: 0px; left: 0px; z-index: 1';
       document.getElementsByTagName( 'body' )[ 0 ].appendChild( div );
 
       setLoaded( true );
