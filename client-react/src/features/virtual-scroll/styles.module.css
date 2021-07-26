@@ -1,38 +1,80 @@
 .host {
-   &::-webkit-scrollbar {
-      height: var(--scrollbar-height-2);
-      width: var(--scrollbar-width-1);
-   }
-
-   &::-webkit-scrollbar-track {
-      background: var(--scrollbar-track-1);
-   }
-
-   &::-webkit-scrollbar-thumb {
-      background: var(--scrollbar-thumb-1);
-   }
-
-   &::-webkit-scrollbar-corner {
-      background: rgba(0, 0, 0, 0);
-   }
+   overflow: hidden;
+   display: grid;
+   grid-template-rows: 3rem 1fr;
 }
 
-.listHeader {
-   width: 100%;
-   position: sticky;
-   top: 0;
-   z-index: 1;
-
-   height: 2rem;
+.listHeaderWrapper {
    background-color: var(--dark-2);
+   position: relative;
 
-   display: flex;
-   flex-flow: row nowrap;
-   align-items: center;
+   & .listHeader {
+      position: absolute;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+
+      & .headerField {
+         position: relative;
+         display: flex;
+         flex-flow: row nowrap;
+         justify-content: center;
+
+         &>:last-child {
+            position: absolute;
+            right: 0;
+         }
+      }
+
+      & .columnResizer {
+         display: grid;
+         place-items: center;
+         height: 100%;
+         border: 1px solid var(--light-txt-3, rgba(200, 200, 200, 1));
+
+         &>* {
+            position: absolute;
+            cursor: ew-resize;
+            user-select: none;
+            z-index: 1;
+            width: 20px;
+            height: 30px;
+            left: -10px;
+         }
+      }
+   }
 }
 
-.listRow {
-   display: flex;
-   flex-flow: row nowrap;
-   align-items: center;
+.listRowWrapper {
+   overflow: hidden;
+   display: grid;
+
+   & .viewportWrapper {
+      overflow: auto;
+
+      &::-webkit-scrollbar {
+         height: var(--scrollbar-height-1);
+         width: var(--scrollbar-width-1);
+      }
+
+      &::-webkit-scrollbar-track {
+         background: var(--scrollbar-track-1);
+      }
+
+      &::-webkit-scrollbar-thumb {
+         background: var(--scrollbar-thumb-1);
+      }
+
+      &::-webkit-scrollbar-corner {
+         background: rgba(0, 0, 0, 0);
+      }
+
+      & .viewport {
+         & .viewMover {
+            display: grid;
+         }
+      }
+   }
 }

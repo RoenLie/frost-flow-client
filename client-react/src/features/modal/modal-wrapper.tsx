@@ -57,7 +57,7 @@ export const ModalWrapper = (
          if ( !moveable ) return;
 
          this.element = wrapperRef.current;
-         const rects = this.element?.getBoundingClientRect();
+         const rects = this.getRects();
          if ( !rects ) return;
 
          const rect = [ rects.left, rects.top ];
@@ -81,28 +81,30 @@ export const ModalWrapper = (
          if ( e.buttons !== 1 ) this.unsubscribe();
          e.preventDefault();
 
-         const curs = [ e.clientX, e.clientY ];
-         const modCurs = [ curs[ 0 ] - cursorOffset[ 0 ], curs[ 1 ] - cursorOffset[ 1 ] ];
+         requestAnimationFrame( () => {
+            const curs = [ e.clientX, e.clientY ];
+            const modCurs = [ curs[ 0 ] - cursorOffset[ 0 ], curs[ 1 ] - cursorOffset[ 1 ] ];
 
-         const rects = this.element?.getBoundingClientRect() as ClientRect;
+            const rects = this.getRects();
+            if ( !rects ) return;
 
-         const offset = [
-            modCurs[ 0 ] + rects.width < window.innerWidth && modCurs[ 0 ] > 1 ? modCurs[ 0 ]
-               : modCurs[ 0 ] <= 1 ? 1
-                  : window.innerWidth - rects.width,
-            modCurs[ 1 ] + rects.height < window.innerHeight && modCurs[ 1 ] > 1 ? modCurs[ 1 ]
-               : modCurs[ 1 ] <= 1 ? 1
-                  : window.innerHeight - rects.height
-         ];
+            const offset = [
+               modCurs[ 0 ] + rects.width < window.innerWidth && modCurs[ 0 ] > 1 ? modCurs[ 0 ]
+                  : modCurs[ 0 ] <= 1 ? 1
+                     : window.innerWidth - rects.width,
+               modCurs[ 1 ] + rects.height < window.innerHeight && modCurs[ 1 ] > 1 ? modCurs[ 1 ]
+                  : modCurs[ 1 ] <= 1 ? 1
+                     : window.innerHeight - rects.height
+            ];
 
-         setDynamicPos( [ offset[ 0 ], offset[ 1 ] ] );
+            setDynamicPos( [ offset[ 0 ], offset[ 1 ] ] );
+         } );
       },
       subscribe() {
          logger.logInfo( 'modalMoveEvents subscribe' );
 
          this.subscriptions.push( [ 'mousemove', this.mousemove.bind( this ) ] );
          this.subscriptions.push( [ 'mouseup', this.mouseup.bind( this ) ] );
-
          this.subscriptions.forEach( ( sub ) => addEventListener( sub[ 0 ], sub[ 1 ] ) );
       },
       unsubscribe() {
@@ -121,7 +123,7 @@ export const ModalWrapper = (
 
          this.element = wrapperRef.current;
 
-         const rects = this.element?.getBoundingClientRect();
+         const rects = this.getRects();
          if ( !rects ) return;
 
          const rect = [ rects.right, rects.bottom ];
@@ -141,29 +143,30 @@ export const ModalWrapper = (
          if ( e.buttons !== 1 ) this.unsubscribe();
          e.preventDefault();
 
-         const rects = this.getRects();
-         if ( !rects ) return;
+         requestAnimationFrame( () => {
+            const rects = this.getRects();
+            if ( !rects ) return;
 
-         const { innerWidth: wWidth, innerHeight: wHeight } = window;
+            const { innerWidth: wWidth, innerHeight: wHeight } = window;
 
-         const cursorX = e.clientX + cursorOffset[ 0 ];
-         const cursorY = e.clientY + cursorOffset[ 1 ];
-         const limitedX = cursorX > 1 && cursorX < wWidth ? cursorX : cursorX > wWidth ? wWidth : 1;
-         const limitedY = cursorY > 1 && cursorY < wHeight ? cursorY : cursorY > wHeight ? wHeight : 1;
+            const cursorX = e.clientX + cursorOffset[ 0 ];
+            const cursorY = e.clientY + cursorOffset[ 1 ];
+            const limitedX = cursorX > 1 && cursorX < wWidth ? cursorX : cursorX > wWidth ? wWidth : 1;
+            const limitedY = cursorY > 1 && cursorY < wHeight ? cursorY : cursorY > wHeight ? wHeight : 1;
 
-         const size: ( string | number )[] = [ limitedX - rects.left, limitedY - rects.top ];
+            const size: ( string | number )[] = [ limitedX - rects.left, limitedY - rects.top ];
 
-         size[ 0 ] = size[ 0 ] + 'px';
-         size[ 1 ] = size[ 1 ] + 'px';
+            size[ 0 ] = size[ 0 ] + 'px';
+            size[ 1 ] = size[ 1 ] + 'px';
 
-         setDimensions( size as string[] );
+            setDimensions( size as string[] );
+         } );
       },
       subscribe() {
          logger.logInfo( 'modalResizeEvents subscribe' );
 
          this.subscriptions.push( [ 'mousemove', this.mousemove.bind( this ) ] );
          this.subscriptions.push( [ 'mouseup', this.mouseup.bind( this ) ] );
-
          this.subscriptions.forEach( ( sub ) => addEventListener( sub[ 0 ], sub[ 1 ] ) );
       },
       unsubscribe() {
@@ -183,16 +186,18 @@ export const ModalWrapper = (
          const rects = this.getRects();
          if ( !rects ) return;
 
-         const { innerWidth: wWidth, innerHeight: wHeight } = window;
+         requestAnimationFrame( () => {
+            const { innerWidth: wWidth, innerHeight: wHeight } = window;
 
-         const x = rects.left > 0 && rects.right < wWidth
-            ? rects.x : wWidth - rects.width > 0
-               ? wWidth - rects.width - 1 : 1;
-         const y = rects.top > 0 && rects.bottom < wHeight
-            ? rects.y : wHeight - rects.height > 0
-               ? wHeight - rects.height - 1 : 1;
+            const x = rects.left > 0 && rects.right < wWidth
+               ? rects.x : wWidth - rects.width > 0
+                  ? wWidth - rects.width - 1 : 1;
+            const y = rects.top > 0 && rects.bottom < wHeight
+               ? rects.y : wHeight - rects.height > 0
+                  ? wHeight - rects.height - 1 : 1;
 
-         setPosition( [ x, y ] );
+            setPosition( [ x, y ] );
+         } );
       },
       subscribe() {
          if ( !moveable ) return;
@@ -200,7 +205,6 @@ export const ModalWrapper = (
 
          this.element = wrapperRef.current;
          this.boundResize = this.resize.bind( this );
-
          addEventListener( 'resize', this.boundResize );
       },
       unsubscribe() {

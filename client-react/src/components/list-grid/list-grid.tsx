@@ -1,31 +1,13 @@
-import { useScrollContainer } from "features/virtual-scroll";
 import { MemoVirtualScroll } from "features/virtual-scroll";
 import { useClasses } from "hooks";
-import React, { HTMLAttributes, memo, useEffect, useMemo, useState } from 'react';
+import React, { HTMLAttributes, memo, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles.module.css';
 
-
-const Item = memo( ( { index, stuff }: any ) => (
-   <div
-      style={ {
-         height: 30,
-         lineHeight: "30px",
-         display: "flex",
-         justifyContent: "space-between",
-         padding: "0 10px"
-      } }
-      className="row"
-      key={ index }
-   >
-      row index { index } stuff: { stuff }
-   </div>
-) );
 
 
 interface IListGridProps extends HTMLAttributes<HTMLDivElement> { datasource: any; };
 export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    const hostClasses = useClasses( styles.host, className );
-   const [ $containerheight, containerRef ] = useScrollContainer();
    const [ $rowData, setRowData ]: [ any[], Function ] = useState( [] );
    const [ api ] = useState( new VirtualScrollApi( datasource ) );
 
@@ -37,7 +19,6 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    }, [ $rowData ] );
 
    const listOptions = {
-
    };
 
    const defaultColumnDefs = {
@@ -48,30 +29,36 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
 
    const columnDefs = [
       {
-         field: 'athlete'
+         label: 'Athlete',
+         field: 'athlete',
+         minWidth: 150
       },
       {
-         field: 'sport'
+         label: 'Sport',
+         field: 'sport',
+         resizable: false
       },
       {
+         label: 'Country',
          field: 'country'
+      },
+      {
+         label: 'Age',
+         field: 'age',
+         hidden: true
       },
    ];
 
 
    return (
       <div className={ hostClasses }>
-         <div className={ styles.listContainer } ref={ containerRef }>
-            <MemoVirtualScroll
-               dataTrigger={ api.getRows.bind( api ) }
-               itemCount={ $rowData.length }
-               height={ $containerheight }
-               childHeight={ 30 }
-               defaultColDefs={ defaultColumnDefs }
-               colDefs={ columnDefs }
-               rowData={ $rowData }
-               render={ Item } />
-         </div>
+         <MemoVirtualScroll
+            dataTrigger={ api.getRows.bind( api ) }
+            itemCount={ $rowData.length }
+            childHeight={ 30 }
+            defaultColDefs={ defaultColumnDefs }
+            colDefs={ columnDefs }
+            rowData={ $rowData } />
       </div>
    );
 };

@@ -19,7 +19,7 @@ export const EpochList = ( { }: IEpochListProps ) => {
    const datasource: IDatasource = {
       getRows: getRowsAsync,
       options: {
-         batchSize: 25
+         batchSize: 50
       }
    };
 

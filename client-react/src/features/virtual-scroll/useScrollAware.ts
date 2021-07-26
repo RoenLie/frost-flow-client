@@ -6,6 +6,7 @@ interface FlexibleHTMLElement extends HTMLElement { [ key: string ]: any; };
 
 export const useScrollAware = () => {
    const [ $scrollTop, setScrollTop ] = useState( 0 );
+   const [ $scrollLeft, setScrollLeft ] = useState( 0 );
    const [ $scrollDirection, setScrollDirection ] = useState( 0 );
    const ref = useRef<HTMLElement>();
 
@@ -17,7 +18,9 @@ export const useScrollAware = () => {
       requestAnimationFrame( () => {
          setScrollDirection( Math.sign( ev?.target?.scrollTop - scrollContainer.lastScrollTop ) );
          setScrollTop( ev?.target?.scrollTop );
+         setScrollLeft( ev?.target?.scrollLeft );
          scrollContainer.lastScrollTop = ev?.target?.scrollTop;
+         scrollContainer.lastScrollLeft = ev?.target?.scrollLeft;
       } );
    };
 
@@ -33,5 +36,5 @@ export const useScrollAware = () => {
    }, [] );
 
 
-   return [ $scrollTop, $scrollDirection, ref ];
+   return [ $scrollTop, $scrollLeft, $scrollDirection, ref ] as [ number, number, number, React.RefObject<HTMLDivElement> ];
 };

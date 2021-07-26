@@ -1,20 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 
 
-export const useScrollContainer = ( initialHeight = 0 ) => {
+interface useScrollContainerProps { initialHeight?: number, ref?: any, modifier?: number; }
+export const useScrollContainer = (
+   { initialHeight = 0, ref, modifier = 0 }: useScrollContainerProps
+) => {
    const [ containerHeight, setContainerHeight ] = useState( initialHeight );
-   const containerRef = useRef<HTMLDivElement>( null );
+   const containerRef = ref || useRef<HTMLDivElement>( null );
 
    const calcContainerHeight = () => {
       const el = containerRef.current;
       if ( !el ) return;
 
       const rects = el.getBoundingClientRect();
+
       const containerHeight = rects.bottom > window.innerHeight
          ? window.innerHeight - rects.top - 1
          : rects.height;
 
-      setContainerHeight( containerHeight );
+      requestAnimationFrame( () => {
+         setContainerHeight( containerHeight + modifier );
+      } );
+
    };
 
    useEffect( () => {
