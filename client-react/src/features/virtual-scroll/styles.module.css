@@ -15,36 +15,51 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-
+      
       & .headerField {
+         background-color: var(--dark-2);
          position: relative;
          display: flex;
          flex-flow: row nowrap;
          justify-content: center;
+         align-items: center;
+         height: 100%;
 
-         &>:last-child {
+         & .columnResizer {
             position: absolute;
             right: 0;
+      
+            display: grid;
+            place-items: center;
+            height: 50%;
+            border: 1px solid var(--light-txt-3, rgba(200, 200, 200, 1));
+      
+            &>* {
+               position: absolute;
+               cursor: ew-resize;
+               user-select: none;
+               z-index: 1;
+               width: 20px;
+               height: 30px;
+               left: -10px;
+            }
          }
       }
 
-      & .columnResizer {
-         display: grid;
-         place-items: center;
-         height: 100%;
-         border: 1px solid var(--light-txt-3, rgba(200, 200, 200, 1));
-
-         &>* {
-            position: absolute;
-            cursor: ew-resize;
-            user-select: none;
-            z-index: 1;
-            width: 20px;
-            height: 30px;
-            left: -10px;
-         }
-      }
    }
+}
+
+.headerFieldDrag {
+   background-color: orange;
+   position: fixed;
+   display: flex;
+   z-index: 1;
+   flex-flow: row nowrap;
+   justify-content: center;
+   align-items: center;
+   width: 5rem;
+   height: 2rem;
+   pointer-events: none;
 }
 
 .listRowWrapper {

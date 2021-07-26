@@ -1,6 +1,6 @@
 import { MemoVirtualScroll } from "features/virtual-scroll";
 import { useClasses } from "hooks";
-import React, { HTMLAttributes, memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { HTMLAttributes, useEffect, useState } from 'react';
 import styles from './styles.module.css';
 
 
@@ -29,6 +29,13 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
 
    const columnDefs = [
       {
+         label: '',
+         field: '',
+         minWidth: 50,
+         resizable: false,
+         moveable: false
+      },
+      {
          label: 'Athlete',
          field: 'athlete',
          minWidth: 150
@@ -36,7 +43,6 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
       {
          label: 'Sport',
          field: 'sport',
-         resizable: false
       },
       {
          label: 'Country',
@@ -45,8 +51,31 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
       {
          label: 'Age',
          field: 'age',
-         hidden: true
       },
+      {
+         label: 'Year',
+         field: 'year',
+      },
+      {
+         label: 'Date',
+         field: 'date',
+      },
+      {
+         label: 'Gold',
+         field: 'gold',
+      },
+      {
+         label: 'Silver',
+         field: 'silver',
+      },
+      {
+         label: 'Bronze',
+         field: 'bronze',
+      },
+      {
+         label: 'Total',
+         field: 'total',
+      }
    ];
 
 
@@ -54,6 +83,8 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
       <div className={ hostClasses }>
          <MemoVirtualScroll
             dataTrigger={ api.getRows.bind( api ) }
+            onMoveColumnEnd={ ( d ) => console.log( d ) }
+            onResizeColumnEnd={ ( d ) => console.log( d ) }
             itemCount={ $rowData.length }
             childHeight={ 30 }
             defaultColDefs={ defaultColumnDefs }

@@ -1,7 +1,9 @@
 import { useScrollAware } from "./useScrollAware";
-import React, { CSSProperties, memo, useEffect, useMemo, useState } from "react";
+import React, { CSSProperties, Dispatch, memo, useEffect, useMemo, useState } from "react";
 import styles from './styles.module.css';
 import { useScrollContainer } from "features/virtual-scroll";
+import { useMoveColumn } from "features/virtual-scroll/useColumnMove";
+import { useResizeColumn } from "features/virtual-scroll/useResizeColumn";
 
 
 
@@ -13,6 +15,8 @@ export interface IVirtualScrollProps {
    childHeight: number;
    renderAhead?: number;
    dataTrigger: ( start: number ) => { subscribe: any; } | any;
+   onMoveColumnEnd?: ( colDefs: any[] ) => void;
+   onResizeColumnEnd?: ( colDefs: any[] ) => void;
 }
 
 
@@ -21,62 +25,22 @@ const VirtualScroll = ( {
    colDefs,
    rowData,
    childHeight,
-   renderAhead = 20,
-   dataTrigger
+   renderAhead = 5,
+   dataTrigger,
+   onMoveColumnEnd,
+   onResizeColumnEnd
 }: IVirtualScrollProps
 ) => {
+   //#region internal state
+   const [ $customColDefs, setCustomColDefs ]: [ any, Dispatch<any> ] = useState();
+   //#endregion
+
+
    //#region custom hooks
    const [ $scrollTop, $scrollLeft, $scrollDirection, ref ] = useScrollAware();
    const [ $rowWrapperHeight, rowWrapperRef ] = useScrollContainer( {} );
    //#endregion
 
-   //#region local classes/functions
-   const fieldResizeEvents = {
-      field: '',
-      element: null as HTMLElement | null,
-      subscriptions: [] as Array<[ keyof WindowEventMap, any ]>,
-      getRects() { return this.element?.getBoundingClientRect(); },
-      mousedown( e: MouseEvent, field: string ) {
-         const target = e.target as HTMLElement;
-         this.element = target.parentElement?.parentElement as HTMLElement;
-         this.field = field;
-         this.subscribe();
-      },
-      mouseup() {
-         this.unsubscribe();
-      },
-      mousemove( e: MouseEvent ) {
-         if ( e.buttons !== 1 ) this.unsubscribe();
-         e.preventDefault();
-
-         requestAnimationFrame( () => {
-            const rects = this.getRects();
-            if ( !rects ) return;
-
-            const colDef = $customColDefs[ this.field ];
-            const width = e.x - rects.left;
-
-            setCustomColDefs( {
-               ...$customColDefs,
-               [ this.field ]: { ...colDef, width }
-            } );
-         } );
-      },
-      subscribe() {
-         this.subscriptions.push( [ 'mousemove', this.mousemove.bind( this ) ] );
-         this.subscriptions.push( [ 'mouseup', this.mouseup.bind( this ) ] );
-
-         this.subscriptions.forEach( ( sub ) => addEventListener( sub[ 0 ], sub[ 1 ] ) );
-      },
-      unsubscribe() {
-         this.subscriptions.forEach( ( sub ) => removeEventListener( sub[ 0 ], sub[ 1 ] ) );
-      }
-   };
-   //#endregion
-
-   //#region internal state
-   const [ $customColDefs, setCustomColDefs ]: [ any, Function ] = useState();
-   //#endregion
 
    //#region local variables
    const totalHeight = rowData.length * childHeight;
@@ -85,11 +49,13 @@ const VirtualScroll = ( {
    const offsetY = startNode * childHeight;
    //#endregion
 
+
    //#region useEffect
    useEffect( () => {
-      setCustomColDefs( colDefs.reduce( ( acc, def ) => {
+      setCustomColDefs( colDefs.reduce( ( acc, def, index ) => {
          const width = def.width || def.minWidth || defaultColDefs.minWidth || 100;
-         acc[ def.field ] = { ...defaultColDefs, ...def, width };
+         const order = index;
+         acc[ def.field ] = { ...defaultColDefs, ...def, width, order };
          return acc;
       }, {} ) );
    }, [] );
@@ -115,32 +81,75 @@ const VirtualScroll = ( {
    }, [ $rowWrapperHeight ] );
    //#endregion
 
+
    //#region useMemo
    const mergedDefs = useMemo( () => {
-      if ( !$customColDefs ) return;
+      if ( !$customColDefs ) return [];
 
-      const merged = colDefs.map( def => ( { ...defaultColDefs, ...def, ...$customColDefs[ def.field ] } ) );
+      const merged = colDefs.map( ( def, i ) => {
+         return { ...defaultColDefs, ...def, ...$customColDefs[ def.field ] };
+      } ).sort( ( a, b ) => a.order - b.order );
+
       return merged;
    }, [ colDefs, defaultColDefs, $customColDefs ] );
+
+
+   //#region custom event hooks
+   const { columnResizeEvents } = useResizeColumn( $customColDefs, setCustomColDefs, () => onMoveColumnEnd?.( mergedDefs ) );
+   const { columnMoveEvents, $columnMouseenterEvent } = useMoveColumn( $customColDefs, setCustomColDefs, () => onResizeColumnEnd?.( mergedDefs ) );
+   //#endregion
+
 
    const visibleHeaders = useMemo( () => {
       if ( !mergedDefs ) return ( <></> );
 
       return mergedDefs
          .filter( def => !def.hidden )
-         .map( def => {
+         .map( ( def, i ) => {
+            const fieldId = 'fieldHeader-' + def.field;
+
             const style = {
+               willChange: 'width',
                width: def.width || def.minWidth,
                minWidth: def.minWidth,
             } as CSSProperties;
 
+            const labelStyle = {
+               position: 'relative',
+               display: 'grid',
+               placeItems: 'center'
+            } as CSSProperties;
+
+            const moveStyle = {
+               position: 'absolute',
+               width: '100%',
+               height: '100%',
+               zIndex: 1,
+               cursor: 'grab'
+            } as CSSProperties;
 
             return (
-               <div key={ def.field } style={ style } className={ styles.headerField }>
-                  <div>{ def.label || def.field }</div>
-                  <div onMouseDown={ ( e ) => fieldResizeEvents.mousedown( e as unknown as MouseEvent, def.field ) }
-                     className={ styles.columnResizer }><span /></div>
-               </div> );
+               <div
+                  key={ def.field }
+                  id={ fieldId }
+                  style={ style }
+                  className={ styles.headerField }
+                  onMouseEnter={ ( e ) => $columnMouseenterEvent.mouseenter( e as unknown as MouseEvent, def.moveable, def.field ) }
+               >
+                  <div style={ labelStyle }>
+                     <span>{ def.label || def.field }</span>
+                     <span style={ moveStyle }
+                        onMouseDown={ ( e ) => columnMoveEvents.mousedown( e as unknown as MouseEvent, def.field, fieldId ) }
+                     />
+                  </div>
+
+                  <div className={ styles.columnResizer }>{ def.resizable !== false
+                     ? <span onMouseDown={ ( e ) => columnResizeEvents
+                        .mousedown( e as unknown as MouseEvent, def.field ) } />
+                     : <></> }
+                  </div>
+               </div>
+            );
          } );
    }, [ mergedDefs ] );
 
@@ -152,7 +161,6 @@ const VirtualScroll = ( {
          .map( ( _, index ) => {
             const rowStyle = {
                height: childHeight,
-               width: '100%',
                willChange: 'width',
                display: 'flex',
                flexFlow: 'row nowrap',
@@ -163,11 +171,12 @@ const VirtualScroll = ( {
                <div key={ index + startNode } className={ styles.listRow } style={ rowStyle }>
                   { mergedDefs.filter( def => !def.hidden ).map( ( def, i ) => {
                      const fieldStyle = {
+                        willChange: 'width',
                         width: def.width || def.minWidth,
                         minWidth: def.minWidth,
                         overflow: 'hidden',
                         whiteSpace: 'nowrap',
-                        textOverflow: 'ellipsis'
+                        textOverflow: 'ellipsis',
                      } as CSSProperties;
 
                      return (
@@ -191,10 +200,12 @@ const VirtualScroll = ( {
    }, [ $scrollTop ] );
 
    const viewportWrapperStyle = useMemo( () => ( {
+      willChange: 'height',
       height: $rowWrapperHeight,
    } as CSSProperties ), [ $rowWrapperHeight ] );
 
    const viewportStyle = useMemo( () => ( {
+      willChange: 'height',
       height: totalHeight,
    } as CSSProperties ), [ totalHeight ] );
 
