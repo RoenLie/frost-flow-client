@@ -1,6 +1,6 @@
-import { Dispatch } from "react";
+import { Dispatch, useState } from "react";
 
-export const useResizeColumn = ( customColDefs: any, setCustomColDefs: Dispatch<any>, onResizeEnd?: Function ) => {
+export const useResizeColumn = ( customColDefs: any, setCustomColDefs: Dispatch<any> ) => {
    const columnResizeEvents = {
       customColDefs,
       field: '',
@@ -43,9 +43,11 @@ export const useResizeColumn = ( customColDefs: any, setCustomColDefs: Dispatch<
          this.subscriptions.forEach( ( sub ) => removeEventListener( sub[ 0 ], sub[ 1 ] ) );
          this.subscriptions.length = 0;
 
-         onResizeEnd?.();
+         setTriggerResizeColumnEnd( v => v + 1 );
       }
    };
 
-   return { columnResizeEvents };
+   const [ $triggerResizeColumnEnd, setTriggerResizeColumnEnd ] = useState( 0 );
+
+   return { columnResizeEvents, $triggerResizeColumnEnd };
 };

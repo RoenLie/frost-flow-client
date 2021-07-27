@@ -3,7 +3,7 @@ import { createCSSSelector } from "shared/helpers/createCSSSelector";
 import styles from './styles.module.css';
 
 
-export const useMoveColumn = ( customColDefs: any, setCustomColDefs: Dispatch<any>, onMoveColumnEnd?: ( a?: any ) => void ) => {
+export const useMoveColumn = ( customColDefs: any, setCustomColDefs: Dispatch<any> ) => {
 
    const columnMoveEvents = {
       field: '',
@@ -97,7 +97,7 @@ export const useMoveColumn = ( customColDefs: any, setCustomColDefs: Dispatch<an
          this.subscriptions.forEach( ( sub ) => removeEventListener( sub[ 0 ], sub[ 1 ] ) );
          this.subscriptions.length = 0;
 
-         onMoveColumnEnd?.();
+         setTriggerMoveColumnEnd( v => v + 1 );
       }
    };
 
@@ -127,5 +127,7 @@ export const useMoveColumn = ( customColDefs: any, setCustomColDefs: Dispatch<an
    $columnMouseenterEvent.customColDefs = customColDefs;
    $columnMouseenterEvent.setCustomColDefs = setCustomColDefs;
 
-   return { columnMoveEvents, $columnMouseenterEvent };
+   const [ $triggerMoveColumnEnd, setTriggerMoveColumnEnd ] = useState( 0 );
+
+   return { columnMoveEvents, $columnMouseenterEvent, $triggerMoveColumnEnd };
 };

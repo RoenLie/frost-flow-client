@@ -95,8 +95,19 @@ const VirtualScroll = ( {
 
 
    //#region custom event hooks
-   const { columnResizeEvents } = useResizeColumn( $customColDefs, setCustomColDefs, () => onMoveColumnEnd?.( mergedDefs ) );
-   const { columnMoveEvents, $columnMouseenterEvent } = useMoveColumn( $customColDefs, setCustomColDefs, () => onResizeColumnEnd?.( mergedDefs ) );
+   const { columnResizeEvents, $triggerResizeColumnEnd } = useResizeColumn( $customColDefs, setCustomColDefs );
+   const {
+      columnMoveEvents,
+      $columnMouseenterEvent,
+      $triggerMoveColumnEnd
+   } = useMoveColumn( $customColDefs, setCustomColDefs );
+
+   useEffect( () => {
+      if ( $triggerMoveColumnEnd === 0 && $triggerResizeColumnEnd === 0 ) return;
+      onResizeColumnEnd?.( mergedDefs );
+   }, [ $triggerMoveColumnEnd, $triggerResizeColumnEnd ] );
+
+
    //#endregion
 
 
