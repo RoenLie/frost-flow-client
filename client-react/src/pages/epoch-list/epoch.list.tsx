@@ -1,14 +1,12 @@
 import {
-   IDatasource,
    ListGrid,
    ListHeader,
    ListPreview,
    ListTab,
    ListTabs,
    ListTree,
-   TRequest,
-   TSuccessParams
 } from "components";
+import { IDatasource, IGetRowsParams, TRequest, TSuccessParams } from "features/virtual-scroll/VirtualListGridApi";
 import React, { HTMLAttributes } from 'react';
 import { asyncRes } from "shared/helpers/asyncRes";
 import styles from './styles.module.css';
@@ -19,7 +17,7 @@ export const EpochList = ( { }: IEpochListProps ) => {
    const datasource: IDatasource = {
       getRows: getRowsAsync,
       options: {
-         batchSize: 50
+         batchSize: 2
       }
    };
 
@@ -43,21 +41,7 @@ export const EpochList = ( { }: IEpochListProps ) => {
 };
 
 
-const getRowsAsync = async ( {
-   request = {
-      endRow: 49,
-      filterModel: {},
-      groupKeys: [],
-      pivotCols: [],
-      pivotMode: false,
-      rowGroupCols: [],
-      sortModel: [],
-      startRow: 0,
-      valueCols: []
-   } as TRequest,
-   fail = () => { },
-   success = ( { }: TSuccessParams ) => { }
-} ) => {
+const getRowsAsync = async ( { request, fail, success }: IGetRowsParams ) => {
    const url: RequestInfo = `//localhost:8025/postgres/olympic_winners`;
    const fetchRequest: RequestInit = {
       method: "post",
