@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useEffect, useState } from 'react';
+import React, { HTMLAttributes, useEffect, useMemo, useState } from 'react';
 import { MemoVirtualScroll } from "features/virtual-scroll";
 import { VirtualScrollApi } from "features/virtual-scroll/VirtualListGridApi";
 import { useClasses } from "hooks";
@@ -10,48 +10,15 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    const hostClasses = useClasses( styles.host, className );
    const [ $api ] = useState( new VirtualScrollApi() );
 
-   useEffect( () => {
-      console.log( $api );
-      const { listApi } = $api;
 
-      listApi.setDatasource( datasource );
-
-      const resizeColumnSub = listApi.resizeColumnPublisher.subscribe( () => {
-         console.log( 'column resized' );
-      } );
-
-      const moveColumnSub = listApi.moveColumnPublisher.subscribe( () => {
-         console.log( 'column moved' );
-      } );
-
-      const hideColumnSub = listApi.hideColumnPublisher.subscribe( () => {
-         console.log( 'column visibility toggled' );
-      } );
-
-      const sortColumnSub = listApi.sortColumnPublisher.subscribe( () => {
-         console.log( 'row data sorted' );
-      } );
-
-
-      return () => {
-         resizeColumnSub.unsubscribe();
-         moveColumnSub.unsubscribe();
-         hideColumnSub.unsubscribe();
-         sortColumnSub.unsubscribe();
-      };
-   }, [] );
-
-   $api.listApi.childHeight = 30;
-   $api.listApi.renderAhead = 5;
-
-   $api.listApi.defaultColDefs = {
+   const defaultColDefs = {
       minWidth: 100,
       sortable: true,
       resizable: true,
       menu: true
    };
 
-   $api.listApi.colDefs = [
+   const colDefs = [
       {
          label: '',
          field: '',
@@ -103,6 +70,41 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
          field: 'total',
       }
    ];
+
+
+   useMemo( () => {
+      console.log( $api );
+      const { listApi } = $api;
+      listApi.childHeight = 30;
+      listApi.renderAhead = 5;
+      listApi.setColumnDefinitions( defaultColDefs, colDefs );
+      listApi.setDatasource( datasource );
+   }, [] );
+
+
+   useEffect( () => {
+      const { publishers } = $api;
+
+      const resizeSub = publishers.resizeColumn.subscribe( () => {
+         console.log( 'column resized' );
+      } );
+      const moveSub = publishers.moveColumn.subscribe( () => {
+         console.log( 'column moved' );
+      } );
+      const hideSub = publishers.hideColumn.subscribe( () => {
+         console.log( 'column visibility toggled' );
+      } );
+      const sortSub = publishers.sortColumn.subscribe( () => {
+         console.log( 'row data sorted' );
+      } );
+
+      return () => {
+         resizeSub.unsubscribe();
+         moveSub.unsubscribe();
+         hideSub.unsubscribe();
+         sortSub.unsubscribe();
+      };
+   }, [] );
 
 
    return (

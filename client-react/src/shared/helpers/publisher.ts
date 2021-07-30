@@ -35,7 +35,9 @@ export class Publisher<T> {
    }
    publish() {
       this.#subscribers.forEach( cb => {
-         cb( this.#value, this.#previousValue );
+         ( async () => {
+            cb( this.#value, this.#previousValue );
+         } )();
       } );
    }
 }

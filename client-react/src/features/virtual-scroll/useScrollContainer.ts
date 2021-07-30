@@ -21,8 +21,8 @@ export const useScrollContainer = (
       requestAnimationFrame( () => {
          setContainerHeight( containerHeight + modifier );
       } );
-
    };
+
 
    useEffect( () => {
       calcContainerHeight();
