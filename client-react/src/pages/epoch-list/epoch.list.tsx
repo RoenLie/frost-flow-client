@@ -15,10 +15,7 @@ import styles from './styles.module.css';
 export interface IEpochListProps extends HTMLAttributes<HTMLElement> { };
 export const EpochList = ( { }: IEpochListProps ) => {
    const datasource: IDatasource = {
-      getRows: getRowsAsync,
-      options: {
-         batchSize: 2
-      }
+      getRows: getRowsAsync
    };
 
    const tabs = [

@@ -3,7 +3,6 @@ import { Publisher } from "shared/helpers/publisher";
 import styles from './styles.module.css';
 
 
-interface FlexibleHTMLElement extends HTMLElement { [ key: string ]: any; };
 export type TSuccessParams = {
    rowData: any[],
    lastRow: number;
@@ -26,7 +25,6 @@ export interface IGetRowsParams {
 }
 export interface IDatasource {
    getRows: ( { }: IGetRowsParams ) => Promise<any>;
-   options: TDatasourceOptions;
 }
 export type TDatasourceOptions = {
    batchSize: number;
@@ -37,7 +35,6 @@ export interface ISSROptions {
 export interface IDefaultColDefs {
    [ key: string ]: any;
 }
-
 export interface IColDefs {
    [ key: string ]: any;
    label: string;
@@ -47,11 +44,25 @@ export interface IColDefs {
    moveable?: boolean;
    menu?: boolean;
 }
+interface FlexibleHTMLElement extends HTMLElement { [ key: string ]: any; };
+type TEventSubscription = [ FlexibleHTMLElement | Window, keyof WindowEventMap, any ][];
+class EventApi {
+   subscriptions: TEventSubscription = [];
+   subscribe() {
+      this.subscriptions.forEach( ( sub ) => sub[ 0 ].addEventListener( sub[ 1 ], sub[ 2 ] ) );
+   };
+   unsubscribe() {
+      this.subscriptions.forEach( sub => sub[ 0 ].removeEventListener( sub[ 1 ], sub[ 2 ] ) );
+      this.subscriptions.length = 0;
+   }
+}
+
 
 export class VirtualScrollApi {
    rerender?: () => void;
    listApi = new ListApi( this );
    columnApi = new ColumnApi( this );
+   styleApi = new StyleApi( this );
    publishers = {
       moveColumn: new Publisher<any[]>( [] ),
       resizeColumn: new Publisher<any[]>( [] ),
@@ -66,6 +77,7 @@ export class VirtualScrollApi {
 class ColumnApi {
    root: VirtualScrollApi;
    colDefs = new ColumnDefinitions();
+   columnMenuApi = new ColumnMenuApi( this );
    moveColumnApi = new MoveColumnApi( this );
    resizeColumnApi = new ResizeColumnApi( this );
    constructor ( root: VirtualScrollApi ) {
@@ -73,13 +85,12 @@ class ColumnApi {
    }
 
    toggleColumn( field: string ) {
-      const { listApi } = this.root;
-      const value = listApi.colDefs.custom[ field ].hidden;
+      const value = this.colDefs.custom[ field ].hidden;
 
-      listApi.colDefs.custom = {
-         ...listApi.colDefs.custom,
+      this.colDefs.custom = {
+         ...this.colDefs.custom,
          [ field ]: {
-            ...listApi.colDefs.custom[ field ],
+            ...this.colDefs.custom[ field ],
             hidden: value ? false : true
          }
       };
@@ -117,19 +128,47 @@ class ColumnDefinitions {
    }
 }
 
-class ColumnMenuApi {
-
-}
-
-class MoveColumnApi {
+class ColumnMenuApi extends EventApi {
    columnApi: ColumnApi;
-   field = '';
-   elementId = '';
-   moving = false;
-   startPos = [ 0, 0 ];
-   subscriptions: Array<[ keyof WindowEventMap, any ]> = [];
+   open = false;
+   xy = [ 150, 150 ];
 
    constructor ( columnApi: ColumnApi ) {
+      super();
+      this.columnApi = columnApi;
+   }
+
+   openMenu( e: MouseEvent ) {
+      this.open = true;
+      this.xy = [ e.clientX - 15, e.clientY - 15 ];
+      this.subscriptions.push( [ window, 'mousedown', this.closeMenu.bind( this ) ] );
+      this.columnApi.root.rerender?.();
+      super.subscribe();
+   }
+   closeMenu( e: MouseEvent ) {
+      const insideMenu = e.composedPath()
+         .some( ( path: any ) => path.id == 'fieldHeader-menu' );
+
+      if ( insideMenu ) return;
+
+      this.open = false;
+      this.xy = [ 0, 0 ];
+      this.columnApi.root.rerender?.();
+      super.unsubscribe();
+   }
+}
+
+class MoveColumnApi extends EventApi {
+   columnApi: ColumnApi;
+   field = '';
+   label = '';
+   elementId = '';
+   moving = false;
+   startPos = [ 100, 100 ];
+   offset = [ 0, 0 ];
+
+   constructor ( columnApi: ColumnApi ) {
+      super();
       this.columnApi = columnApi;
    }
 
@@ -141,6 +180,7 @@ class MoveColumnApi {
 
       this.startPos = [ e.clientX, e.clientY ];
       this.field = field;
+      this.label = this.columnApi.colDefs.merged.find( d => d.field == field )?.label || '';
       this.elementId = 'listgrid-drag-' + field;
 
       this.subscribe();
@@ -158,57 +198,47 @@ class MoveColumnApi {
             Math.abs( e.clientX - this.startPos[ 0 ] ),
             Math.abs( e.clientY - this.startPos[ 1 ] )
          ];
+
          const sufficientDistance = travelDistance.some( d => d > 15 );
-
          if ( !sufficientDistance ) return;
-
-         createCSSSelector( '.cursorMove *', 'cursor:move !important;' );
-         document.body.classList.add( 'cursorMove' );
 
          this.moving = true;
 
-         const div: HTMLDivElement = document.createElement( 'div' );
-         div.id = this.elementId;
-         div.setAttribute( 'style',
-            `left: ${ this.startPos[ 0 ] - ( 15 ) }px;` +
-            `top: ${ this.startPos[ 1 ] - ( 10 ) }px;`
-         );
-
-         div.classList.add( styles.headerFieldDrag );
-
-         document.getElementsByTagName( 'body' )[ 0 ].appendChild( div );
+         createCSSSelector( '.cursorMove *', 'cursor:move !important;' );
+         document.body.classList.add( 'cursorMove' );
       }
 
       requestAnimationFrame( ( () => {
-         const el = document.getElementById( this.elementId );
-         if ( !el ) return;
-
          const offset = [ e.clientX - this.startPos[ 0 ], e.clientY - this.startPos[ 1 ] ];
-         el.style.willChange = 'transform';
-         el.style.transform = `translate(${ offset[ 0 ] }px, ${ offset[ 1 ] }px)`;
+         this.offset = offset;
+
+         this.columnApi.root.rerender?.();
       } ) );
    }
    mouseenter( e: MouseEvent, field: string ) {
-      if ( e.buttons !== 1 ) return;
-      const { listApi } = this.columnApi.root;
+      if ( e.buttons !== 1 ) {
+         this.unsubscribe();
+         return;
+      }
 
-      let moveable = listApi.colDefs.custom[ field ].moveable;
+      const { columnApi } = this.columnApi.root;
+
+      let moveable = columnApi.colDefs.custom[ field ].moveable;
       moveable = moveable === undefined ? true : moveable;
 
       if ( !this.moving || !moveable || this.field == field ) return;
 
-      const order1 = listApi.colDefs.custom[ this.field ].order;
-      const order2 = listApi.colDefs.custom[ field ].order;
+      const order1 = columnApi.colDefs.custom[ this.field ].order;
+      const order2 = columnApi.colDefs.custom[ field ].order;
 
-
-      listApi.colDefs.custom = {
-         ...listApi.colDefs.custom,
+      columnApi.colDefs.custom = {
+         ...columnApi.colDefs.custom,
          [ this.field ]: {
-            ...listApi.colDefs.custom[ this.field ],
+            ...columnApi.colDefs.custom[ this.field ],
             order: order2
          },
          [ field ]: {
-            ...listApi.colDefs.custom[ field ],
+            ...columnApi.colDefs.custom[ field ],
             order: order1
          }
       };
@@ -220,31 +250,34 @@ class MoveColumnApi {
    }
    subscribe() {
       this.subscriptions.push(
-         [ 'mousemove', this.mousemove.bind( this ) ],
-         [ 'mouseup', this.mouseup.bind( this ) ]
+         [ window, 'mousemove', this.mousemove.bind( this ) ],
+         [ window, 'mouseup', this.mouseup.bind( this ) ]
       );
-      this.subscriptions.forEach( ( sub ) => addEventListener( sub[ 0 ], sub[ 1 ] ) );
+      super.subscribe();
    }
    unsubscribe() {
-      if ( this.moving ) this.columnApi.root.publishers.moveColumn.publish();
+      const { publishers } = this.columnApi.root;
+      if ( this.moving ) publishers.moveColumn.publish();
 
       this.field = '';
+      this.elementId = '';
       this.moving = false;
+
       document.body.classList.remove( 'cursorMove' );
-      document.getElementById( this.elementId )?.remove();
-      this.subscriptions.forEach( ( sub ) => removeEventListener( sub[ 0 ], sub[ 1 ] ) );
-      this.subscriptions.length = 0;
+
+      super.unsubscribe();
+      this.columnApi.root.rerender?.();
    }
 }
 
-class ResizeColumnApi {
+class ResizeColumnApi extends EventApi {
    columnApi: ColumnApi;
-   field = '';
+   field: string | null = null;
    resizing = false;
    element = null as HTMLElement | null;
-   subscriptions: Array<[ keyof WindowEventMap, any ]> = [];
 
    constructor ( columnApi: ColumnApi ) {
+      super();
       this.columnApi = columnApi;
    }
 
@@ -258,25 +291,24 @@ class ResizeColumnApi {
    mousemove( e: MouseEvent ) {
       e.preventDefault();
 
-      if ( e.buttons !== 1 ) {
-         this.unsubscribe();
-         return;
-      }
-
-      this.resizing = true;
-
       requestAnimationFrame( () => {
+         if ( e.buttons !== 1 || this.field === null ) {
+            this.unsubscribe();
+            return;
+         }
+
          const rects = this.getRects();
          if ( !rects ) return;
 
-         const { listApi } = this.columnApi.root;
+         this.resizing = true;
 
+         const { columnApi } = this.columnApi.root;
          const width = e.x - rects.left;
 
-         listApi.colDefs.custom = {
-            ...listApi.colDefs.custom,
+         columnApi.colDefs.custom = {
+            ...columnApi.colDefs.custom,
             [ this.field ]: {
-               ...listApi.colDefs.custom[ this.field ],
+               ...columnApi.colDefs.custom[ this.field ],
                width
             }
          };
@@ -289,16 +321,17 @@ class ResizeColumnApi {
    }
    subscribe() {
       this.subscriptions.push(
-         [ 'mousemove', this.mousemove.bind( this ) ],
-         [ 'mouseup', this.mouseup.bind( this ) ]
+         [ window, 'mousemove', this.mousemove.bind( this ) ],
+         [ window, 'mouseup', this.mouseup.bind( this ) ]
       );
-      this.subscriptions.forEach( ( sub ) => addEventListener( sub[ 0 ], sub[ 1 ] ) );
+      super.subscribe();
    }
    unsubscribe() {
-      if ( this.resizing ) this.columnApi.root.publishers.resizeColumn.publish();
+      const { publishers } = this.columnApi.root;
+      if ( this.resizing ) publishers.resizeColumn.publish();
 
-      this.subscriptions.forEach( ( sub ) => removeEventListener( sub[ 0 ], sub[ 1 ] ) );
-      this.subscriptions.length = 0;
+      super.unsubscribe();
+      this.field = null;
       this.resizing = false;
    }
 }
@@ -306,6 +339,9 @@ class ResizeColumnApi {
 class ListApi {
    root: VirtualScrollApi;
    scrollApi = new ScrollApi( this );
+   listWrapperApi = new ListWrapperApi( this );
+   childHeight: number = 45;
+   renderAhead = 10;
 
    get startNode() {
       const min = 0;
@@ -315,7 +351,8 @@ class ListApi {
    get visibleNodeCount() {
       let min = this.rowData.length - this.startNode; min = min > 0 ? min : 0;
       const max = Math.ceil( this.wrapperHeight / this.childHeight ) + this.renderAhead;
-      return Math.min( min, max );
+      let val = Math.min( min, max ); val = val % 2 == 1 ? val++ : val;
+      return val;
    }
    get totalHeight() {
       return this.rowCount * this.childHeight || 0;
@@ -331,17 +368,13 @@ class ListApi {
    }
    get sortModel() {
       return Object
-         .entries( this.colDefs.custom )
+         .entries( this.root.columnApi.colDefs.custom )
          .filter( ( o: any ) => o[ 1 ].sort )
          .map( ( def: any ) => ( { sort: def[ 1 ].sort, colId: def[ 1 ].field } ) );
    }
    get rowCount() {
       return this.rowData.length;
    }
-
-   childHeight: number = 30;
-   renderAhead = 5;
-
    #wrapperHeight = 0;
    get wrapperHeight() { return this.#wrapperHeight; }
    set wrapperHeight( v: number ) {
@@ -353,40 +386,36 @@ class ListApi {
 
    datasource: IDatasource;
    querying = false;
-
-   lastRow: number = -1;
-   cachedRequest: TRequest;
    ssrOptions: ISSROptions = {
-      batchSize: 10
+      batchSize: 25
    };
 
-   colDefs = new ColumnDefinitions();
-
    rowData: any[] = [];
+   lastRow: number = -1;
+   cachedRequest: TRequest;
 
    constructor ( root: VirtualScrollApi ) { this.root = root; }
-
 
    setDatasource( datasource: IDatasource ) {
       this.datasource = datasource;
    }
    setColumnDefinitions( defaultColDefs: IDefaultColDefs, colDefs: IColDefs[] ) {
-      this.colDefs.default = defaultColDefs;
-      this.colDefs.base = colDefs;
-      this.colDefs.custom = this.colDefs.createCustomColDefs();
+      const { columnApi } = this.root;
+      columnApi.colDefs.default = defaultColDefs;
+      columnApi.colDefs.base = colDefs;
+      columnApi.colDefs.custom = columnApi.colDefs.createCustomColDefs();
    }
-
    sortRows( field: string ) {
       const { moveColumnApi, resizeColumnApi } = this.root.columnApi;
       if ( moveColumnApi.moving || resizeColumnApi.resizing ) return;
 
-      const sort = this.colDefs.custom[ field ].sort;
+      const sort = this.root.columnApi.colDefs.custom[ field ].sort;
       const newSort = !sort ? 'asc' : sort == 'asc' ? 'desc' : null;
 
-      this.colDefs.custom = {
-         ...this.colDefs.custom,
+      this.root.columnApi.colDefs.custom = {
+         ...this.root.columnApi.colDefs.custom,
          [ field ]: {
-            ...this.colDefs.custom[ field ],
+            ...this.root.columnApi.colDefs.custom[ field ],
             sort: newSort
          }
       };
@@ -458,15 +487,41 @@ class ListApi {
    }
 }
 
-class ListWrapperApi {
+class ListWrapperApi extends EventApi {
+   listApi: ListApi;
+   element: HTMLDivElement | null;
 
+   constructor ( listApi: ListApi ) {
+      super();
+      this.listApi = listApi;
+   }
+
+   calcWrapperHeight = () => {
+      const el = this.element;
+      if ( !el ) return;
+
+      requestAnimationFrame( () => {
+         const rects = el.getBoundingClientRect();
+         const wrapperHeight = rects.bottom > window.innerHeight
+            ? window.innerHeight - rects.top - 1
+            : rects.height;
+
+         this.listApi.wrapperHeight = wrapperHeight;
+         this.listApi.root.rerender?.();
+      } );
+   };
+   subscribe() {
+      this.subscriptions.push( [ window, 'resize', this.calcWrapperHeight.bind( this ) ] );
+      super.subscribe();
+   }
 }
 
-class ScrollApi {
+class ScrollApi extends EventApi {
    listApi: ListApi;
    scrollTop = 0;
    scrollLeft = 0;
    scrollDirection = 0;
+   element: FlexibleHTMLElement | null;
    get bottomTrigger() {
       const el = this.element;
       if ( !el ) return false;
@@ -477,10 +532,9 @@ class ScrollApi {
 
       return trigger > el.scrollHeight && this.scrollDirection > 0;
    }
-   element: FlexibleHTMLElement | null;
-   subscriptions: Array<[ HTMLElement, keyof WindowEventMap, any ]> = [];
 
    constructor ( listApi: ListApi ) {
+      super();
       this.listApi = listApi;
    }
 
@@ -503,7 +557,6 @@ class ScrollApi {
             this.listApi.root.rerender?.();
       } );
    };
-
    subscribe() {
       const el = this.element;
       if ( !el ) return;
@@ -512,14 +565,56 @@ class ScrollApi {
       this.scrollTop = el.scrollTop;
       this.scrollLeft = el.scrollLeft;
 
-
       this.subscriptions.push( [ el, 'scroll', this.onScroll.bind( this ) ] );
-      this.subscriptions.forEach( ( sub ) => sub[ 0 ].addEventListener( sub[ 1 ], sub[ 2 ] ) );
-   }
-   unsubscribe() {
-      this.subscriptions.forEach( ( sub ) => sub[ 0 ].removeEventListener( sub[ 1 ], sub[ 2 ] ) );
-      this.subscriptions.length = 0;
+      super.subscribe();
    }
 }
 
+class StyleApi {
+   root: VirtualScrollApi;
+   get viewportWrapperStyle() {
+      return {
+         willChange: 'height',
+         height: this.root.listApi.wrapperHeight
+      };
+   }
+   get viewportStyle() {
+      return {
+         willChange: 'height',
+         height: this.root.listApi.totalHeight
+      };
+   }
+   get viewMoverStyle() {
+      return {
+         willChange: 'transform',
+         transform: `translateY(${ this.root.listApi.offsetY }px)`
+      };
+   }
+   get listHeaderStyle() {
+      return {
+         willChange: 'transform',
+         transform: `translateX(${ -this.root.listApi.scrollApi.scrollLeft }px)`
+      };
+   }
+   get headerMenuStyle() {
+      return {
+         left: this.root.columnApi.columnMenuApi.xy[ 0 ],
+         top: this.root.columnApi.columnMenuApi.xy[ 1 ],
+      };
+   }
+   get columnGhostStyle() {
+      const { moveColumnApi } = this.root.columnApi;
+      return {
+         top: moveColumnApi.startPos[ 1 ] - 5,
+         left: moveColumnApi.startPos[ 0 ] - 15,
+         willChange: 'translate',
+         transform: `translateX(${ moveColumnApi.offset[ 0 ] }px)` +
+            ` translateY(${ moveColumnApi.offset[ 1 ] }px)` +
+            ` translateZ(0)`
+      };
+   }
 
+   constructor ( root: VirtualScrollApi ) {
+      this.root = root;
+   }
+}

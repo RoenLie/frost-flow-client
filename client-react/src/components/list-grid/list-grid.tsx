@@ -1,4 +1,7 @@
-import React, { HTMLAttributes, useEffect, useMemo, useState } from 'react';
+import React, {
+   HTMLAttributes, useEffect,
+   useMemo, useState
+} from 'react';
 import { MemoVirtualScroll } from "features/virtual-scroll";
 import { VirtualScrollApi } from "features/virtual-scroll/VirtualListGridApi";
 import { useClasses } from "hooks";
@@ -9,7 +12,6 @@ interface IListGridProps extends HTMLAttributes<HTMLDivElement> { datasource: an
 export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    const hostClasses = useClasses( styles.host, className );
    const [ $api ] = useState( new VirtualScrollApi() );
-
 
    const defaultColDefs = {
       minWidth: 100,
@@ -22,10 +24,15 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
       {
          label: '',
          field: '',
-         minWidth: 50,
+         minWidth: 80,
          resizable: false,
          moveable: false,
-         menu: true
+         menu: true,
+         checkbox: true,
+         actions: [
+            { icon: 'eye_regular' },
+            { icon: 'box_open_solid' }
+         ]
       },
       {
          label: 'AthleteLongLableTestAthleteLongLableTest',
@@ -71,12 +78,9 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
       }
    ];
 
-
    useMemo( () => {
       console.log( $api );
       const { listApi } = $api;
-      listApi.childHeight = 30;
-      listApi.renderAhead = 5;
       listApi.setColumnDefinitions( defaultColDefs, colDefs );
       listApi.setDatasource( datasource );
    }, [] );
@@ -110,6 +114,7 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    return (
       <div className={ hostClasses }>
          <MemoVirtualScroll api={ $api } />
+         {/* <div style={ { height: 100 } }>Hei</div> */ }
       </div>
    );
 };

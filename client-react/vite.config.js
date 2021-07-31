@@ -11,11 +11,11 @@ export default defineConfig({
       reactRefresh(),
       tsconfigPaths(),
       reactSvgPlugin({ useSVGO: true /* optimize svg by SVGO*/ }),
-      // importOverriderPlugin({
-      //    verbose: false,
-      //    sourceMap: true,
-      //    entry: "src/overrides/index.ts"
-      // })
+      importOverriderPlugin({
+         verbose: false,
+         sourceMap: true,
+         entry: "src/overrides/index.ts"
+      })
    ],
    server: {
       port: 4300

@@ -12,6 +12,7 @@ interface ISvgIconProps {
    size?: SvgIconSize;
    width?: string;
    svgName: string;
+   onClick?: ( e: any ) => any;
 }
 
 class SvgIconService {
@@ -20,7 +21,7 @@ class SvgIconService {
 }
 export const svgIconService = new SvgIconService();
 
-export const SvgIcon = ( { size, width, svgName }: ISvgIconProps ) => {
+export const SvgIcon = ( { size, width, svgName, onClick }: ISvgIconProps ) => {
    const Icon = svgIconService.svgs[ svgName ];
 
    const iconSize = {
@@ -36,7 +37,8 @@ export const SvgIcon = ( { size, width, svgName }: ISvgIconProps ) => {
    };
 
    return (
-      <div style={ iconStyle } className={ styles.svgWrapper }>
+      <div style={ iconStyle } className={ styles.svgWrapper }
+         onClick={ onClick }>
          <Suspense fallback={ <div>⟳</div> }>
             <Icon />
          </Suspense>

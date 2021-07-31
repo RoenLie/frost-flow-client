@@ -21,11 +21,17 @@ body {
    --dark-4: rgba(45, 45, 45, 1);
    --dark-5: rgba(50, 50, 50, 1);
 
+   --dark-blue-1: hsla(197,13%,11%,1);
+   --dark-blue-2: hsl(200, 8%, 15%);
+   --dark-blue-3: hsla(200,8%,15%,1);
+
    --red-deep-1: rgba(81, 35, 35, 1);
 
    --border-radius-1: 0.2rem;
    --border-radius-2: 0.4rem;
    --border-radius-3: 0.6rem;
+
+   --border-grey-1: hsl(240, 3%, 42%);
 
    --scrollbar-height-1: 0.75rem;
    --scrollbar-height-2: 0.5rem;

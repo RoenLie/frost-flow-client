@@ -1,64 +1,49 @@
 import React, {
    CSSProperties, memo,
-   useEffect, useMemo, useRef, useState
+   useEffect, useMemo, useRef
 } from "react";
 import styles from './styles.module.css';
-import { useScrollContainer } from "features/virtual-scroll";
 import { SvgIcon } from "core";
 import { VirtualScrollApi } from "features/virtual-scroll/VirtualListGridApi";
 import { useForceUpdate } from "hooks";
 
 
-export interface IVirtualScrollProps {
-   api: VirtualScrollApi;
-}
-
+interface IVirtualScrollProps { api: VirtualScrollApi; }
 const VirtualScroll = ( { api }: IVirtualScrollProps
 ) => {
-   //#region state
    const forceUpdate = useForceUpdate();
-   const [ $headerMenu, setHeaderMenu ] = useState( { open: false, xy: [ 150, 150 ] } );
-   const [ $rowWrapperHeight, rowWrapperRef ] = useScrollContainer( {} );
-   //#endregion
-
-
-   //#region local variables
-   const { listApi, columnApi } = api;
-   const { moveColumnApi } = api.columnApi;
-   const { resizeColumnApi } = api.columnApi;
-   const { scrollApi } = api.listApi;
-
    api.rerender = forceUpdate;
 
-   listApi.wrapperHeight = $rowWrapperHeight;
-   //#endregion
-
-   const openHeaderMenu = ( e: MouseEvent ) => {
-      setHeaderMenu( { open: true, xy: [ e.clientX - 15, e.clientY - 15 ] } );
-      addEventListener( 'mousedown', closeHeaderMenu );
-   };
-
-   const closeHeaderMenu = ( e: MouseEvent ) => {
-      const insideMenu = e.composedPath()
-         .some( ( path: any ) => path.id == 'fieldHeader-menu' );
-
-      if ( insideMenu ) return;
-
-      setHeaderMenu( { open: false, xy: [ 0, 0 ] } );
-      removeEventListener( 'mousedown', closeHeaderMenu );
-   };
+   const { listApi, columnApi, styleApi } = api;
+   const { moveColumnApi, resizeColumnApi, columnMenuApi } = api.columnApi;
+   const { scrollApi, listWrapperApi } = api.listApi;
+   const { viewportWrapperStyle, viewportStyle,
+      viewMoverStyle, listHeaderStyle } = styleApi;
 
 
+   /* 
+      Creates ref to the list wrapper and subscribes to
+      window resize to keep the size correct as the window is resized.
+   */
+   const rowWrapperRef = useRef<HTMLDivElement>( null );
+   useEffect( () => {
+      listWrapperApi.element = rowWrapperRef.current;
+      listWrapperApi.subscribe();
+      listWrapperApi.calcWrapperHeight();
+
+      return () => listWrapperApi.unsubscribe();
+   }, [ rowWrapperRef.current ] );
 
 
    /*
       Creates a ref to the viewport wrapper and subscribes to
       the scroll api that updates the view when scrolling occurs.
    */
-   const viewportWrapperRef = useRef<HTMLElement>( null ) as React.RefObject<HTMLDivElement>;
+   const viewportWrapperRef = useRef<HTMLDivElement>( null );
    useEffect( () => {
       scrollApi.element = viewportWrapperRef.current;
       scrollApi.subscribe();
+
       return () => scrollApi.unsubscribe();
    }, [ viewportWrapperRef.current ] );
 
@@ -68,37 +53,50 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
       open state and merged column defs
    */
    const headerMenu = useMemo( () => {
-      const wrapperStyle = {
-         left: $headerMenu.xy[ 0 ],
-         top: $headerMenu.xy[ 1 ],
-      } as CSSProperties;
+      if ( !columnMenuApi.open ) return <></>;
 
-      return ( <> { $headerMenu.open
-         ? (
-            <div id="fieldHeader-menu"
-               className={ styles.headerMenuWrapper } style={ wrapperStyle }
-            >
-               <div className={ styles.menu }>
-                  <div className={ styles.fieldList }>
+      return (
+         <div id="fieldHeader-menu"
+            className={ styles.headerMenuWrapper } style={ styleApi.headerMenuStyle }
+         >
+            <div className={ styles.menu }>
+               <div className={ styles.fieldList }>
 
-                     { listApi.colDefs.merged.map( ( def, i ) => (
-                        <div key={ def.field } className={ styles.field }>
-                           <input id={ def.field + i }
-                              type="checkbox"
-                              disabled={ i == 0 }
-                              checked={ !def.hidden }
-                              onChange={ () => columnApi.toggleColumn( def.field ) }
-                           />
-                           <label htmlFor={ def.field + i } >{ def.label }</label>
-                        </div>
-                     ) ) }
+                  { columnApi.colDefs.merged.map( ( def, i ) => (
+                     <div key={ def.field } className={ styles.field }>
+                        <input id={ def.field + i }
+                           type="checkbox"
+                           disabled={ i == 0 }
+                           checked={ !def.hidden }
+                           onChange={ () => columnApi.toggleColumn( def.field ) }
+                        />
+                        <label htmlFor={ def.field + i } >{ def.label }</label>
+                     </div>
+                  ) ) }
 
-                  </div>
                </div>
-            </div> )
-         : null }
-      </> );
-   }, [ $headerMenu.open, listApi.colDefs.merged ] );
+            </div>
+         </div>
+      );
+   }, [ columnMenuApi.open, columnApi.colDefs.merged ] );
+
+
+   /* 
+      Creates the label shown when dragging column.
+   */
+   const columnGhost = useMemo( () => {
+      if ( !moveColumnApi.moving ) return <></>;
+
+      return (
+         <div className={ styles.columnGhost }
+            style={ styleApi.columnGhostStyle }
+         >
+            <div className={ styles.label }>
+               { moveColumnApi.label }
+            </div>
+         </div>
+      );
+   }, [ moveColumnApi.moving, moveColumnApi.offset ] );
 
 
    /* 
@@ -106,9 +104,9 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
       column definitions.
     */
    const visibleHeaders = useMemo( () => {
-      if ( !listApi.colDefs.merged.length ) return <></>;
+      if ( !columnApi.colDefs.merged.length ) return <></>;
 
-      return listApi.colDefs.merged
+      return columnApi.colDefs.merged
          .filter( def => !def.hidden )
          .map( ( def ) => {
             const fieldId = 'fieldHeader-' + def.field;
@@ -158,7 +156,7 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
 
                      { def.menu !== false
                         ? <div className={ styles.columnMenu }
-                           onClick={ ( e ) => openHeaderMenu( e as any ) }>
+                           onClick={ ( e ) => columnMenuApi.openMenu( e as any ) }>
                            <SvgIcon svgName="bars_solid" size="small" />
                         </div>
                         : null }
@@ -174,7 +172,7 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
                </div>
             );
          } );
-   }, [ listApi.colDefs.merged ] );
+   }, [ columnApi.colDefs.merged ] );
 
 
    /* 
@@ -188,52 +186,59 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
          .fill( null )
          .map( ( _, index ) => {
             const rowStyle = { height: listApi.childHeight } as CSSProperties;
+            const rowIndex = index + listApi.startNode;
+
+            const rowClasses: any[] = [ styles.listRow ];
+            rowIndex % 2 == 1
+               ? rowClasses.push( styles.even )
+               : rowClasses.push( styles.odd );
 
             return (
-               <div key={ index + listApi.startNode } className={ styles.listRow } style={ rowStyle }>
-                  { listApi.colDefs.merged.filter( def => !def.hidden ).map( ( def, i ) => {
-                     const fieldStyle = {
-                        willChange: 'width',
-                        width: def.width || def.minWidth,
-                        minWidth: def.minWidth,
-                     } as CSSProperties;
+               <div style={ rowStyle } className={ rowClasses.join( ' ' ) }
+                  key={ rowIndex }
+               >
+                  { columnApi.colDefs.merged
+                     .filter( def => !def.hidden )
+                     .map( ( def, i ) => {
+                        const fieldStyle = {
+                           willChange: 'width',
+                           width: def.width || def.minWidth,
+                           minWidth: def.minWidth,
+                        } as CSSProperties;
 
-                     return (
-                        <div key={ i + listApi.startNode } style={ fieldStyle } className={ styles.rowField }>
-                           {/* icons and field renderers go here */ }
-                           <div></div>
+                        return (
+                           <div style={ fieldStyle } className={ styles.rowField }
+                              key={ i + listApi.startNode }
+                           >
+                              {/* checkbox area */ }
+                              { def.checkbox
+                                 ? <div className={ styles.checkbox }>
+                                    <input type="checkbox" />
+                                 </div>
+                                 : <></> }
 
-                           {/* row field text goes here */ }
-                           <div>{ listApi.rowData[ index + listApi.startNode ]?.[ def.field ] }</div>
-                        </div>
-                     );
-                  } ) }
+                              {/* icon area */ }
+                              { def.actions?.length
+                                 ? <div className={ styles.icons }>
+                                    { def.actions.map( ( ac: any ) => (
+                                       <SvgIcon svgName={ ac.icon } size="small"
+                                          onClick={ e => ac.onClick( e ) }
+                                          key={ ac.icon } />
+                                    ) ) }
+                                 </div>
+                                 : <></> }
+
+
+                              {/* field text*/ }
+                              <div className={ styles.fieldText }>
+                                 { listApi.rowData[ rowIndex ]?.[ def.field ] }
+                              </div>
+                           </div>
+                        );
+                     } ) }
                </div> );
          } );
-   }, [ listApi.startNode, listApi.visibleNodeCount, listApi.colDefs.merged ] );
-
-
-
-   const viewportWrapperStyle = useMemo( () => ( {
-      willChange: 'height',
-      height: $rowWrapperHeight,
-   } as CSSProperties ), [ $rowWrapperHeight ] );
-
-   const viewportStyle = useMemo( () => ( {
-      willChange: 'height',
-      height: listApi.totalHeight,
-   } as CSSProperties ), [ listApi.totalHeight ] );
-
-   const viewMoverStyle = useMemo( () => ( {
-      willChange: 'transform',
-      transform: `translateY(${ listApi.offsetY }px)`,
-   } as CSSProperties ), [ listApi.offsetY ] );
-
-   const listHeaderStyle = useMemo( () => ( {
-      willChange: 'transform',
-      transform: `translateX(${ -scrollApi.scrollLeft }px)`,
-   } as CSSProperties ), [ scrollApi.scrollLeft ] );
-   //#endregion
+   }, [ listApi.startNode, listApi.visibleNodeCount, columnApi.colDefs.merged ] );
 
 
    return (
@@ -249,7 +254,9 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
 
             { /* Wrapper that is used to find the correct size for the list */ }
             <div className={ styles.listRowWrapper } ref={ rowWrapperRef }>
-               <div className={ styles.viewportWrapper } style={ viewportWrapperStyle } ref={ viewportWrapperRef }>
+               <div className={ styles.viewportWrapper } style={ viewportWrapperStyle }
+                  ref={ viewportWrapperRef }
+               >
                   <div className={ styles.viewport } style={ viewportStyle }>
                      <div className={ styles.viewMover } style={ viewMoverStyle }>
                         { visibleRows }
@@ -259,6 +266,7 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
             </div>
 
             { headerMenu }
+            { columnGhost }
 
          </div>
       </div>

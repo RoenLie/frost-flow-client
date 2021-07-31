@@ -1,2 +1,2 @@
-export * from './useScrollContainer';
 export * from './virtual-scroll';
+export * from './VirtualListGridApi';

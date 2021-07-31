@@ -1,6 +1,7 @@
 .host {
    display: grid;
    overflow: hidden;
+   -webkit-font-smoothing: antialiased;
 }
 
 .wrapper {
@@ -12,23 +13,21 @@
 
 
 .listHeaderWrapper {
-   background-color: var(--dark-2);
    position: relative;
    display: grid;
    grid-auto-flow: row;
-
+   background-color: var(--dark-blue-2);
+   border-bottom: 2px solid var(--border-grey-1);
 
    & .listHeader {
       position: absolute;
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
-      justify-content: center;
       height: 100%;
-      
 
       & .headerField {
-         background-color: var(--dark-2);
+         background-color: var(--dark-blue-2);
          position: relative;
          display: flex;
          flex-flow: row nowrap;
@@ -74,11 +73,9 @@
             }
          }
 
-
          & .columnResizer {
             position: absolute;
             right: 0;
-      
             display: grid;
             place-items: center;
             height: 50%;
@@ -102,9 +99,9 @@
    overflow: hidden;
    position: fixed;
    display: grid;
-   background-color: var(--red-deep-1);
    height: 13rem;
    width: 12rem;
+   background-color: var(--red-deep-1);
    box-shadow: 0 0 5px 5px var(--dark-2);
    border-radius: var(--border-radius-1);
 
@@ -145,31 +142,40 @@
             }
          }
       }
-
-
    }
 }
 
 
-.headerFieldDrag {
-   background-color: orange;
+.columnGhost {
+   overflow: hidden;
    position: fixed;
+   pointer-events: none;
    display: flex;
    z-index: 1;
    flex-flow: row nowrap;
    justify-content: center;
    align-items: center;
-   width: 5rem;
-   height: 2rem;
-   pointer-events: none;
-   cursor: grabbing;
+   width: 7rem;
+   height: 3rem;
+   opacity: 0.9;
+
+   background-color: var(--red-deep-1);
+   box-shadow: 0 0 5px 5px var(--dark-2);
+   border-radius: var(--border-radius-1);
+
+   & .label {
+      margin: 0.5rem;
+      pointer-events: all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+   }
 }
 
 
 .listRowWrapper {
    overflow: hidden;
    display: grid;
-
 
    & .viewportWrapper {
       overflow: auto;
@@ -196,17 +202,52 @@
          & .viewMover {
             display: grid;
 
-
             & .listRow {
                display: flex;
                flex-flow: row nowrap;
                align-items: center;
 
+               &.odd {
+                  background-color: var(--dark-blue-3);
+               }
+
+               &.even {
+                  background-color: var(--dark-blue-1);
+               }
                
                & .rowField {
+                  display: flex;
+                  align-items: center;
+
                   overflow: hidden;
                   white-space: nowrap;
                   text-overflow: ellipsis;
+
+                  & .checkbox {
+                     padding-right: 0.4rem;
+                     opacity: 0.4;
+                  }
+
+                  & .icons {
+                     display: flex;
+                     flex-flow: row;
+
+                     &>*{
+                        opacity: 0.4;
+                        margin-right: 0.4rem;
+
+                        &:hover {
+                           opacity: 1;
+                           cursor: pointer;
+                        }
+                     }
+                  }
+
+                  & .fieldText {
+                     overflow: hidden;
+                     white-space: nowrap;
+                     text-overflow: ellipsis;
+                  }
                }
             }
          }
