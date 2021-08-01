@@ -17,7 +17,7 @@
    display: grid;
    grid-auto-flow: row;
    background-color: var(--dark-blue-2);
-   border-bottom: 2px solid var(--border-grey-1);
+   border-bottom: 2px solid var(--border-grey-strong-1);
 
    & .listHeader {
       position: absolute;
@@ -176,9 +176,11 @@
 .listRowWrapper {
    overflow: hidden;
    display: grid;
+   background-color: hsl(202, 9%, 17%);
 
    & .viewportWrapper {
       overflow: auto;
+      scroll-behavior: smooth;
 
       &::-webkit-scrollbar {
          height: var(--scrollbar-height-1);
@@ -197,7 +199,6 @@
          background: rgba(0, 0, 0, 0);
       }
 
-
       & .viewport {
          & .viewMover {
             display: grid;
@@ -206,6 +207,8 @@
                display: flex;
                flex-flow: row nowrap;
                align-items: center;
+               border-top: 1px solid var(--border-grey-weak-1);
+               border-bottom: 1px solid var(--border-grey-weak-1);
 
                &.odd {
                   background-color: var(--dark-blue-3);
@@ -213,6 +216,10 @@
 
                &.even {
                   background-color: var(--dark-blue-1);
+               }
+
+               &:hover {
+                  background-color: var(--dark-blue-5);
                }
                
                & .rowField {

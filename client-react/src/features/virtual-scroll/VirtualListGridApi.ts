@@ -1,5 +1,6 @@
 import { createCSSSelector } from "shared/helpers/createCSSSelector";
 import { Publisher } from "shared/helpers/publisher";
+import { debounce } from "shared/helpers/debounce";
 import styles from './styles.module.css';
 
 
@@ -44,6 +45,8 @@ export interface IColDefs {
    moveable?: boolean;
    menu?: boolean;
 }
+
+type ListGridMode = 'ssr' | 'normal';
 interface FlexibleHTMLElement extends HTMLElement { [ key: string ]: any; };
 type TEventSubscription = [ FlexibleHTMLElement | Window, keyof WindowEventMap, any ][];
 class EventApi {
@@ -59,7 +62,9 @@ class EventApi {
 
 
 export class VirtualScrollApi {
+   mode: ListGridMode = 'ssr';
    rerender?: () => void;
+   debounceRender = debounce( () => this.rerender?.(), 50 ).bind( this );
    listApi = new ListApi( this );
    columnApi = new ColumnApi( this );
    styleApi = new StyleApi( this );
@@ -166,6 +171,7 @@ class MoveColumnApi extends EventApi {
    moving = false;
    startPos = [ 100, 100 ];
    offset = [ 0, 0 ];
+   frameQueue = false;
 
    constructor ( columnApi: ColumnApi ) {
       super();
@@ -209,10 +215,15 @@ class MoveColumnApi extends EventApi {
       }
 
       requestAnimationFrame( ( () => {
+         if ( this.frameQueue ) return;
+         this.frameQueue = true;
+
          const offset = [ e.clientX - this.startPos[ 0 ], e.clientY - this.startPos[ 1 ] ];
          this.offset = offset;
 
          this.columnApi.root.rerender?.();
+
+         this.frameQueue = false;
       } ) );
    }
    mouseenter( e: MouseEvent, field: string ) {
@@ -275,6 +286,7 @@ class ResizeColumnApi extends EventApi {
    field: string | null = null;
    resizing = false;
    element = null as HTMLElement | null;
+   frameQueue = false;
 
    constructor ( columnApi: ColumnApi ) {
       super();
@@ -292,6 +304,9 @@ class ResizeColumnApi extends EventApi {
       e.preventDefault();
 
       requestAnimationFrame( () => {
+         if ( this.frameQueue ) return;
+         this.frameQueue = true;
+
          if ( e.buttons !== 1 || this.field === null ) {
             this.unsubscribe();
             return;
@@ -314,6 +329,7 @@ class ResizeColumnApi extends EventApi {
          };
 
          this.columnApi.root.rerender?.();
+         this.frameQueue = false;
       } );
    }
    mouseup() {
@@ -333,6 +349,7 @@ class ResizeColumnApi extends EventApi {
       super.unsubscribe();
       this.field = null;
       this.resizing = false;
+      this.columnApi.root.rerender?.();
    }
 }
 
@@ -341,27 +358,34 @@ class ListApi {
    scrollApi = new ScrollApi( this );
    listWrapperApi = new ListWrapperApi( this );
    childHeight: number = 45;
-   renderAhead = 10;
 
    get startNode() {
       const min = 0;
-      const max = Math.floor( this.scrollApi.scrollTop / this.childHeight ) - this.renderAhead;
+      const max = Math.floor( this.scrollApi.scrollTop / this.childHeight ) - this.availableHeight;
       return Math.max( min, max );
    };
    get visibleNodeCount() {
       let min = this.rowData.length - this.startNode; min = min > 0 ? min : 0;
-      const max = Math.ceil( this.wrapperHeight / this.childHeight ) + this.renderAhead;
-      let val = Math.min( min, max ); val = val % 2 == 1 ? val++ : val;
-      return val;
+      const max = Math.floor( this.availableHeight * 2 );
+      return Math.min( min, max );
+   }
+   get remainingBufferNodeCount() {
+      return 0;
    }
    get totalHeight() {
       return this.rowCount * this.childHeight || 0;
    };
    get availableHeight() {
-      return this.wrapperHeight / this.childHeight || 0;
+      return Math.ceil( this.wrapperHeight / this.childHeight ) || 0;
    }
    get offsetY() {
-      return this.startNode * this.childHeight || 0;
+      const baseOffset = this.startNode * this.childHeight;
+
+      let extra = this.scrollApi.scrollTop > this.wrapperHeight
+         ? Math.ceil( this.wrapperHeight / 2 )
+         : 0;
+
+      return baseOffset + extra || 0;
    }
    get viewSaturated() {
       return ( this.rowCount > this.availableHeight ) || this.lastRow > -1;
@@ -387,7 +411,7 @@ class ListApi {
    datasource: IDatasource;
    querying = false;
    ssrOptions: ISSROptions = {
-      batchSize: 25
+      batchSize: 100
    };
 
    rowData: any[] = [];
@@ -522,12 +546,15 @@ class ScrollApi extends EventApi {
    scrollLeft = 0;
    scrollDirection = 0;
    element: FlexibleHTMLElement | null;
+   frameQueue = false;
    get bottomTrigger() {
+      if ( this.listApi.root.mode == 'normal' ) return false;
+
       const el = this.element;
       if ( !el ) return false;
 
       const trigger = Math.ceil(
-         el.offsetHeight + this.scrollTop + ( el.offsetHeight / 4 )
+         el.offsetHeight + this.scrollTop + ( this.listApi.childHeight * 2 )
       );
 
       return trigger > el.scrollHeight && this.scrollDirection > 0;
@@ -539,22 +566,46 @@ class ScrollApi extends EventApi {
    }
 
    onScroll( e: Event ) {
-      const ev = e as Event & { target: HTMLElement; };
-      const el = this.element;
-      if ( !el ) return;
-
       requestAnimationFrame( () => {
+         if ( this.frameQueue ) return;
+         this.frameQueue = true;
+
+         const ev = e as Event & { target: HTMLElement; };
+         const el = this.element;
+         if ( !el ) return;
+
+         const { listApi } = this;
+
          this.scrollDirection = Math.sign( ev?.target?.scrollTop - el.lastScrollTop );
          this.scrollTop = ev?.target?.scrollTop;
          this.scrollLeft = ev?.target?.scrollLeft;
-         el.lastScrollTop = ev?.target?.scrollTop;
-         el.lastScrollLeft = ev?.target?.scrollLeft;
 
-         const { listApi } = this;
-         if ( this.bottomTrigger )
+         /* rerender if scrolling in the X axis */
+         if ( el.lastScrollLeft != el.scrollLeft ) this.listApi.root.rerender?.();
+         if ( this.bottomTrigger ) {
             listApi.getRows( { startRow: listApi.rowData.length } );
-         else
-            this.listApi.root.rerender?.();
+            this.frameQueue = false;
+            return;
+         }
+
+         const moverEl = el.querySelector( '[data-name="viewmover"]' );
+         const wrapperRects = el.getBoundingClientRect();
+         const moverRects = moverEl?.getBoundingClientRect();
+
+         if ( wrapperRects.top < Number( moverRects?.top ) && this.scrollTop > 0 ) {
+            this.listApi.root.debounceRender();
+         }
+
+         if ( wrapperRects.bottom > Number( moverRects?.bottom ) ) {
+            this.listApi.root.debounceRender();
+         }
+
+         // const viewableHeight =
+         // this.listApi.visibleNodeCount * this.listApi.childHeight;
+
+         el.lastScrollLeft = el.scrollLeft;
+         el.lastScrollTop = el.scrollTop;
+         this.frameQueue = false;
       } );
    };
    subscribe() {
@@ -575,7 +626,9 @@ class StyleApi {
    get viewportWrapperStyle() {
       return {
          willChange: 'height',
-         height: this.root.listApi.wrapperHeight
+         height: this.root.listApi.wrapperHeight,
+         contentVisibility: 'auto',
+         containIntrinsicSize: this.root.listApi.wrapperHeight
       };
    }
    get viewportStyle() {

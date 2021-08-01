@@ -75,12 +75,77 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
       {
          label: 'Total',
          field: 'total',
+      },
+      {
+         label: '1',
+         field: '1',
+      },
+      {
+         label: '2',
+         field: '2',
+      },
+      {
+         label: '3',
+         field: '3',
+      },
+      {
+         label: '4',
+         field: '4',
+      },
+      {
+         label: '5',
+         field: '5',
+      },
+      {
+         label: '6',
+         field: '6',
+      },
+      {
+         label: '7',
+         field: '7',
+      },
+      {
+         label: '8',
+         field: '8',
+      },
+      {
+         label: '9',
+         field: '9',
+      },
+      {
+         label: '10',
+         field: '10',
+      },
+      {
+         label: '11',
+         field: '11',
+      },
+      {
+         label: '12',
+         field: '12',
+      },
+      {
+         label: '13',
+         field: '13',
+      },
+      {
+         label: '14',
+         field: '14',
+      },
+      {
+         label: '15',
+         field: '15',
+      },
+      {
+         label: '16',
+         field: '16',
       }
    ];
 
    useMemo( () => {
       console.log( $api );
       const { listApi } = $api;
+      // $api.mode = 'normal';
       listApi.setColumnDefinitions( defaultColDefs, colDefs );
       listApi.setDatasource( datasource );
    }, [] );

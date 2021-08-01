@@ -179,70 +179,75 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
       Create the row elements based on merged column definitions,
       start node and visible node count.
    */
+   const ListRow = ( { rowIndex }: { rowIndex: number; } ) => {
+      const rowStyle = {
+         height: listApi.childHeight,
+      } as CSSProperties;
+
+      const rowClasses: any[] = [ styles.listRow ];
+      rowIndex % 2 == 1
+         ? rowClasses.push( styles.even )
+         : rowClasses.push( styles.odd );
+
+      return (
+         <div style={ rowStyle } className={ rowClasses.join( ' ' ) }>
+            { columnApi.colDefs.merged
+               .filter( def => !def.hidden )
+               .map( ( def, i ) =>
+                  <ListRowField key={ rowIndex + i } def={ def } rowIndex={ rowIndex } /> ) }
+         </div> );
+   };
+
+   const ListRowField = ( { def, rowIndex }: any ) => {
+      const fieldStyle = {
+         willChange: 'width',
+         width: def.width || def.minWidth,
+         minWidth: def.minWidth,
+      } as CSSProperties;
+
+
+      return (
+         <div className={ styles.rowField } style={ fieldStyle }>
+            {/* checkbox area */ }
+            { def.checkbox
+               ? <div className={ styles.checkbox }>
+                  <input type="checkbox" />
+               </div>
+               : <></> }
+
+            {/* icon area */ }
+            { def.actions?.length
+               ? <div className={ styles.icons }>
+                  { def.actions.map( ( ac: any ) => (
+                     <SvgIcon svgName={ ac.icon } size="small"
+                        onClick={ ac.onClick }
+                        key={ ac.icon } />
+                  ) ) }
+               </div>
+               : <></> }
+
+            {/* field text*/ }
+            <div className={ styles.fieldText }>
+               { listApi.rowData[ rowIndex ]?.[ def.field ] }
+            </div>
+         </div>
+      );
+   };
+
    const visibleRows = useMemo( () => {
-      if ( !listApi.rowCount ) return <></>;
+      if ( !listApi.rowCount || !listApi.visibleNodeCount ) return <></>;
 
       return new Array( listApi.visibleNodeCount )
          .fill( null )
          .map( ( _, index ) => {
-            const rowStyle = { height: listApi.childHeight } as CSSProperties;
             const rowIndex = index + listApi.startNode;
-
-            const rowClasses: any[] = [ styles.listRow ];
-            rowIndex % 2 == 1
-               ? rowClasses.push( styles.even )
-               : rowClasses.push( styles.odd );
-
-            return (
-               <div style={ rowStyle } className={ rowClasses.join( ' ' ) }
-                  key={ rowIndex }
-               >
-                  { columnApi.colDefs.merged
-                     .filter( def => !def.hidden )
-                     .map( ( def, i ) => {
-                        const fieldStyle = {
-                           willChange: 'width',
-                           width: def.width || def.minWidth,
-                           minWidth: def.minWidth,
-                        } as CSSProperties;
-
-                        return (
-                           <div style={ fieldStyle } className={ styles.rowField }
-                              key={ i + listApi.startNode }
-                           >
-                              {/* checkbox area */ }
-                              { def.checkbox
-                                 ? <div className={ styles.checkbox }>
-                                    <input type="checkbox" />
-                                 </div>
-                                 : <></> }
-
-                              {/* icon area */ }
-                              { def.actions?.length
-                                 ? <div className={ styles.icons }>
-                                    { def.actions.map( ( ac: any ) => (
-                                       <SvgIcon svgName={ ac.icon } size="small"
-                                          onClick={ e => ac.onClick( e ) }
-                                          key={ ac.icon } />
-                                    ) ) }
-                                 </div>
-                                 : <></> }
-
-
-                              {/* field text*/ }
-                              <div className={ styles.fieldText }>
-                                 { listApi.rowData[ rowIndex ]?.[ def.field ] }
-                              </div>
-                           </div>
-                        );
-                     } ) }
-               </div> );
+            return ( <ListRow key={ rowIndex } rowIndex={ rowIndex } /> );
          } );
    }, [ listApi.startNode, listApi.visibleNodeCount, columnApi.colDefs.merged ] );
 
 
    return (
-      <div className={ styles.host }>
+      <div className={ styles.host } data-name="virtualscroll">
          <div className={ styles.wrapper }>
 
             {/* Wrapper for header */ }
@@ -254,11 +259,13 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
 
             { /* Wrapper that is used to find the correct size for the list */ }
             <div className={ styles.listRowWrapper } ref={ rowWrapperRef }>
-               <div className={ styles.viewportWrapper } style={ viewportWrapperStyle }
+               <div className={ styles.viewportWrapper } style={ viewportWrapperStyle as any }
                   ref={ viewportWrapperRef }
                >
                   <div className={ styles.viewport } style={ viewportStyle }>
-                     <div className={ styles.viewMover } style={ viewMoverStyle }>
+                     <div className={ styles.viewMover } style={ viewMoverStyle }
+                        data-name="viewmover"
+                     >
                         { visibleRows }
                      </div>
                   </div>

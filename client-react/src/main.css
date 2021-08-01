@@ -24,6 +24,9 @@ body {
    --dark-blue-1: hsla(197,13%,11%,1);
    --dark-blue-2: hsl(200, 8%, 15%);
    --dark-blue-3: hsla(200,8%,15%,1);
+   --dark-blue-4: hsla(195, 80%, 10%,1);
+   --dark-blue-5: hsla(201, 96%, 11%,1);
+   --dark-blue-6: hsla(200, 96%, 21%,1);
 
    --red-deep-1: rgba(81, 35, 35, 1);
 
@@ -31,7 +34,8 @@ body {
    --border-radius-2: 0.4rem;
    --border-radius-3: 0.6rem;
 
-   --border-grey-1: hsl(240, 3%, 42%);
+   --border-grey-strong-1: hsla(240, 3%, 42%, 1);
+   --border-grey-weak-1: hsla(240, 3%, 42%, 0.2);
 
    --scrollbar-height-1: 0.75rem;
    --scrollbar-height-2: 0.5rem;
