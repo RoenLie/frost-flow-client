@@ -180,7 +180,6 @@
 
    & .viewportWrapper {
       overflow: auto;
-      scroll-behavior: smooth;
 
       &::-webkit-scrollbar {
          height: var(--scrollbar-height-1);
@@ -200,6 +199,8 @@
       }
 
       & .viewport {
+         position: absolute;
+
          & .viewMover {
             display: grid;
 
@@ -218,6 +219,17 @@
                   background-color: var(--dark-blue-1);
                }
 
+               &.checked {
+                  border-top: 1px solid var(--border-grey-strong-1);
+                  border-bottom: 1px solid var(--border-grey-strong-1);
+                  background-color: hsl(201, 97%, 13%);
+                  & .rowField {
+                     & .checkbox {
+                        opacity: 1;
+                     }
+                  }
+               }
+
                &:hover {
                   background-color: var(--dark-blue-5);
                }
@@ -225,10 +237,6 @@
                & .rowField {
                   display: flex;
                   align-items: center;
-
-                  overflow: hidden;
-                  white-space: nowrap;
-                  text-overflow: ellipsis;
 
                   & .checkbox {
                      padding-right: 0.4rem;
@@ -242,6 +250,7 @@
                      &>*{
                         opacity: 0.4;
                         margin-right: 0.4rem;
+                        transition: opacity 0.2s linear;
 
                         &:hover {
                            opacity: 1;

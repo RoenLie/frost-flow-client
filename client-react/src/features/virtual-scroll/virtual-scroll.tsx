@@ -125,8 +125,15 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
                   onMouseEnter={ ( e ) =>
                      moveColumnApi.mouseenter( e as any, def.field ) }
                >
-                  {/* custom header field renderers go here */ }
-                  <div></div>
+                  {/* check all rows */ }
+                  { def.checkbox
+                     ? <div>
+                        <input type="checkbox"
+                           onChange={ listApi.checkAllRows.bind( listApi ) }
+                           checked={ listApi.allRowsChecked }
+                        />
+                     </div>
+                     : null }
 
                   {/* header field text and functionality */ }
                   <div className={ styles.headerFieldLabel }>
@@ -172,7 +179,7 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
                </div>
             );
          } );
-   }, [ columnApi.colDefs.merged ] );
+   }, [ columnApi.colDefs.merged, listApi.allRowsChecked ] );
 
 
    /* 
@@ -185,6 +192,11 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
       } as CSSProperties;
 
       const rowClasses: any[] = [ styles.listRow ];
+
+      listApi.checkedRows[ rowIndex ]
+         ? rowClasses.push( styles.checked )
+         : null;
+
       rowIndex % 2 == 1
          ? rowClasses.push( styles.even )
          : rowClasses.push( styles.odd );
@@ -205,13 +217,15 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
          minWidth: def.minWidth,
       } as CSSProperties;
 
-
       return (
          <div className={ styles.rowField } style={ fieldStyle }>
             {/* checkbox area */ }
             { def.checkbox
                ? <div className={ styles.checkbox }>
-                  <input type="checkbox" />
+                  <input type="checkbox"
+                     onChange={ () => listApi.checkRow( rowIndex ) }
+                     checked={ listApi.checkedRows[ rowIndex ] }
+                  />
                </div>
                : <></> }
 
@@ -243,7 +257,13 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
             const rowIndex = index + listApi.startNode;
             return ( <ListRow key={ rowIndex } rowIndex={ rowIndex } /> );
          } );
-   }, [ listApi.startNode, listApi.visibleNodeCount, columnApi.colDefs.merged ] );
+   }, [
+      listApi.startNode,
+      listApi.visibleNodeCount,
+      listApi.checkedRows,
+      listApi.allRowsChecked,
+      columnApi.colDefs.merged,
+   ] );
 
 
    return (

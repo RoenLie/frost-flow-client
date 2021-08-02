@@ -38,7 +38,7 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
          label: 'AthleteLongLableTestAthleteLongLableTest',
          field: 'athlete',
          minWidth: 150,
-         menu: false
+         menu: false,
       },
       {
          label: 'Sport',
@@ -179,7 +179,7 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    return (
       <div className={ hostClasses }>
          <MemoVirtualScroll api={ $api } />
-         {/* <div style={ { height: 100 } }>Hei</div> */ }
+         <div>Hei</div>
       </div>
    );
 };

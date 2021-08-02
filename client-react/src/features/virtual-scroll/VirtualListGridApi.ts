@@ -1,7 +1,6 @@
 import { createCSSSelector } from "shared/helpers/createCSSSelector";
 import { Publisher } from "shared/helpers/publisher";
 import { debounce } from "shared/helpers/debounce";
-import styles from './styles.module.css';
 
 
 export type TSuccessParams = {
@@ -64,7 +63,7 @@ class EventApi {
 export class VirtualScrollApi {
    mode: ListGridMode = 'ssr';
    rerender?: () => void;
-   debounceRender = debounce( () => this.rerender?.(), 50 ).bind( this );
+   debounceRender = debounce( () => this.rerender?.(), 100 ).bind( this );
    listApi = new ListApi( this );
    columnApi = new ColumnApi( this );
    styleApi = new StyleApi( this );
@@ -349,6 +348,7 @@ class ResizeColumnApi extends EventApi {
       super.unsubscribe();
       this.field = null;
       this.resizing = false;
+      this.frameQueue = false;
       this.columnApi.root.rerender?.();
    }
 }
@@ -358,19 +358,16 @@ class ListApi {
    scrollApi = new ScrollApi( this );
    listWrapperApi = new ListWrapperApi( this );
    childHeight: number = 45;
-
    get startNode() {
       const min = 0;
-      const max = Math.floor( this.scrollApi.scrollTop / this.childHeight ) - this.availableHeight;
+      const max = Math.floor( this.scrollApi.scrollTop / this.childHeight )
+         - this.availableHeight;
       return Math.max( min, max );
    };
    get visibleNodeCount() {
       let min = this.rowData.length - this.startNode; min = min > 0 ? min : 0;
       const max = Math.floor( this.availableHeight * 2 );
       return Math.min( min, max );
-   }
-   get remainingBufferNodeCount() {
-      return 0;
    }
    get totalHeight() {
       return this.rowCount * this.childHeight || 0;
@@ -387,6 +384,21 @@ class ListApi {
 
       return baseOffset + extra || 0;
    }
+   get startColumn() {
+      return 0;
+   }
+   get visibleColumnCount() {
+      return 0;
+   }
+   get totalWidth() {
+      return 0;
+   }
+   get availableWidth() {
+      return 0;
+   }
+   get offsetX() {
+      return 0;
+   }
    get viewSaturated() {
       return ( this.rowCount > this.availableHeight ) || this.lastRow > -1;
    }
@@ -399,6 +411,7 @@ class ListApi {
    get rowCount() {
       return this.rowData.length;
    }
+   wrapperWidth = 0;
    #wrapperHeight = 0;
    get wrapperHeight() { return this.#wrapperHeight; }
    set wrapperHeight( v: number ) {
@@ -407,15 +420,15 @@ class ListApi {
       if ( this.viewSaturated ) return;
       this.getRows( { startRow: 0 } );
    }
-
    datasource: IDatasource;
    querying = false;
    ssrOptions: ISSROptions = {
       batchSize: 100
    };
-
    rowData: any[] = [];
    lastRow: number = -1;
+   checkedRows: any = {};
+   allRowsChecked = false;
    cachedRequest: TRequest;
 
    constructor ( root: VirtualScrollApi ) { this.root = root; }
@@ -428,6 +441,36 @@ class ListApi {
       columnApi.colDefs.default = defaultColDefs;
       columnApi.colDefs.base = colDefs;
       columnApi.colDefs.custom = columnApi.colDefs.createCustomColDefs();
+   }
+   checkAllRows( e: any ) {
+      const v = e.target.checked;
+      this.allRowsChecked = v;
+
+      if ( !v ) this.checkedRows = {};
+      else {
+         this.checkedRows = this.rowData.reduce( ( a, c, i ) => {
+            a[ i ] = true;
+            return a;
+         }, {} );
+      }
+
+      this.root.rerender?.();
+   }
+   checkRow( rowIndex: number ) {
+      let value = this.checkedRows[ rowIndex ];
+      value = value === undefined ? true : !value;
+
+      this.checkedRows[ rowIndex ] = value;
+      this.checkedRows = { ...this.checkedRows };
+
+      if ( !value && this.allRowsChecked )
+         this.allRowsChecked = false;
+
+      if ( Object.values( this.checkedRows )
+         .filter( Boolean ).length == this.rowCount )
+         this.allRowsChecked = true;
+
+      this.root.rerender?.();
    }
    sortRows( field: string ) {
       const { moveColumnApi, resizeColumnApi } = this.root.columnApi;
@@ -481,11 +524,13 @@ class ListApi {
 
       if ( this.querying || this.lastRow > -1 ) return;
 
-      this.datasource.getRows( {
-         request,
-         success: this.getRowsSuccess.bind( this ),
-         fail: this.getRowsFail.bind( this )
-      } );
+      ( async () => {
+         this.datasource.getRows( {
+            request,
+            success: this.getRowsSuccess.bind( this ),
+            fail: this.getRowsFail.bind( this )
+         } );
+      } )();
 
       this.querying = true;
       this.cachedRequest = { ...this.cachedRequest, ...request };
@@ -495,6 +540,13 @@ class ListApi {
       this.querying = false;
 
       this.rowData = [ ...this.rowData, ...rowData ];
+
+      if ( this.allRowsChecked ) {
+         this.checkedRows = this.rowData.reduce( ( a, c, i ) => {
+            a[ i ] = true;
+            return a;
+         }, {} );
+      }
 
       this.root.publishers.rowData.next( { rowData, lastRow } );
       this.root.publishers.query.next( this.rowCount );
@@ -514,24 +566,39 @@ class ListApi {
 class ListWrapperApi extends EventApi {
    listApi: ListApi;
    element: HTMLDivElement | null;
+   frameQueue = false;
+   resizing = false;
+   debounceResize = debounce( this.resizeEnd.bind( this ) );
 
    constructor ( listApi: ListApi ) {
       super();
       this.listApi = listApi;
    }
 
+   resizeEnd() {
+      this.resizing = false;
+      this.listApi.root.rerender?.();
+   }
    calcWrapperHeight = () => {
       const el = this.element;
       if ( !el ) return;
 
       requestAnimationFrame( () => {
-         const rects = el.getBoundingClientRect();
-         const wrapperHeight = rects.bottom > window.innerHeight
-            ? window.innerHeight - rects.top - 1
-            : rects.height;
+         if ( this.frameQueue ) return;
+         this.frameQueue = true;
 
-         this.listApi.wrapperHeight = wrapperHeight;
-         this.listApi.root.rerender?.();
+         if ( !this.resizing ) {
+            this.resizing = true;
+            this.listApi.root.rerender?.();
+         }
+
+         this.debounceResize();
+
+         const rects = el.getBoundingClientRect();
+         this.listApi.wrapperWidth = rects.width;
+         this.listApi.wrapperHeight = rects.height;
+
+         this.frameQueue = false;
       } );
    };
    subscribe() {
@@ -544,7 +611,7 @@ class ScrollApi extends EventApi {
    listApi: ListApi;
    scrollTop = 0;
    scrollLeft = 0;
-   scrollDirection = 0;
+   scrollYDirection = 0;
    element: FlexibleHTMLElement | null;
    frameQueue = false;
    get bottomTrigger() {
@@ -557,7 +624,7 @@ class ScrollApi extends EventApi {
          el.offsetHeight + this.scrollTop + ( this.listApi.childHeight * 2 )
       );
 
-      return trigger > el.scrollHeight && this.scrollDirection > 0;
+      return trigger > el.scrollHeight && this.scrollYDirection > 0;
    }
 
    constructor ( listApi: ListApi ) {
@@ -576,18 +643,30 @@ class ScrollApi extends EventApi {
 
          const { listApi } = this;
 
-         this.scrollDirection = Math.sign( ev?.target?.scrollTop - el.lastScrollTop );
+         this.scrollYDirection = Math.sign( ev?.target?.scrollTop - el.lastScrollTop );
          this.scrollTop = ev?.target?.scrollTop;
          this.scrollLeft = ev?.target?.scrollLeft;
 
          /* rerender if scrolling in the X axis */
-         if ( el.lastScrollLeft != el.scrollLeft ) this.listApi.root.rerender?.();
-         if ( this.bottomTrigger ) {
-            listApi.getRows( { startRow: listApi.rowData.length } );
+         if ( el.lastScrollLeft != el.scrollLeft ) {
+            this.listApi.root.rerender?.();
+
+            el.lastScrollLeft = el.scrollLeft;
+            el.lastScrollTop = el.scrollTop;
             this.frameQueue = false;
             return;
          }
 
+         /* request more data as it hits the bottom of the scroll area */
+         if ( this.bottomTrigger ) {
+            listApi.getRows( { startRow: listApi.rowData.length } );
+            el.lastScrollLeft = el.scrollLeft;
+            el.lastScrollTop = el.scrollTop;
+            this.frameQueue = false;
+            return;
+         }
+
+         /* trigger rerender when reaching end of visible rows */
          const moverEl = el.querySelector( '[data-name="viewmover"]' );
          const wrapperRects = el.getBoundingClientRect();
          const moverRects = moverEl?.getBoundingClientRect();
@@ -624,35 +703,44 @@ class ScrollApi extends EventApi {
 class StyleApi {
    root: VirtualScrollApi;
    get viewportWrapperStyle() {
+      const { listApi } = this.root;
+      if ( listApi.listWrapperApi.resizing )
+         return { height: 'auto' };
+
       return {
          willChange: 'height',
-         height: this.root.listApi.wrapperHeight,
+         height: listApi.wrapperHeight,
          contentVisibility: 'auto',
-         containIntrinsicSize: this.root.listApi.wrapperHeight
+         containIntrinsicSize: listApi.wrapperHeight
       };
    }
    get viewportStyle() {
+      const { listApi } = this.root;
+
       return {
          willChange: 'height',
-         height: this.root.listApi.totalHeight
+         height: listApi.totalHeight
       };
    }
    get viewMoverStyle() {
+      const { listApi } = this.root;
       return {
          willChange: 'transform',
-         transform: `translateY(${ this.root.listApi.offsetY }px)`
+         transform: `translateY(${ listApi.offsetY }px)`
       };
    }
    get listHeaderStyle() {
+      const { scrollApi } = this.root.listApi;
       return {
          willChange: 'transform',
-         transform: `translateX(${ -this.root.listApi.scrollApi.scrollLeft }px)`
+         transform: `translateX(${ -scrollApi.scrollLeft }px)`
       };
    }
    get headerMenuStyle() {
+      const { columnMenuApi } = this.root.columnApi;
       return {
-         left: this.root.columnApi.columnMenuApi.xy[ 0 ],
-         top: this.root.columnApi.columnMenuApi.xy[ 1 ],
+         left: columnMenuApi.xy[ 0 ],
+         top: columnMenuApi.xy[ 1 ],
       };
    }
    get columnGhostStyle() {

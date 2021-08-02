@@ -54,10 +54,10 @@ const getRowsAsync = async ( { request, fail, success }: IGetRowsParams ) => {
       rowData: response.rows || [],
       lastRow: response.lastRow || 0,
    } );
-   //    success( {
-   //       rowData: [ {} ],
-   //       lastRow: 1,
-   //    } );
+   // success( {
+   //    rowData: [ {} ],
+   //    lastRow: 1,
+   // } );
 };
 
 // const getRowsAsync = async ( { request, fail, success }: IGetRowsParams ) => {
