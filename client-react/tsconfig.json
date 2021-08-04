@@ -10,9 +10,10 @@
          "vite/client"
       ],
       "strict": true,
-      "allowJs": false,
+      "allowJs": true,
+      "checkJs": false,
       "skipLibCheck": false,
-      "esModuleInterop": false,
+      "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
       "allowUnusedLabels": true,
       "forceConsistentCasingInFileNames": true,
@@ -21,6 +22,7 @@
       "moduleResolution": "Node",
       "resolveJsonModule": true,
       "isolatedModules": true,
+      "noImplicitAny": false,
       "noEmit": true,
       "jsx": "react",
       "baseUrl": "src"

@@ -1,17 +1,20 @@
 import React, {
    HTMLAttributes, useEffect,
-   useMemo, useState
+   useMemo, useRef, useState
 } from 'react';
-import { MemoVirtualScroll } from "features/virtual-scroll";
-import { VirtualScrollApi } from "features/virtual-scroll/VirtualListGridApi";
 import { useClasses } from "hooks";
 import styles from './styles.module.css';
+import { html } from "lit";
+import { FrostListGrid, VirtualScrollApi } from "../web-components/FrostListGrid.wc.js"; FrostListGrid;
+import { FrostPreviewOrOpen } from "../web-components/FrostPreviewOrOpen.wc"; FrostPreviewOrOpen;
+
 
 
 interface IListGridProps extends HTMLAttributes<HTMLDivElement> { datasource: any; };
 export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    const hostClasses = useClasses( styles.host, className );
    const [ $api ] = useState( new VirtualScrollApi() );
+   const gridRef = useRef<any>( null );
 
    const defaultColDefs = {
       minWidth: 100,
@@ -29,10 +32,28 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
          moveable: false,
          menu: true,
          checkbox: true,
-         actions: [
-            { icon: 'eye_regular' },
-            { icon: 'box_open_solid' }
-         ]
+         // renderer: ( rowData: any ) => {
+         //    return `🍔`;
+         // }
+         // renderer: ( rowData: any ) => {
+         //    const newDiv = document.createElement( "div" );
+         //    const newContent = document.createTextNode( "🍕" );
+         //    newDiv.appendChild( newContent );
+         //    return newDiv;
+         // }
+         renderer: ( rowData: any ) => {
+            const renderer = document.createElement( 'frost-preview-or-open' ) as any;
+            renderer.rowData = rowData;
+            renderer.addEventListener( 'onPreview', ( e: any ) => console.log( 'on preview event', e ) );
+            renderer.addEventListener( 'onOpen', ( e: any ) => console.log( 'on open event', e ) );
+            return renderer;
+         }
+         // renderer: ( rowData: any ) => html`
+         // <frost-preview-or-open
+         //    .rowData=${ rowData }
+         //    @onOpen=${ ( e: any ) => console.log( 'on open event', e ) }
+         //    @onPreview=${ ( e: any ) => console.log( 'on preview event', e ) }
+         // />`
       },
       {
          label: 'AthleteLongLableTestAthleteLongLableTest',
@@ -143,7 +164,6 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    ];
 
    useMemo( () => {
-      console.log( $api );
       const { listApi } = $api;
       // $api.mode = 'normal';
       listApi.setColumnDefinitions( defaultColDefs, colDefs );
@@ -152,6 +172,9 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
 
 
    useEffect( () => {
+      if ( !gridRef.current ) return;
+      gridRef.current.initialize( $api );
+
       const { publishers } = $api;
 
       const resizeSub = publishers.resizeColumn.subscribe( () => {
@@ -178,7 +201,7 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
 
    return (
       <div className={ hostClasses }>
-         <MemoVirtualScroll api={ $api } />
+         <frost-list-grid ref={ gridRef } ></frost-list-grid>
          <div>Hei</div>
       </div>
    );
