@@ -1,7 +1,6 @@
 import React, { StrictMode } from 'react';
 import { render } from 'react-dom';
 import { App } from 'core';
-import './assets/svgRegistration';
 import './main.css';
 
 render(

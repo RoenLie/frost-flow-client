@@ -1,5 +1,5 @@
 .host {
    display: grid;
    overflow: hidden;
-   grid-template-rows: 1fr 200px;
+   grid-template-rows: 1fr;
 }

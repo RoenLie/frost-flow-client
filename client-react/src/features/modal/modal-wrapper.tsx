@@ -1,26 +1,6 @@
 import React, { memo, MouseEventHandler, useEffect, useMemo, useRef, useState } from "react";
-import { SvgIcon } from "core";
+import { SvgIcon } from "features";
 import styles from './styles.module.css';
-
-
-export type ModalSize = 'small' | 'medium' | 'large' | 'xlarge' | 'full';
-
-
-export interface IModalWrapperProps {
-   id?: string;
-   component: any;
-   onClose?: () => void;
-   resizeable?: boolean;
-   moveable?: boolean;
-   size?: ModalSize;
-   logger?: IModalLogger;
-   children?: never[];
-}
-
-
-export interface IModalLogger {
-   logInfo: ( msg: string ) => void;
-}
 
 
 class DefaultModalLogger implements IModalLogger {
@@ -31,7 +11,7 @@ class DefaultModalLogger implements IModalLogger {
 
 
 export const ModalWrapper = (
-   { id, component: Modal, onClose, resizeable, moveable, size, logger = new DefaultModalLogger() }: IModalWrapperProps
+   { id, component: Modal, onClose, resizeable, moveable, size, logger = new DefaultModalLogger(), passthrough }: IModalWrapperProps
 ) => {
    const wrapperRef = useRef<HTMLDivElement>( null );
    const [ position, setPosition ] = useState( [ 0, 0 ] );
@@ -290,23 +270,23 @@ export const ModalWrapper = (
       >
          <section className={ headerClasses }
             onMouseDown={
-               modalMoveEvents.mousedown.bind( modalMoveEvents ) as unknown as MouseEventHandler<HTMLDivElement>
+               modalMoveEvents.mousedown.bind( modalMoveEvents ) as any
             }>
             <div onClick={ onClose }>
-               <SvgIcon svgName="times_solid" size="small"></SvgIcon>
+               <SvgIcon svgName="times-solid" size="small"></SvgIcon>
             </div>
          </section>
 
          <section className={ styles.content }>
-            <Modal onClose={ onClose }></Modal>
+            <Modal onClose={ onClose } { ...passthrough } ></Modal>
          </section>
 
          <section className={ styles.footer }>
             { resizeable ? (
                <div onMouseDown={
-                  modalResizeEvents.mousedown.bind( modalResizeEvents ) as unknown as MouseEventHandler<HTMLDivElement>
+                  modalResizeEvents.mousedown.bind( modalResizeEvents ) as any
                }>
-                  <SvgIcon svgName="signal_solid" size="small"></SvgIcon>
+                  <SvgIcon svgName="signal-solid" size="small"></SvgIcon>
                </div>
             ) : <></> }
          </section>

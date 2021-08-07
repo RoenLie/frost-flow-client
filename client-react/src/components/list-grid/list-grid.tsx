@@ -5,16 +5,51 @@ import React, {
 import { useClasses } from "hooks";
 import styles from './styles.module.css';
 import { html } from "lit";
-import { FrostListGrid, VirtualScrollApi } from "../web-components/FrostListGrid.wc.js"; FrostListGrid;
-import { FrostPreviewOrOpen } from "../web-components/FrostPreviewOrOpen.wc"; FrostPreviewOrOpen;
+import { rootModalService } from "features/modal";
+import { asyncRes } from "shared/helpers";
+import { FrostListGrid, ListGridApi } from "components/web-components";
+import { FrostPreviewOrOpen } from "components/web-components";
+import { BasicRecordForm } from "components/modal-form";
+import { useHistory } from "react-router-dom";
+FrostListGrid;
+FrostPreviewOrOpen;
 
 
 
-interface IListGridProps extends HTMLAttributes<HTMLDivElement> { datasource: any; };
-export const ListGrid = ( { className, datasource }: IListGridProps ) => {
+interface IListGridProps extends HTMLAttributes<HTMLDivElement> { [ key: string ]: any; };
+export const ListGrid = ( { className }: IListGridProps ) => {
    const hostClasses = useClasses( styles.host, className );
-   const [ $api ] = useState( new VirtualScrollApi() );
+   const history = useHistory();
+   const [ $api ] = useState( new ListGridApi() );
    const gridRef = useRef<any>( null );
+   const activeTable = 'olympic_winners';
+
+
+   const openRecordAsModal = async ( rowData: any ) => {
+      async function getRecordData( table: string, id: string ) {
+         if ( !table || !id ) return;
+
+         const url: RequestInfo = `//localhost:8025/postgres/get/${ table }/${ id }`;
+         const request: RequestInit = {
+            method: "get",
+            headers: { "Content-Type": "application/json; charset=utf-8" }
+         };
+
+         const [ res, err ] = await asyncRes( fetch( url, request ) );
+         if ( err ) return null;
+
+         return await res.json();
+      }
+
+      const recData = await getRecordData( activeTable, rowData.data.sys_id );
+
+      rootModalService.addModal( { component: BasicRecordForm, passthrough: { record: recData } } as IModalWrapperProps );
+   };
+
+   const openRecordAsEmbedded = ( rowData: any ) => {
+      history.push( `/epoch/record?table=${ activeTable }&id=${ rowData.data.sys_id }` );
+      console.log( 'stuff?' );
+   };
 
    const defaultColDefs = {
       minWidth: 100,
@@ -44,8 +79,8 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
          renderer: ( rowData: any ) => {
             const renderer = document.createElement( 'frost-preview-or-open' ) as any;
             renderer.rowData = rowData;
-            renderer.addEventListener( 'onPreview', ( e: any ) => console.log( 'on preview event', e ) );
-            renderer.addEventListener( 'onOpen', ( e: any ) => console.log( 'on open event', e ) );
+            renderer.addEventListener( 'onPreview', ( e: any ) => openRecordAsEmbedded( e.detail ) );
+            renderer.addEventListener( 'onOpen', ( e: any ) => openRecordAsModal( e.detail ) );
             return renderer;
          }
          // renderer: ( rowData: any ) => html`
@@ -96,80 +131,14 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
       {
          label: 'Total',
          field: 'total',
-      },
-      {
-         label: '1',
-         field: '1',
-      },
-      {
-         label: '2',
-         field: '2',
-      },
-      {
-         label: '3',
-         field: '3',
-      },
-      {
-         label: '4',
-         field: '4',
-      },
-      {
-         label: '5',
-         field: '5',
-      },
-      {
-         label: '6',
-         field: '6',
-      },
-      {
-         label: '7',
-         field: '7',
-      },
-      {
-         label: '8',
-         field: '8',
-      },
-      {
-         label: '9',
-         field: '9',
-      },
-      {
-         label: '10',
-         field: '10',
-      },
-      {
-         label: '11',
-         field: '11',
-      },
-      {
-         label: '12',
-         field: '12',
-      },
-      {
-         label: '13',
-         field: '13',
-      },
-      {
-         label: '14',
-         field: '14',
-      },
-      {
-         label: '15',
-         field: '15',
-      },
-      {
-         label: '16',
-         field: '16',
       }
    ];
 
    useMemo( () => {
-      const { listApi } = $api;
-      // $api.mode = 'normal';
-      listApi.setColumnDefinitions( defaultColDefs, colDefs );
-      listApi.setDatasource( datasource );
+      const { setupApi } = $api;
+      setupApi.columnDefinitions( defaultColDefs, colDefs );
+      setupApi.datasource( { getRows: getRowsAsync } );
    }, [] );
-
 
    useEffect( () => {
       if ( !gridRef.current ) return;
@@ -202,7 +171,53 @@ export const ListGrid = ( { className, datasource }: IListGridProps ) => {
    return (
       <div className={ hostClasses }>
          <frost-list-grid ref={ gridRef } ></frost-list-grid>
-         <div>Hei</div>
       </div>
    );
 };
+
+const getRowsAsync = async ( { request, fail, success }: IGetRowsParams ) => {
+   const url: RequestInfo = `//localhost:8025/postgres/olympic_winners`;
+   const fetchRequest: RequestInit = {
+      method: "post",
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify( request )
+   };
+
+   const [ res, err ] = await asyncRes( fetch( url, fetchRequest ) );
+   if ( err ) { console.error( err ); fail(); return; }
+
+   const response = await res.json();
+
+   success( {
+      rowData: response.rows || [],
+      lastRow: response.lastRow || 0,
+   } );
+   // success( {
+   //    rowData: [ {} ],
+   //    lastRow: 1,
+   // } );
+};
+
+// const getRowsAsync = async ( { request, fail, success }: IGetRowsParams ) => {
+//    const fakeObj = {
+//       age: 21,
+//       athlete: 'Kaitlin Sandeno',
+//       bronze: 1,
+//       country: 'United States',
+//       country_group: 'U',
+//       date: '2004-08-29T00:00:00.000Z',
+//       gold: 1,
+//       silver: 1,
+//       sport: 'Swimming',
+//       sys_created_at: '2021-05-23T23:27:58.226Z',
+//       sys_id: '459be9f2-bc2f-11eb-9838-0242c0a85003',
+//       sys_updated_at: '2021-05-23T23:27:58.226Z',
+//       total: 3,
+//       year: 2004
+//    };
+
+//    success( {
+//       rowData: new Array( 4000 ).fill( fakeObj ),
+//       lastRow: 4000 || 0,
+//    } );
+// };

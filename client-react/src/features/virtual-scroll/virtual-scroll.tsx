@@ -3,7 +3,7 @@ import React, {
    useEffect, useMemo, useRef
 } from "react";
 import styles from './styles.module.css';
-import { SvgIcon } from "core";
+import { SvgIcon } from "features";
 import { VirtualScrollApi } from "features/virtual-scroll/VirtualListGridApi";
 import { useForceUpdate } from "hooks";
 
@@ -152,19 +152,19 @@ const VirtualScroll = ( { api }: IVirtualScrollProps
                      { def.sort == 'asc'
                         ? <div className={ styles.columnSort }
                            onMouseUp={ ( e ) => listApi.sortRows( def.field ) }>
-                           <SvgIcon svgName="chevron_up_solid" size="small" />
+                           <SvgIcon svgName="chevron-up-solid" size="small" />
                         </div>
                         : def.sort == 'desc'
                            ? <div className={ styles.columnSort }
                               onMouseUp={ ( e ) => listApi.sortRows( def.field ) }>
-                              <SvgIcon svgName="chevron_down_solid" size="small" />
+                              <SvgIcon svgName="chevron-down-solid" size="small" />
                            </div>
                            : null }
 
                      { def.menu !== false
                         ? <div className={ styles.columnMenu }
                            onClick={ ( e ) => columnMenuApi.openMenu( e as any ) }>
-                           <SvgIcon svgName="bars_solid" size="small" />
+                           <SvgIcon svgName="bars-solid" size="small" />
                         </div>
                         : null }
                   </div>

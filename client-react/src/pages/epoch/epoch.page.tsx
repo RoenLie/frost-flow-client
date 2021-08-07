@@ -1,7 +1,8 @@
 import React, { Suspense } from 'react';
 import styles from './styles.module.css';
 import { Link, Switch, useLocation } from "react-router-dom";
-import { RouteWithSubRoutes, SvgIcon } from "core";
+import { RouteWithSubRoutes } from "core";
+import { SvgIcon } from "features";
 
 
 export const Epoch = ( { routes }: any ) => {
@@ -12,14 +13,12 @@ export const Epoch = ( { routes }: any ) => {
       <div className={ styles.host }>
 
          <section className={ styles.nav }>
-
-            { routes.map( ( route: any, i: number ) => (
+            { routes.filter( r => r.icon ).map( ( route: any, i: number ) => (
                <Link key={ i } to={ route.path } title={ route.label }
                   className={ routeEpochTab?.path == route.path ? styles.active : '' }>
                   <SvgIcon svgName={ route.icon } size="medium" />
                </Link>
             ) ) }
-
          </section>
 
          <section className={ styles.content }>

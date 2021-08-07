@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Link, useLocation } from "react-router-dom";
-import { SvgIcon } from "core";
+import { SvgIcon } from "features";
 import { routes } from "routes/routes";
 import styles from './styles.module.css';
 import { rootModalService } from "features/modal/modal.service";
@@ -39,7 +39,7 @@ export default ( { children }: any ) => {
 
             <div className={ styles.headerRightNav } onClick={ openProfile }>
                <div>
-                  <SvgIcon svgName="user_solid" />
+                  <SvgIcon svgName="user-solid" />
                </div>
             </div>
          </div>

@@ -1,4 +1,4 @@
-import { SvgIcon } from "core";
+import { SvgIcon } from "features";
 import React from 'react';
 
 
@@ -11,7 +11,7 @@ export const NotFound = () => {
 
    return (
       <div style={ styles }>
-         <SvgIcon svgName="not_found" width="20rem"></SvgIcon>
+         <SvgIcon svgName="not-found" width="30rem"></SvgIcon>
       </div>
    );
 };
