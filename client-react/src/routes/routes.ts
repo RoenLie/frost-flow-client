@@ -9,6 +9,7 @@ const routeComponents = {
    epochWorkspace: lazy( () => import( './epoch.workspace.route' ) ),
    epochList: lazy( () => import( './epoch.list.route' ) ),
    epochRecord: lazy( () => import( './epoch.record.route' ) ),
+   epochSettings: lazy( () => import( './epoch.settings.route' ) ),
    notFound: lazy( () => import( './not-found.route' ) )
 };
 
@@ -61,7 +62,7 @@ export const routes: IReactRoute[] = [
             path: '/epoch/settings',
             layout: 'default',
             icon: 'cog-solid',
-            component: routeComponents.epochWorkspace
+            component: routeComponents.epochSettings
          }
       ]
    },

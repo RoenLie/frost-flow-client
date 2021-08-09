@@ -7,10 +7,11 @@
       "serve": "vite preview"
    },
    "dependencies": {
+      "axios": "^0.21.1",
+      "lit": "^2.0.0-rc.2",
       "react": "next",
       "react-dom": "next",
       "react-router-dom": "^5.2.0",
-      "lit": "^2.0.0-rc.2",
       "uuid": "^8.3.2",
       "valtio": "^1.0.7"
    },

@@ -11,6 +11,7 @@ import { FrostListGrid, ListGridApi } from "components/web-components";
 import { FrostPreviewOrOpen } from "components/web-components";
 import { BasicRecordForm } from "components/modal-form";
 import { useHistory } from "react-router-dom";
+import { getRecordData } from "hooks/useRecord";
 FrostListGrid;
 FrostPreviewOrOpen;
 
@@ -26,21 +27,6 @@ export const ListGrid = ( { className }: IListGridProps ) => {
 
 
    const openRecordAsModal = async ( rowData: any ) => {
-      async function getRecordData( table: string, id: string ) {
-         if ( !table || !id ) return;
-
-         const url: RequestInfo = `//localhost:8025/postgres/get/${ table }/${ id }`;
-         const request: RequestInit = {
-            method: "get",
-            headers: { "Content-Type": "application/json; charset=utf-8" }
-         };
-
-         const [ res, err ] = await asyncRes( fetch( url, request ) );
-         if ( err ) return null;
-
-         return await res.json();
-      }
-
       const recData = await getRecordData( activeTable, rowData.data.sys_id );
 
       rootModalService.addModal( { component: BasicRecordForm, passthrough: { record: recData } } as IModalWrapperProps );
@@ -48,7 +34,6 @@ export const ListGrid = ( { className }: IListGridProps ) => {
 
    const openRecordAsEmbedded = ( rowData: any ) => {
       history.push( `/epoch/record?table=${ activeTable }&id=${ rowData.data.sys_id }` );
-      console.log( 'stuff?' );
    };
 
    const defaultColDefs = {

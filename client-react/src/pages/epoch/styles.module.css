@@ -35,6 +35,8 @@
    }
 
    &>.content {
-      grid-area: content
+      grid-area: content;
+      display: grid;
+      overflow: hidden;
    }
 }

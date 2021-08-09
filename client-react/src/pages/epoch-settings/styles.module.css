@@ -1,0 +1,57 @@
+.content {
+   display: grid;
+   overflow: hidden;
+   grid-template-columns: auto 1fr;
+   grid-template-rows: 1fr;
+
+   &>:first-child {
+      border-right: 1px solid var(--border-grey-strong-1);
+   }
+}
+
+.viewSelectorContainer {
+   display: grid;
+   grid-template-rows: 3rem 1fr;
+   row-gap: 1rem;
+
+   &>:first-child {
+      display: grid;
+      grid-auto-flow: row dense;
+   }
+
+   &>:last-child {
+      display: grid;
+      grid-auto-flow: row dense;
+      grid-auto-rows: min-content;
+
+      &>* {
+         height: 2rem;
+         display: grid;
+         place-items: center;
+         cursor: pointer;
+
+         &:hover {
+            background-color: var(--grey-highlight-weak);
+            text-shadow:
+               -1px -1px 0 #000,
+               1px -1px 0 #000,
+               -1px 1px 0 #000,
+               1px 1px 0 #000;
+         }
+
+         &.active {
+            background-color: var(--grey-highlight-medium);
+            text-shadow:
+               -1px -1px 0 #000,
+               1px -1px 0 #000,
+               -1px 1px 0 #000,
+               1px 1px 0 #000;
+         }
+      }
+   }
+}
+
+.viewDesignerContainer {
+   display: grid;
+   overflow: auto;
+}

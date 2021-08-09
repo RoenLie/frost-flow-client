@@ -1,8 +1,6 @@
 body {
-   box-sizing: border-box;
-   background-color: var(--dark-1);
    color: var(--light-txt-1);
-   margin: 0;
+   background-color: var(--dark-1);
    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
       "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
       sans-serif;
@@ -47,15 +45,33 @@ body {
    --scrollbar-thumb-1: rgba(255, 255, 255, 0.09);
 
    --blue-highlight-1: rgba(178, 235, 242, 1);
-}
 
-code {
-   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-      monospace;
+   --grey-highlight-weak: rgba(150, 150, 150, 0.5);
+   --grey-highlight-medium: rgba(150, 150, 150, 0.75);
+   --grey-highlight-strong: rgba(150, 150, 150, 1);
 }
 
 * {
    -webkit-box-sizing: border-box;
    -moz-box-sizing: border-box;
    box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+}
+
+div::-webkit-scrollbar {
+   width: var(--scrollbar-height-1);
+   height: var(--scrollbar-width-1);
+}
+
+div::-webkit-scrollbar-track {
+   background: var(--scrollbar-track-1);
+}
+
+div::-webkit-scrollbar-thumb {
+   background: var(--scrollbar-thumb-1);
+}
+
+div::-webkit-scrollbar-corner {
+   background: rgba(0, 0, 0, 0);
 }

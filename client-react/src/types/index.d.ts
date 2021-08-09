@@ -7,6 +7,8 @@ declare global {
       }
    }
 
+   type PostgresResult<T> = { data: T[], columns: any[]; };
+
    interface IGetRowsParams {
       request: TRequest;
       fail: () => void;

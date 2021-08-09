@@ -1,50 +1,80 @@
+import React, { CSSProperties, useMemo } from 'react';
+import styles from './styles.module.css';
 import { useQuery } from "hooks/useQuery";
-import React, { useMemo, useState } from 'react';
-import { asyncRes } from "shared/helpers";
-// import styles from './styles.module.css';
+import { useRecord } from "hooks/useRecord";
+import { useView } from "hooks/useView";
 
 
 export const EpochRecord = ( { location } ) => {
    const query = useQuery();
-   const [ recData, setRecData ] = useState( {} );
 
-   useMemo( () => {
-      async function getRecordData( table: string, id: string ) {
-         if ( !table || !id ) return;
+   const table = query.get( 'table' ) || '';
+   const id = query.get( 'id' ) || '';
+   const viewName = query.get( 'view' ) || 'default';
 
-         const url: RequestInfo = `//localhost:8025/postgres/get/${ table }/${ id }`;
-         const request: RequestInit = {
-            method: "get",
-            headers: { "Content-Type": "application/json; charset=utf-8" }
-         };
+   const record = useRecord( table, id );
+   const view = useView( table, viewName );
 
-         const [ res, err ] = await asyncRes( fetch( url, request ) );
-         if ( err ) return null;
+   const Section = () => {
 
-         return await res.json();
-      }
 
-      ( async () => {
-         const sysId = query.get( 'id' );
-         const table = query.get( 'table' );
-         if ( !sysId || !table ) return;
 
-         console.log( 'running query' );
+   };
 
-         const recData = await getRecordData( table, sysId );
 
-         setRecData( recData );
-      } )();
-   }, [] );
+   const sections = useMemo( () => {
+      if ( Object.isEmpty( view ) ) return;
+
+      const maxWidth = view.section.reduce( ( acc: number, sec ) =>
+         acc < sec.grid_width ? sec.grid_width : acc, 0 );
+      const maxHeight = view.section.reduce( ( acc: number, sec ) =>
+         acc < sec.grid_height ? sec.grid_height : acc, 0 );
+
+      console.log( maxWidth, maxHeight );
+
+      const getDimTemplate = ( prop: string ) =>
+         view.section.map( s => s[ prop ] + 'fr' ).join( ' ' );
+
+      const sectionWrapperStyle = {
+         display: 'grid',
+         gridTemplateColumns: getDimTemplate( 'grid_width' ),
+         gridTemplateRows: getDimTemplate( 'grid_height' ),
+         backgroundColor: 'pink'
+      } as CSSProperties;
+
+
+      const sectionStyle = {
+         display: 'grid',
+         gridTemplateColumns: getDimTemplate( 'grid_width' ),
+         gridTemplateRows: getDimTemplate( 'grid_height' ),
+         backgroundColor: 'pink'
+      } as CSSProperties;
+
+
+      return (
+         <div style={ sectionWrapperStyle }>
+            { view.section.map( ( section ) => {
+
+               return (
+                  <div key={ section.sys_id }>
+                     { section.name }
+                  </div>
+               );
+            } ) }
+         </div>
+      );
+   }, [ view ] );
 
 
 
 
    return (
-      <div>
+      <div className={ styles.host }>
          <h1>EPOCH RECORD</h1>
-         <pre>{ JSON.stringify( location, null, '\t' ) }</pre>
-         <pre>{ JSON.stringify( recData, null, '\t' ) }</pre>
+         { sections }
+         <pre>{ JSON.stringify( location, null, 2 ) }</pre>
+         <pre>{ JSON.stringify( view, null, 2 ) }</pre>
+         <pre>{ JSON.stringify( record, null, 2 ) }</pre>
       </div>
    );
 };

@@ -2,6 +2,7 @@ import React, { StrictMode } from 'react';
 import { render } from 'react-dom';
 import { App } from 'core';
 import './main.css';
+import 'shared/prototypeExtensions/object';
 
 render(
    <StrictMode>
@@ -19,3 +20,4 @@ render(
 //       <App />
 //    </React.StrictMode>
 // );
+
