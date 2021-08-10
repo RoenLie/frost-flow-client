@@ -12,8 +12,6 @@ import { ViewDesigner } from "components/view-designer";
 export const EpochSettings = ( { location } ) => {
    const query = useQuery();
    const history = useHistory();
-   console.log( 'hei' );
-
 
    const tables = [ 'olympic_winners' ];
    const [ activeTable, setActiveTable ] = useState( query.get( 'table' ) || tables[ 0 ] );

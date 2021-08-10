@@ -11,6 +11,7 @@ Object.defineProperty( Object.prototype, 'isEmpty', {
 
 Object.defineProperty( Object.prototype, 'jsonCopy', {
    value: function <T>( object: T ) {
+      if ( !object ) return null;
       return JSON.parse( JSON.stringify( object ) );
    },
    writable: false,

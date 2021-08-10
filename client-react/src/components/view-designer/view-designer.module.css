@@ -12,46 +12,129 @@
    justify-self: center;
 }
 
-.section {
-   margin: 1rem;
-   padding: 1rem;
-   border: 1px solid blue;
+.body {
+   display: grid;
+   row-gap: 1rem;
 }
 
-.sectionGrid {
+.gridSectionWrapper {
    display: grid;
+   row-gap: 0.5rem;
+   padding: 0.5rem;
+   margin: 0.5rem;
+   border: 1px solid var(--dark-blue-1);
+   border-radius: 0.2rem;
+   background-color: var(--dark-blue-2);
+}
+.gridSectionBody {
+   display: grid;
+   row-gap: 1px;
+   column-gap: 1px;
+   background-color: var(--dark-blue-2);
+}
+.gridFieldBackdrop {
+   background-color: var(--dark-blue-2);
+   user-select: none;
+   height: 4rem;
+}
+.gridSectionHeader {
+   display: grid;
+   grid-auto-flow: column dense;
+   justify-content: space-between;
+}
+.gridInput {
+   color: var(--light-txt-1);
+   background-color: var(--dark-1);
+   padding: 0.2rem 0.5rem;
+   outline: none;
+   border: 1px solid var(--dark-5);
+}
+.gridSelect {
+   color: var(--light-txt-1);
+   background-color: var(--dark-1);
+   padding: 0.2rem 0.5rem;
+   outline: none;
+   border: 1px solid var(--dark-5);
 }
 .gridField {
    position: relative;
    display: grid;
-   place-items: center;
    overflow: hidden;
+   background-color: var(--dark-1);
+   border-radius: 0.2rem;
+   box-shadow: inset 0px 0px 0px 2px var(--dark-5);
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
 
-   & :first-child {
+   &>:first-child {
       position: absolute;
       top: 0;
       left: 0;
-      background-color: aqua;
+      background-color: var(--dark-5);
       width: 1rem;
       height: 1rem;
+      border-radius: 0.2rem;
 
       &:hover {
-         background-color: brown;
+         background-color: var(--blue-highlight-1);
          cursor: move;
       }
    }
 
-   & :last-child {
+   &>:last-child {
       position: absolute;
       clip-path: polygon(100% 0, 100% 100%, 0 100%);
       bottom: 0;
       right: 0;
-      background-color: aqua;
+      background-color: var(--dark-5);
       width: 1rem;
       height: 1rem;
+      border-radius: 0.2rem;
+
       &:hover {
-         background-color: brown;
+         background-color: var(--blue-highlight-1);
          cursor: nwse-resize;
+      }
+   }
+
+   & .gridFieldCenter {
+      justify-self: stretch;
+      align-self: center;
+      display: grid;
+      column-gap: 0.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(1rem, 10rem));
+      grid-auto-flow: column;
+      justify-content: space-around;
+      padding: 0.3rem 1.2rem;
+
+      &>* {
+         width: 100%;
+      }
+   }
+}
+.gridSectionFooter {
+   display: grid;
+   grid-auto-flow: column dense;
+   justify-content: space-between;
+}
+.gridActions {
+   &>* {
+      display: grid;
+      place-items: center;
+      color: var(--light-txt-1);
+      background-color: var(--dark-1);
+      padding: 0.3rem 0.6rem;
+      outline: none;
+      border: 1px solid var(--dark-5);
+      
+      &:hover {
+         border: 1px solid var(--blue-highlight-1);
+      }
+      &:active {
+         border: 1px solid var(--blue-highlight-1);
+         background-color: var(--blue-highlight-1);
+         color: black;
       }
    }
 }

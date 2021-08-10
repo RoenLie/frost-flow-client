@@ -17,6 +17,8 @@ export interface IComposedView {
    view: IView;
    section: ISection[];
    field: IFields;
+   columns: { name: string, type: string; }[];
+   validation?: any;
 }
 export interface IView {
    sys_created_at: string;
