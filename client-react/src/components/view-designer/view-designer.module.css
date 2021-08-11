@@ -18,6 +18,7 @@
 }
 
 .gridSectionWrapper {
+   position: relative;
    display: grid;
    row-gap: 0.5rem;
    padding: 0.5rem;
@@ -112,6 +113,17 @@
          width: 100%;
       }
    }
+
+   & .gridFieldCloser {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+
+      & :hover {
+         color: var(--blue-highlight-1);
+         cursor:pointer;
+      }
+   }
 }
 .gridSectionFooter {
    display: grid;
@@ -135,6 +147,26 @@
          border: 1px solid var(--blue-highlight-1);
          background-color: var(--blue-highlight-1);
          color: black;
+      }
+   }
+}
+.gridFieldMenuWrapper {
+   position: fixed;
+   opacity: 0;
+   & .gridFieldMenu {
+      position: relative;
+      & .gridFieldContent {
+         overflow: auto;
+         position: absolute;
+         display: grid;
+         padding: 0.5rem;
+         right: 0;
+         height: 7rem;
+         width: 5rem;
+         background-color: var(--red-deep-1);
+         box-shadow: 0 0 5px 5px var(--dark-2);
+         border-radius: var(--border-radius-1);
+
       }
    }
 }

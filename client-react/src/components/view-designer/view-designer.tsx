@@ -5,6 +5,7 @@ import { uuid } from "shared";
 import { env } from "env/env";
 import { asyncRes } from "shared/helpers";
 import { AxiosStatic } from "axios";
+import { SvgIcon } from "features/svg";
 
 
 interface IViewDesignerProps { view: IComposedView; }
@@ -14,27 +15,25 @@ export const ViewDesigner = ( { view }: IViewDesignerProps ) => {
    const [ viewData, setViewData ] = useState( Object.jsonCopy( view ) );
    useMemo( () => setViewData( Object.jsonCopy( view ) ), [ view ] );
 
-   function emptySection( this: ISection, id: string ) {
-      this.sys_id = id;
-      this.sys_created_at = '';
-      this.sys_updated_at = '';
-      this.view_id = '';
-      this.section_id = '';
-      this.name = '';
-      this.grid_width = 0;
-      this.grid_height = 0;
-      this.grid_x_from = 0;
-      this.grid_x_to = 0;
-      this.grid_y_from = 0;
-      this.grid_y_to = 0;
-      this.section_order = 0;
-   };
-
-
+   const emptySection = ( id: string ) => ( {
+      sys_id: id,
+      sys_created_at: '',
+      sys_updated_at: '',
+      view_id: '',
+      section_id: '',
+      name: '',
+      grid_width: 0,
+      grid_height: 0,
+      grid_x_from: 0,
+      grid_x_to: 0,
+      grid_y_from: 0,
+      grid_y_to: 0,
+      section_order: 0,
+   } as ISection );
 
    const addSection = () => {
       const sectionId = uuid();
-      viewData.section.push( new emptySection( sectionId ) );
+      viewData.section.push( emptySection( sectionId ) );
       viewData.field[ sectionId ] = [];
 
       setViewData( { ...viewData } );
@@ -124,35 +123,40 @@ const GridSection = memo( (
       size: [ 0, 0 ],
       activeField: null as number | null,
       action: '' as 'resize' | 'move' | '',
-      subscriptions: [] as any[],
-      subscribe() {
-         this.subscriptions.push( [ 'mouseup', this.mouseup.bind( this ) ] );
-         this.subscriptions.forEach( s => addEventListener( s[ 0 ], s[ 1 ] ) );
-         setGridFields( [ ...$gridFields ] );
+      subscription: {
+         subs: [] as any[],
+         sub() {
+            this.subs.forEach( s => addEventListener( s[ 0 ], s[ 1 ] ) );
+         },
+         unsub() {
+            this.subs.forEach( s => removeEventListener( s[ 0 ], s[ 1 ] ) );
+            this.subs = [];
+         }
       },
-      unsubscribe() {
-         this.activeField = null;
-         this.action = '';
-         this.size = [ 0, 0 ];
-         this.subscriptions.forEach( s => removeEventListener( s[ 0 ], s[ 1 ] ) );
-         setGridFields( [ ...$gridFields ] );
-      },
-      mousedownMove( e: MouseEvent, fieldIndex: number, size: number[] ) {
+      mousedownMove( e: MouseEvent, index: number, size: number[] ) {
          e.preventDefault();
-         this.activeField = fieldIndex;
-         this.action = 'move';
-         this.size = size;
-         this.subscribe();
+         this.eventMoveResizeStart( 'move', index, size );
       },
-      mousedownResize( e: MouseEvent, fieldIndex: number, size: number[] ) {
+      mousedownResize( e: MouseEvent, index: number, size: number[] ) {
          e.preventDefault();
-         this.activeField = fieldIndex;
-         this.action = 'resize';
-         this.size = size;
-         this.subscribe();
+         this.eventMoveResizeStart( 'resize', index, size );
       },
-      mouseenter( e: MouseEvent ) {
+      eventMoveResizeStart( action: 'resize' | 'move', index: number, size: number[] ) {
+         this.action = action;
+         this.activeField = index;
+         this.size = size;
+
+         setGridFields( $gridFields );
+
+         this.subscription.unsub();
+         this.subscription.subs.push( [ 'mouseup', this.mouseup.bind( this ) ] );
+         setTimeout( () => this.subscription.sub() );
+      },
+      mouseenter( event: any ) {
+         const e = event as MouseEvent;
+
          if ( this.activeField === null ) return;
+         if ( e.buttons !== 1 ) return;
 
          const target = e.target as HTMLElement;
          const vector = target.getAttribute( 'data-vector' ) + '';
@@ -181,17 +185,65 @@ const GridSection = memo( (
             }
          }
 
+         if ( this.action ) {
+            setGridFields( [ ...$gridFields ] );
+            onSectionUpdate?.( $section, $gridFields );
+         }
+      },
+      mouseup() {
+         this.activeField = null;
+         this.action = '';
+         this.size = [ 0, 0 ];
+         setGridFields( [ ...$gridFields ] );
+
+         this.subscription.unsub();
+      },
+      addField() {
+         $gridFields.push( emptyField( uuid() ) );
          setGridFields( [ ...$gridFields ] );
          onSectionUpdate?.( $section, $gridFields );
       },
-      mouseup() {
-         this.unsubscribe();
+      removeField() {
+         if ( $gridFieldEvents.activeField == null ) return;
+
+         $gridFields.splice( $gridFieldEvents.activeField, 1 );
+         setGridFields( [ ...$gridFields ] );
+
+         onSectionUpdate?.( $section, $gridFields );
+
+         $gridFieldEvents.closeMenu();
+      },
+      openMenu( e: MouseEvent, index: number ) {
+         e.preventDefault();
+
+         this.activeField = index;
+         setMenuLocation( [ e.clientX + 15, e.clientY - 15 ] );
+
+         this.subscription.unsub();
+         this.subscription.subs.push( [ 'mousedown', this.closeMenu.bind( this ) ] );
+         setTimeout( () => this.subscription.sub() );
+      },
+      closeMenu( e?: MouseEvent ) {
+         const insideMenu = e?.composedPath()
+            .some( ( path: EventTarget ) => {
+               const p = path as HTMLElement;
+               if ( !p.getAttribute ) return;
+               return p.getAttribute( 'data-name' ) == 'gridFieldMenu';
+            } );
+
+         if ( insideMenu ) return;
+
+         this.activeField = null;
+         setMenuLocation( [ 0, 0 ] );
+
+         this.subscription.unsub();
       }
    };
 
    const [ $gridFieldEvents ] = useState( gridFieldEvents );
    const [ $section, setSection ] = useState( Object.jsonCopy( section ) );
    const [ $gridFields, setGridFields ] = useState( Object.jsonCopy( fields ) );
+   const [ $menuLocation, setMenuLocation ] = useState( [ 0, 0 ] );
 
    const gridMaxSizes = [ 4, 10 ];
    const grid = new Array( $section.grid_height || 1 )
@@ -222,17 +274,29 @@ const GridSection = memo( (
       onSectionUpdate?.( $section, $gridFields );
    };
 
-   function emptyField( this: IField, id: string ) {
-      this.sys_id = id;
-      this.sys_created_at = '';
-      this.sys_updated_at = '';
-      this.section_id = '';
-      this.column_name = '';
-      this.label = '';
-      this.grid_x_from = 0;
-      this.grid_x_to = 0;
-      this.grid_y_from = 0;
-      this.grid_y_to = 0;
+   const emptyField = ( id: string ) => ( {
+      sys_id: id,
+      sys_created_at: '',
+      sys_updated_at: '',
+      section_id: '',
+      column_name: '',
+      label: '',
+      grid_x_from: 0,
+      grid_x_to: 0,
+      grid_y_from: 0,
+      grid_y_to: 0
+   } as IField );
+
+   const changeFieldLabel = ( { target }: { target: HTMLInputElement; }, index: number ) => {
+      $gridFields[ index ].label = target.value;
+      setGridFields( [ ...$gridFields ] );
+      onSectionUpdate?.( $section, $gridFields );
+   };
+
+   const changeFieldColumn = ( { target }: { target: HTMLSelectElement; }, index: number ) => {
+      $gridFields[ index ].column_name = target.value;
+      setGridFields( [ ...$gridFields ] );
+      onSectionUpdate?.( $section, $gridFields );
    };
 
    const gridBackdrop = useMemo( () =>
@@ -243,7 +307,8 @@ const GridSection = memo( (
          } as CSSProperties;
 
          return (
-            <div key={ i1 + '' + i2 }
+            <div
+               key={ i1 + '' + i2 }
                style={ gridStyle }
                className={ styles.gridFieldBackdrop }
                data-vector={ i1 + '' + i2 }
@@ -251,7 +316,7 @@ const GridSection = memo( (
             />
          );
       } ) ),
-      [ $section.grid_height, $section.grid_width ] );
+      [ $section ] );
 
    const gridFields = useMemo( () =>
       $gridFields.map( ( field, i ) => {
@@ -271,42 +336,51 @@ const GridSection = memo( (
 
          const size = [ $section.grid_height, $section.grid_width ];
 
-         const changeFieldLabel = ( { target }: { target: HTMLInputElement; }, index: number ) => {
-            $gridFields[ index ].label = target.value;
-            setGridFields( [ ...$gridFields ] );
-            onSectionUpdate?.( $section, $gridFields );
-         };
-
-         const changeFieldColumn = ( { target }: { target: HTMLSelectElement; }, index: number ) => {
-            $gridFields[ index ].column_name = target.value;
-            setGridFields( [ ...$gridFields ] );
-            onSectionUpdate?.( $section, $gridFields );
-         };
-
          return (
-            <div key={ i } style={ fieldStyle } className={ styles.gridField }
+            <div
+               key={ field.sys_id }
+               style={ fieldStyle }
+               className={ styles.gridField }
             >
-               <div style={ fieldMoverStyle } onMouseDown={ ( e: any ) =>
-                  $gridFieldEvents.mousedownMove( e, i, size ) }
+               <div
+                  style={ fieldMoverStyle }
+                  onMouseDown={ ( e: any ) =>
+                     $gridFieldEvents.mousedownMove( e, i, size ) }
                />
+
+               <div
+                  className={ styles.gridFieldCloser }
+                  onMouseDown={ ( e: any ) => $gridFieldEvents.openMenu( e, i ) }
+               >
+                  <SvgIcon svgName="bars-solid" size="xsmall" />
+               </div>
+
                <div className={ styles.gridFieldCenter }>
-                  <input className={ styles.gridInput }
+                  <input
+                     className={ styles.gridInput }
                      value={ field.label }
                      onChange={ ( e ) => changeFieldLabel( e, i ) }
                   />
-                  <select className={ styles.gridSelect }
+                  <select
+                     className={ styles.gridSelect }
                      value={ field.column_name }
                      onChange={ ( e ) => changeFieldColumn( e, i ) }
                   >
                      { columns.map( col => (
-                        <option key={ col.name } value={ col.name }>
+                        <option
+                           key={ col.name }
+                           value={ col.name }
+                        >
                            { col.name }
                         </option>
                      ) ) }
                   </select>
                </div>
-               <div style={ fieldMoverStyle } onMouseDown={ ( e: any ) =>
-                  $gridFieldEvents.mousedownResize( e, i, size ) }
+
+               <div
+                  style={ fieldMoverStyle }
+                  onMouseDown={ ( e: any ) =>
+                     $gridFieldEvents.mousedownResize( e, i, size ) }
                />
             </div>
          );
@@ -323,14 +397,16 @@ const GridSection = memo( (
       </div>
 
       <div>
-         <select className={ styles.gridSelect }
+         <select
+            className={ styles.gridSelect }
             value={ $section.grid_width }
             onChange={ ( e: any ) => changeGridSize( e, 'x' ) }
          >
             { new Array( gridMaxSizes[ 0 ] ).fill( null ).map( ( _, i ) =>
                <option key={ i } value={ i + 1 }>{ i + 1 }</option> ) }
          </select>
-         <select className={ styles.gridSelect }
+         <select
+            className={ styles.gridSelect }
             value={ $section.grid_height }
             onChange={ ( e: any ) => changeGridSize( e, 'y' ) }
          >
@@ -339,21 +415,44 @@ const GridSection = memo( (
          </select>
       </div>
    </> ),
-      [ $section.name, $section.grid_width, $section.grid_height ] );
+      [ $section ] );
 
    const gridFooter = useMemo( () => {
-      const addField = () => {
-         $gridFields.push( new emptyField( uuid() ) );
-         setGridFields( [ ...$gridFields ] );
-         onSectionUpdate?.( $section, $gridFields );
-      };
-
       return (
          <div className={ styles.gridActions }>
-            <button onClick={ addField }>Add field</button>
+            <button onClick={ () => $gridFieldEvents.addField() }>
+               Add field
+            </button>
          </div>
       );
    }, [] );
+
+   const gridFieldMenu = useMemo( () => {
+      if ( $menuLocation[ 0 ] === 0 &&
+         $menuLocation[ 1 ] === 0 ) return null;
+
+      const menuStyle = {
+         top: $menuLocation[ 1 ],
+         left: $menuLocation[ 0 ],
+         opacity: 1
+      } as CSSProperties;
+
+      return (
+         <div
+            data-name="gridFieldMenu"
+            className={ styles.gridFieldMenuWrapper }
+            style={ menuStyle }
+         >
+            <div className={ styles.gridFieldMenu }>
+               <div className={ styles.gridFieldContent }>
+                  <button onClick={ () => $gridFieldEvents.removeField() }>
+                     REMOVE
+                  </button>
+               </div>
+            </div>
+         </div >
+      );
+   }, [ $menuLocation ] );
 
 
    return (
@@ -370,6 +469,8 @@ const GridSection = memo( (
          <div className={ styles.gridSectionFooter }>
             { gridFooter }
          </div>
+
+         { gridFieldMenu }
       </div >
    );
 } );

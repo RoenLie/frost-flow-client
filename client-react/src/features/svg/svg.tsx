@@ -8,7 +8,7 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
    & {
       [ K in Keys ]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
    }[ Keys ];
-type SvgIconSize = 'small' | 'medium' | 'large' | 'xlarge';
+type SvgIconSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 interface ISvgIconProps {
    size?: SvgIconSize;
    width?: string;
@@ -30,6 +30,7 @@ export const SvgIcon = ( { size, width, svgName, onClick }: ISvgIconProps ) => {
    );
 
    const iconSize = {
+      xsmall: '0.75rem',
       small: '1rem',
       medium: '1.5rem',
       large: '3rem',
