@@ -1,6 +1,6 @@
 import { env } from "env/env";
 import { IComposedView } from "hooks/types";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { asyncRes } from "shared/helpers";
 
 
@@ -22,13 +22,24 @@ export async function getViewData( table: string, name: string ) {
 
 export const useView = ( table: string, name: string ) => {
    const [ view, setView ] = useState( {} );
+   const [ loading, setLoading ] = useState( false );
 
    useMemo( () => {
       if ( !name || !table ) return;
+      setLoading( true );
+
       getViewData( table, name )
-         .then( d => setView( d ) );
+         .then( d => { setView( d ); setLoading( false ); } );
    }, [ name, table ] );
 
-   return view as IComposedView;
+   const forceReload = async () => {
+      setLoading( true );
+      const data = await getViewData( table, name );
+      setView( data );
+      setLoading( false );
+   };
+
+   return { view, loading, forceReload } as
+      { view: IComposedView, loading: boolean; forceReload: () => Promise<any>; };
 };
 

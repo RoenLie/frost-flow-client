@@ -7,6 +7,7 @@ import { env } from "env/env";
 import { IView } from "hooks/types";
 import { useHistory } from "react-router-dom";
 import { ViewDesigner } from "components/view-designer";
+import { Loader } from "features/loader";
 
 
 export const EpochSettings = ( { location } ) => {
@@ -16,8 +17,14 @@ export const EpochSettings = ( { location } ) => {
    const tables = [ 'olympic_winners' ];
    const [ activeTable, setActiveTable ] = useState( query.get( 'table' ) || tables[ 0 ] );
    const [ activeView, setActiveView ] = useState( query.get( 'view' ) || 'default' );
+   const [ loading, setLoading ] = useState( false );
 
-   const view = useView( activeTable, activeView );
+   const {
+      view,
+      loading: viewLoading,
+      forceReload: forceReloadView
+   } = useView( activeTable, activeView );
+
    const allViews = useAxios<PostgresResult<IView>>( {
       baseUrl: env.epochHost,
       params: { url: '/postgres/view' }
@@ -33,7 +40,6 @@ export const EpochSettings = ( { location } ) => {
          search: '?' + queryParams.join( '&' )
       } );
    }, [ activeTable, activeView ] );
-
 
    return (
       <div className={ styles.content }>
@@ -64,8 +70,19 @@ export const EpochSettings = ( { location } ) => {
             </div>
          </div >
          <div className={ styles.viewDesignerContainer }>
-            <ViewDesigner view={ view }></ViewDesigner>
+            <Loader loading={ viewLoading || loading }>
+               <ViewDesigner
+                  view={ view }
+                  onSave={ async ( promise ) => {
+                     setLoading( true );
+                     await promise;
+                     setLoading( false );
+                     forceReloadView();
+                  } }
+               />
+            </Loader>
          </div>
       </div >
    );
 };
+

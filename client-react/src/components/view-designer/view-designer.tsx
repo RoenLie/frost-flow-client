@@ -8,8 +8,11 @@ import { AxiosStatic } from "axios";
 import { SvgIcon } from "features/svg";
 
 
-interface IViewDesignerProps { view: IComposedView; }
-export const ViewDesigner = ( { view }: IViewDesignerProps ) => {
+interface IViewDesignerProps {
+   onSave: ( promise: Promise<any> ) => void;
+   view: IComposedView;
+}
+export const ViewDesigner = ( { view, onSave: OnViewSaved }: IViewDesignerProps ) => {
    if ( Object.isEmpty( view ) ) return null;
 
    const [ viewData, setViewData ] = useState( Object.jsonCopy( view ) );
@@ -22,56 +25,48 @@ export const ViewDesigner = ( { view }: IViewDesignerProps ) => {
       view_id: '',
       section_id: '',
       name: '',
-      grid_width: 0,
-      grid_height: 0,
-      grid_x_from: 0,
-      grid_x_to: 0,
-      grid_y_from: 0,
-      grid_y_to: 0,
+      grid_width: 1,
+      grid_height: 1,
       section_order: 0,
    } as ISection );
 
-   const addSection = () => {
-      const sectionId = uuid();
-      viewData.section.push( emptySection( sectionId ) );
-      viewData.field[ sectionId ] = [];
+   const addSection = ( id: string ) => {
+      const newSection = emptySection( uuid() );
+      const order = viewData.section.find( s => s.sys_id == id )?.section_order || 0;
 
+      newSection.section_order = order + 1;
+      viewData.section.push( newSection );
+      viewData.field[ newSection.sys_id ] = [];
+
+      setViewData( { ...viewData } );
+   };
+
+   const removeSection = ( id: string ) => {
+      const index = viewData.section.findIndex( s => s.sys_id === id );
+      if ( index < 0 ) return;
+      viewData.section.splice( index, 1 );
       setViewData( { ...viewData } );
    };
 
    const save = async () => {
       const axios: AxiosStatic = ( await import( "axios" ) ).default;
       axios.defaults.baseURL = env.epochHost;
-      const [ res, err ] = await asyncRes( axios.request( {
+      const res = asyncRes( axios.request( {
          method: 'post',
-         url: '/postgres/view/upsert'
+         url: '/postgres/view/upsert',
+         data: viewData
       } ) );
 
-      console.log( res, err );
+      OnViewSaved?.( res );
+   };
 
+   const updateViewSectionData = ( section: ISection, fields: IField[] ) => {
+      const sectionIndex = viewData.section.findIndex( s => s.sys_id == section.sys_id );
+      viewData.section[ sectionIndex ] = section;
+      viewData.field[ section.sys_id ] = fields;
 
-
-      // const fetchData = async () => {
-      //    setLoading( true );
-      //    try {
-      //       const res = await axios.request( params );
-      //       setResponse( res.data );
-      //       setError( null );
-      //    } catch ( err ) {
-      //       setError( err );
-      //    } finally {
-      //       setLoading( false );
-      //    }
-      // };
-
-
-
-      // const saveView = useAxios( {
-      //    baseUrl: env.epochHost,
-      //    params: {
-      //       url: '/postgres/view/upsert'
-      //    }
-      // } );
+      setViewData( { ...viewData } );
+      console.log( 'view data updated', viewData );
    };
 
 
@@ -84,18 +79,21 @@ export const ViewDesigner = ( { view }: IViewDesignerProps ) => {
 
          <div className={ styles.body }>
             <h1>Sections</h1>
-            { viewData.section.map( sec => {
-               return (
-                  <GridSection
-                     key={ sec.sys_id }
-                     section={ sec }
-                     fields={ viewData.field[ sec.sys_id ] }
-                     columns={ viewData.columns }
-                     onChange={ ( s, f ) => { /* console.log( 'grid updated', s, f ); */ } }
-                  />
-               );
-            } ) }
-            <button onClick={ addSection } >ADD SECTION</button>
+            { viewData.section
+               .sort( ( a, b ) => a.section_order - b.section_order )
+               .map( sec => {
+                  return (
+                     <GridSection
+                        key={ sec.sys_id }
+                        section={ sec }
+                        fields={ viewData.field[ sec.sys_id ] }
+                        columns={ viewData.columns }
+                        onChange={ ( s, f ) => updateViewSectionData( s, f ) }
+                        onAdd={ ( s ) => addSection( s ) }
+                        onRemove={ ( s ) => removeSection( s ) }
+                     />
+                  );
+               } ) }
          </div>
 
          <hr></hr>
@@ -109,14 +107,21 @@ export const ViewDesigner = ( { view }: IViewDesignerProps ) => {
 
 interface IGridSectionProps {
    onChange?: ( sec: ISection, fields: IField[] ) => void;
+   onAdd?: ( secId: string ) => void;
+   onRemove?: ( secId: string ) => void;
    section: ISection;
    fields: IField[];
    columns: { name: string, type: string; }[];
    children?: ReactNode;
 }
-const GridSection = memo( (
-   { onChange: onSectionUpdate, section, fields, columns }: IGridSectionProps
-) => {
+const GridSection = memo( ( {
+   onChange: onSectionUpdate,
+   onAdd: onSectionAdd,
+   onRemove: onSectionRemove,
+   section,
+   fields,
+   columns
+}: IGridSectionProps ) => {
    if ( Object.isEmpty( section ) ) return null;
 
    const gridFieldEvents = {
@@ -146,6 +151,7 @@ const GridSection = memo( (
          this.activeField = index;
          this.size = size;
 
+         setMenuLocation( [ 0, 0 ] );
          setGridFields( $gridFields );
 
          this.subscription.unsub();
@@ -187,7 +193,6 @@ const GridSection = memo( (
 
          if ( this.action ) {
             setGridFields( [ ...$gridFields ] );
-            onSectionUpdate?.( $section, $gridFields );
          }
       },
       mouseup() {
@@ -195,11 +200,17 @@ const GridSection = memo( (
          this.action = '';
          this.size = [ 0, 0 ];
          setGridFields( [ ...$gridFields ] );
+         onSectionUpdate?.( $section, $gridFields );
 
          this.subscription.unsub();
       },
       addField() {
-         $gridFields.push( emptyField( uuid() ) );
+         const newField = emptyField( uuid() );
+         newField.section_id = $section.sys_id;
+         newField.column_name = columns[ 0 ].name;
+         newField.label = columns[ 0 ].name;
+
+         $gridFields.push( newField );
          setGridFields( [ ...$gridFields ] );
          onSectionUpdate?.( $section, $gridFields );
       },
@@ -241,8 +252,8 @@ const GridSection = memo( (
    };
 
    const [ $gridFieldEvents ] = useState( gridFieldEvents );
-   const [ $section, setSection ] = useState( Object.jsonCopy( section ) );
-   const [ $gridFields, setGridFields ] = useState( Object.jsonCopy( fields ) );
+   const [ $section, setSection ] = useState( Object.jsonCopy( section ) || [] );
+   const [ $gridFields, setGridFields ] = useState( Object.jsonCopy( fields ) || [] );
    const [ $menuLocation, setMenuLocation ] = useState( [ 0, 0 ] );
 
    const gridMaxSizes = [ 4, 10 ];
@@ -254,6 +265,19 @@ const GridSection = memo( (
       gridTemplateColumns: grid[ 0 ].map( () => '1fr' ).join( ' ' ),
       backgroundColor: $gridFieldEvents.action ? 'var(--border-grey-strong-1)' : ''
    } as CSSProperties;
+
+   const emptyField = ( id: string ) => ( {
+      sys_id: id,
+      sys_created_at: '',
+      sys_updated_at: '',
+      section_id: '',
+      column_name: '',
+      label: '',
+      grid_x_from: 0,
+      grid_x_to: 0,
+      grid_y_from: 0,
+      grid_y_to: 0
+   } as IField );
 
    const changeGridSize = ( { target }: { target: HTMLInputElement; }, xy: ( 'x' | 'y' ) ) => {
       if ( xy == 'x' ) {
@@ -271,31 +295,35 @@ const GridSection = memo( (
    const changeSectionName = ( { target }: { target: HTMLInputElement; } ) => {
       $section.name = target.value;
       setSection( { ...$section } );
-      onSectionUpdate?.( $section, $gridFields );
    };
 
-   const emptyField = ( id: string ) => ( {
-      sys_id: id,
-      sys_created_at: '',
-      sys_updated_at: '',
-      section_id: '',
-      column_name: '',
-      label: '',
-      grid_x_from: 0,
-      grid_x_to: 0,
-      grid_y_from: 0,
-      grid_y_to: 0
-   } as IField );
+   const changeSectionOrder = ( { target }: { target: HTMLInputElement; } ) => {
+      const val = +target.value;
+      if ( isNaN( val ) ) return;
+
+      $section.section_order = val;
+      setSection( { ...$section } );
+   };
 
    const changeFieldLabel = ( { target }: { target: HTMLInputElement; }, index: number ) => {
       $gridFields[ index ].label = target.value;
       setGridFields( [ ...$gridFields ] );
-      onSectionUpdate?.( $section, $gridFields );
    };
 
    const changeFieldColumn = ( { target }: { target: HTMLSelectElement; }, index: number ) => {
       $gridFields[ index ].column_name = target.value;
       setGridFields( [ ...$gridFields ] );
+   };
+
+   const emitSectionAdd = () => {
+      onSectionAdd?.( section.sys_id );
+   };
+
+   const emitSectionRemove = () => {
+      onSectionRemove?.( section.sys_id );
+   };
+
+   const emitSectionUpdate = () => {
       onSectionUpdate?.( $section, $gridFields );
    };
 
@@ -360,11 +388,13 @@ const GridSection = memo( (
                      className={ styles.gridInput }
                      value={ field.label }
                      onChange={ ( e ) => changeFieldLabel( e, i ) }
+                     onBlur={ emitSectionUpdate }
                   />
                   <select
                      className={ styles.gridSelect }
                      value={ field.column_name }
                      onChange={ ( e ) => changeFieldColumn( e, i ) }
+                     onBlur={ emitSectionUpdate }
                   >
                      { columns.map( col => (
                         <option
@@ -393,6 +423,16 @@ const GridSection = memo( (
          <input className={ styles.gridInput }
             value={ $section.name }
             onChange={ changeSectionName }
+            onBlur={ emitSectionUpdate }
+         />
+      </div>
+
+      <div>
+         <input className={ styles.gridInput }
+            style={ { width: 100 } }
+            value={ $section.section_order }
+            onChange={ changeSectionOrder }
+            onBlur={ emitSectionUpdate }
          />
       </div>
 
@@ -414,13 +454,28 @@ const GridSection = memo( (
                <option key={ i } value={ i + 1 }>{ i + 1 }</option> ) }
          </select>
       </div>
+
+      <div className={ styles.gridActions }>
+         <button
+            title="add section"
+            onClick={ emitSectionAdd }
+         >
+            <SvgIcon svgName="plus-square-regular" size="small"></SvgIcon>
+         </button>
+         <button
+            title="remove section"
+            onClick={ emitSectionRemove }
+         >
+            <SvgIcon svgName="minus-square-regular" size="small"></SvgIcon>
+         </button>
+      </div>
    </> ),
       [ $section ] );
 
    const gridFooter = useMemo( () => {
       return (
          <div className={ styles.gridActions }>
-            <button onClick={ () => $gridFieldEvents.addField() }>
+            <button onClick={ () => $gridFieldEvents.addField() } >
                Add field
             </button>
          </div>

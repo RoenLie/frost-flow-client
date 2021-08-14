@@ -32,6 +32,8 @@ export const useAxios: TUseAxios = ( {
    };
 
    useEffect( () => {
+      console.log( 'fething all views' );
+
       fetchData();
    }, [] );
 

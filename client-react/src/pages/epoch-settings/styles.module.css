@@ -53,5 +53,5 @@
 
 .viewDesignerContainer {
    display: grid;
-   overflow: auto;
+   overflow: hidden;
 }

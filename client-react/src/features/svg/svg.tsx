@@ -10,19 +10,14 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
    }[ Keys ];
 type SvgIconSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 interface ISvgIconProps {
+   svgName: string;
    size?: SvgIconSize;
    width?: string;
-   svgName: string;
    onClick?: ( e: any ) => any;
+   style?: CSSProperties;
 }
 
-class SvgIconService {
-   svgs: { [ key: string ]: any; } = {};
-   add = ( name: string, svg: any ) => this.svgs[ name ] = svg;
-}
-export const svgIconService = new SvgIconService();
-
-export const SvgIcon = ( { size, width, svgName, onClick }: ISvgIconProps ) => {
+export const SvgIcon = ( { size, width, svgName, style, onClick }: ISvgIconProps ) => {
    const Icon = () => (
       <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
          <use xlinkHref={ `${ icons }#icon-${ svgName }` } />
@@ -39,7 +34,8 @@ export const SvgIcon = ( { size, width, svgName, onClick }: ISvgIconProps ) => {
 
    const iconStyle = {
       width: size ? iconSize[ size ] : width ? width : iconSize[ 'medium' ],
-      height: size ? iconSize[ size ] : width ? width : iconSize[ 'medium' ]
+      height: size ? iconSize[ size ] : width ? width : iconSize[ 'medium' ],
+      ...style
    } as CSSProperties;
 
    return (

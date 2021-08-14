@@ -2,6 +2,7 @@
    display: grid;
    grid-auto-rows: min-content;
    row-gap: 1rem;
+   overflow:auto;
 
    &>hr {
       width: 100%;
@@ -42,18 +43,19 @@
    display: grid;
    grid-auto-flow: column dense;
    justify-content: space-between;
+   height: 2rem;
 }
 .gridInput {
    color: var(--light-txt-1);
    background-color: var(--dark-1);
-   padding: 0.2rem 0.5rem;
+   padding: 0.3rem 0.5rem;
    outline: none;
    border: 1px solid var(--dark-5);
 }
 .gridSelect {
    color: var(--light-txt-1);
    background-color: var(--dark-1);
-   padding: 0.2rem 0.5rem;
+   padding: 0.3rem 0.5rem;
    outline: none;
    border: 1px solid var(--dark-5);
 }
@@ -131,7 +133,11 @@
    justify-content: space-between;
 }
 .gridActions {
-   &>* {
+   display: grid;
+   place-items: start center;
+   grid-auto-flow: column dense;
+
+   & >* {
       display: grid;
       place-items: center;
       color: var(--light-txt-1);
