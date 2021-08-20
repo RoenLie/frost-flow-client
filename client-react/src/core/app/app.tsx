@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Switch, Route, BrowserRouter, Redirect, useLocation } from "react-router-dom";
 import { routes } from "routes/routes";
 import { Layout } from "features";
@@ -6,13 +6,11 @@ import { Layout } from "features";
 
 export const App = () => (
    <BrowserRouter>
-      <Suspense fallback={ <div>Loading route...</div> }>
-         <Switch>
-            { routes.map( ( route, i ) => (
-               <LayoutRouteWithSubRoutes key={ i } { ...route } />
-            ) ) }
-         </Switch>
-      </Suspense>
+      <Switch>
+         { routes.map( ( route, i ) => (
+            <LayoutRouteWithSubRoutes key={ i } { ...route } />
+         ) ) }
+      </Switch>
    </BrowserRouter>
 );
 

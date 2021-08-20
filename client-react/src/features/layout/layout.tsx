@@ -1,4 +1,4 @@
-import React, { memo, Suspense, useMemo, useState } from 'react';
+import React, { lazy, memo, Suspense, useMemo, useState } from 'react';
 
 export type LazyJSXElement = React.LazyExoticComponent<( { children }: any ) => JSX.Element>;
 export interface RootLayouts {
@@ -10,8 +10,8 @@ export interface RootLayouts {
 
 class RootLayoutService {
    layouts: RootLayouts = {
-      default: React.lazy( () => import( './default/default.layout' ) ),
-      admin: React.lazy( () => import( './admin/admin.layout' ) )
+      default: lazy( () => import( './default/default.layout' ) ),
+      admin: lazy( () => import( './admin/admin.layout' ) )
    };
 
    #Layout: LazyJSXElement = this.layouts.default as LazyJSXElement;
@@ -46,7 +46,7 @@ export const Layout = memo( ( { layout, children }: any ) => {
 
 
    return (
-      <Suspense fallback={ <div>Loading layout...</div> }>
+      <Suspense fallback={ <></> }>
          <Layout>{ children }</Layout>
       </Suspense>
    );

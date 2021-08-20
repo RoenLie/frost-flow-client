@@ -1,6 +1,7 @@
+import MemoModalWrapper from "features/modal/modal-wrapper";
 import React, { useState } from 'react';
 import { createPortal } from "react-dom";
-import { useModalPortal, ModalPortalService, MemoModalWrapper } from ".";
+import { useModalPortal, ModalPortalService } from ".";
 import styles from './styles.module.css';
 
 
@@ -12,18 +13,20 @@ export const ModalPortal = ( { serviceProvider }: { serviceProvider: ModalPortal
 
    const removeModal = ( id: string ) => setModals( modals.filter( ( m: any ) => m.id !== id ) );
 
-
-   return loaded ? ( createPortal(
-      modals.length
+   return loaded
+      ? ( createPortal( modals.length
          ? (
             <div className={ styles.modalContainer }>
-               { modals.map( ( props ) =>
-                  <MemoModalWrapper key={ props.id } onClose={ () => removeModal( props.id ) } { ...props } /> )
+               { modals.map( ( props ) => {
+                  return <MemoModalWrapper
+                     key={ props.id }
+                     onClose={ () => removeModal( props.id ) }
+                     { ...props }
+                  />;
+               } )
                }
             </div> )
          : <></>,
-
-      document.getElementById( portalId ) as Element
-   )
-   ) : <></>;
+         document.getElementById( portalId ) as Element
+      ) ) : <></>;
 };

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, CSSProperties, memo, ReactNode, useMemo, useState } from "react";
+import React, { CSSProperties, memo, ReactNode, useMemo, useState } from "react";
 import { IComposedView, IField, ISection } from "hooks/types";
 import styles from './view-designer.module.css';
 import { uuid } from "shared";
@@ -6,6 +6,7 @@ import { env } from "env/env";
 import { asyncRes } from "shared/helpers";
 import { AxiosStatic } from "axios";
 import { SvgIcon } from "features/svg";
+import { rootToastService } from "features/toast";
 
 
 interface IViewDesignerProps {
@@ -66,7 +67,6 @@ export const ViewDesigner = ( { view, onSave: OnViewSaved }: IViewDesignerProps 
       viewData.field[ section.sys_id ] = fields;
 
       setViewData( { ...viewData } );
-      console.log( 'view data updated', viewData );
    };
 
 
@@ -95,11 +95,6 @@ export const ViewDesigner = ( { view, onSave: OnViewSaved }: IViewDesignerProps 
                   );
                } ) }
          </div>
-
-         <hr></hr>
-         <pre>
-            { JSON.stringify( view, null, 2 ) }
-         </pre>
       </div>
    );
 };
@@ -419,25 +414,17 @@ const GridSection = memo( ( {
 
    const gridHeader = useMemo( () =>
    ( <>
-      <div>
-         <input className={ styles.gridInput }
-            value={ $section.name }
-            onChange={ changeSectionName }
-            onBlur={ emitSectionUpdate }
-         />
-      </div>
-
-      <div>
-         <input className={ styles.gridInput }
+      <div className={ styles.headerLeft }>
+         <input
+            title="order"
+            className={ styles.gridInput }
             style={ { width: 100 } }
             value={ $section.section_order }
             onChange={ changeSectionOrder }
             onBlur={ emitSectionUpdate }
          />
-      </div>
-
-      <div>
          <select
+            title="x dimension"
             className={ styles.gridSelect }
             value={ $section.grid_width }
             onChange={ ( e: any ) => changeGridSize( e, 'x' ) }
@@ -446,6 +433,7 @@ const GridSection = memo( ( {
                <option key={ i } value={ i + 1 }>{ i + 1 }</option> ) }
          </select>
          <select
+            title="y dimension"
             className={ styles.gridSelect }
             value={ $section.grid_height }
             onChange={ ( e: any ) => changeGridSize( e, 'y' ) }
@@ -455,7 +443,17 @@ const GridSection = memo( ( {
          </select>
       </div>
 
-      <div className={ styles.gridActions }>
+      <div className={ styles.headerCenter }>
+         <input
+            title="name"
+            className={ styles.gridInput }
+            value={ $section.name }
+            onChange={ changeSectionName }
+            onBlur={ emitSectionUpdate }
+         />
+      </div>
+
+      <div className={ styles.gridActions + ' ' + styles.headerRight }>
          <button
             title="add section"
             onClick={ emitSectionAdd }

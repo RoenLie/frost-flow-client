@@ -8,9 +8,10 @@ import { IView } from "hooks/types";
 import { useHistory } from "react-router-dom";
 import { ViewDesigner } from "components/view-designer";
 import { Loader } from "features/loader";
+import { rootToastService } from "features/toast";
 
 
-export const EpochSettings = ( { location } ) => {
+export const EpochSettings = () => {
    const query = useQuery();
    const history = useHistory();
 
@@ -40,6 +41,21 @@ export const EpochSettings = ( { location } ) => {
          search: '?' + queryParams.join( '&' )
       } );
    }, [ activeTable, activeView ] );
+
+   const save = async ( promise: Promise<any> ) => {
+      setLoading( true );
+      await promise;
+      setLoading( false );
+      forceReloadView();
+
+      rootToastService.addMessage( {
+         mode: 'success',
+         message: 'view has been saved successfully',
+         autoClose: true,
+         autoCloseTime: 2000
+      } );
+   };
+
 
    return (
       <div className={ styles.content }>
@@ -73,12 +89,7 @@ export const EpochSettings = ( { location } ) => {
             <Loader loading={ viewLoading || loading }>
                <ViewDesigner
                   view={ view }
-                  onSave={ async ( promise ) => {
-                     setLoading( true );
-                     await promise;
-                     setLoading( false );
-                     forceReloadView();
-                  } }
+                  onSave={ save }
                />
             </Loader>
          </div>

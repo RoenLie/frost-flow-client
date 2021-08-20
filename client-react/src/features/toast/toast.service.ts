@@ -1,14 +1,15 @@
+import { IToastComponent } from "features/toast";
 import { uuid } from "shared";
 
 
 export class ToastPortalService {
-   toasts: any[] = [];
+   toasts: IToastComponent[] = [];
    setToasts: Function = () => { };
-   bind( toasts: any[], setToasts: Function ) {
+   bind( toasts: IToastComponent[], setToasts: Function ) {
       this.toasts = toasts;
       this.setToasts = setToasts;
    }
-   addMessage( toast: any ) {
+   addMessage( toast: IToastComponent ) {
       this.setToasts( [ ...this.toasts, { id: uuid(), ...toast } ] );
    }
 }

@@ -1,7 +1,6 @@
-import { createPortal } from "react-dom";
 import React, { useState } from "react";
-import { Toast } from "./toast";
-import { useToastPortal, ToastPortalService, MemoToastWrapper } from 'features/toast';
+import { createPortal } from "react-dom";
+import { useToastPortal, ToastPortalService, MemoToastWrapper, Toast } from 'features/toast';
 import styles from './styles.module.css';
 
 

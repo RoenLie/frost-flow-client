@@ -13,7 +13,7 @@ export const EpochRecord = ( { location } ) => {
    const viewName = query.get( 'view' ) || 'default';
 
    const record = useRecord( table, id );
-   const view = useView( table, viewName );
+   const {view} = useView( table, viewName );
 
    const Section = () => {
 

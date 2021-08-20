@@ -30,16 +30,14 @@ export const Loader: FunctionComponent<ILoader> = memo( ( { loading, children } 
       zIndex: 2,
    } as CSSProperties;
 
-   return (
-      <div style={ loaderWrapperStyle }>
-         { loading
-            ? ( <>
-               <div style={ loaderBlurStyle }>{ children }</div>
-               <div style={ loaderIconStyle }>
-                  <LoaderSpinner scale={ 1 }></LoaderSpinner>
-               </div>
-            </> )
-            : <>{ children }</> }
-      </div>
-   );
+   return loading
+      ? (
+         <div style={ loaderWrapperStyle }>
+            <div style={ loaderBlurStyle }>{ children }</div>
+            <div style={ loaderIconStyle }>
+               <LoaderSpinner scale={ 1 }></LoaderSpinner>
+            </div>
+         </div>
+      )
+      : <>{ children }</>;
 } );

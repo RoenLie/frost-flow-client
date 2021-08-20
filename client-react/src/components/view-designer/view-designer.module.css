@@ -42,8 +42,23 @@
 .gridSectionHeader {
    display: grid;
    grid-auto-flow: column dense;
-   justify-content: space-between;
    height: 2rem;
+
+   & .headerLeft, & .headerCenter, & .headerRight {
+      display: grid;
+      grid-auto-flow: column dense;
+      column-gap: 0.2rem;
+   }
+
+   & .headerLeft {
+      justify-self: flex-start;
+   }
+   & .headerCenter {
+      justify-self: center;
+   }
+   & .headerRight {
+      justify-self:flex-end
+   }
 }
 .gridInput {
    color: var(--light-txt-1);
@@ -145,6 +160,7 @@
       padding: 0.3rem 0.6rem;
       outline: none;
       border: 1px solid var(--dark-5);
+      cursor: pointer;
       
       &:hover {
          border: 1px solid var(--blue-highlight-1);

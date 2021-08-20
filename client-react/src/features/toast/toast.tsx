@@ -2,10 +2,12 @@ import React, { useMemo } from 'react';
 import styles from './styles.module.css';
 
 
-interface IToastComponent {
+export interface IToastComponent {
    mode: ToastMode;
-   onClose: any;
    message: string;
+   onClose?: any;
+   autoClose?: boolean;
+   autoCloseTime?: number;
 }
 type ToastMode = 'info' | 'success' | 'warning' | 'error';
 

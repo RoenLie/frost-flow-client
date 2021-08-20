@@ -294,4 +294,5 @@ export const ModalWrapper = (
    );
 };
 
-export const MemoModalWrapper = memo( ModalWrapper );
+const MemoModalWrapper = memo( ModalWrapper );
+export default MemoModalWrapper;

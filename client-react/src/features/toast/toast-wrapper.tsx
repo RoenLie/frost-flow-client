@@ -12,9 +12,9 @@ export const ToastWrapper = ( { children, autoClose, autoCloseTime, onClose }: a
 
    useEffect(
       () => {
-         console.log( removing, autoClose, autoCloseTime );
          if ( autoClose )
-            removalTimeout = setTimeout( () => setRemoving( removing + 1 ), autoCloseTime );
+            removalTimeout = setTimeout( () =>
+               setRemoving( removing + 1 ), autoCloseTime );
 
          return () => clearTimeout( removalTimeout );
       },
