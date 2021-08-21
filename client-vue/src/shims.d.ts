@@ -8,3 +8,7 @@ declare module '*.md' {
    const component: ComponentOptions;
    export default component;
 }
+
+// typescript can't find type info on vue components
+// and the volar ts extension kills normal ts files.
+declare module '*.vue' { }

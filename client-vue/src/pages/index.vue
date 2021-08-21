@@ -16,7 +16,12 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <div>{{ t('ROOT') }}</div>
+  <div>
+    {{ t('ROOT') }}
+    <button @click="go">
+      GO
+    </button>
+  </div>
 </template>
 
 <route lang="yaml">

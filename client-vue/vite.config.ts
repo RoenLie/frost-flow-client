@@ -11,6 +11,10 @@ import VueI18n from '@intlify/vite-plugin-vue-i18n';
 import Prism from 'markdown-it-prism';
 // @ts-expect-error missing types
 import LinkAttributes from 'markdown-it-link-attributes';
+// @ts-expect-error missing types
+import importOverriderPlugin from './vite-plugins/importOverriderPlugin';
+
+import VueEyeshare from './vite-plugins/eyeshareVue.js';
 
 const markdownWrapperClasses = 'prose prose-sm m-auto text-left';
 
@@ -21,6 +25,14 @@ export default defineConfig( {
       },
    },
    plugins: [
+      importOverriderPlugin( {
+         verbose: false,
+         sourceMap: true,
+         entry: "src/overrides/index.ts"
+      } ),
+
+      VueEyeshare(),
+
       Vue( {
          include: [ /\.vue$/, /\.md$/ ],
       } ),
@@ -35,8 +47,14 @@ export default defineConfig( {
 
       // https://github.com/antfu/vite-plugin-components
       ViteComponents( {
-         // allow auto load markdown components under `./src/components/`
+         // relative paths to the directory to search for components.
+         dirs: [ 'src/components', 'src/features' ],
+
+         // valid file extensions for components.
          extensions: [ 'vue', 'md' ],
+
+         // search for subdirectories
+         deep: true,
 
          // allow auto import and register components used in markdown
          customLoaderMatcher: id => id.endsWith( '.md' ),
@@ -129,9 +147,6 @@ export default defineConfig( {
          'vue',
          'vue-router',
          '@vueuse/core',
-      ],
-      exclude: [
-         'vue-demi',
-      ],
+      ]
    },
 } );

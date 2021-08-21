@@ -1,9 +1,9 @@
 <script setup lang="ts">
-   import { useRouter } from "vue-router";
+import { useRouter } from "vue-router";
    
-   const router = useRouter();
+const router = useRouter();
 
-   console.log(router.getRoutes());
+console.log(router.getRoutes());
    
 </script>
 

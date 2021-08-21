@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 
-const router = useRouter();
+// const router = useRouter();
 
-console.log( router );
-console.log( router.getRoutes() );
+// console.log( router );
+// console.log( router.getRoutes() );
 
 const mainRoutes = [ { label: "Home", to: "/home" }, { label: "Epoch", to: "/epoch" } ];
 

@@ -16,11 +16,7 @@ module.exports = {
             "@typescript-eslint"
          ],
          files: ["*.ts", "*.js"],
-         extends: [
-            'eslint:recommended',
-            "plugin:@typescript-eslint/eslint-recommended",
-            "plugin:@typescript-eslint/recommended"
-         ],
+         extends: [],
       },
       {
          files: ['*.vue'],

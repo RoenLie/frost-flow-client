@@ -1,5 +1,5 @@
-<template>
-  <div>
-    Root of epoch routes
-  </div>
-</template>
+<route lang="yaml">
+   redirect: /epoch/home
+   meta:
+     layout: default
+</route>
