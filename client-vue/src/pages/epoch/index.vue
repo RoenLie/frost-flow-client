@@ -1,5 +1,5 @@
 <route lang="yaml">
    redirect: /epoch/home
    meta:
-     layout: default
+      layout: default
 </route>

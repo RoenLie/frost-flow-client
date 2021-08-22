@@ -1,18 +1,18 @@
 <script setup lang="ts">
-// import { useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
-// const router = useRouter();
-
-// console.log( router );
-// console.log( router.getRoutes() );
+const router = useRouter();
+const initialRoute = '/' + router.currentRoute.value.path.split('/')[1];
 
 const mainRoutes = [ { label: "Home", to: "/home" }, { label: "Epoch", to: "/epoch" } ];
+const activeRoute = ref(mainRoutes.find(r => r.to == initialRoute));
 
 const openProfile = () => {
    console.log( "opening profile" );
 };
 
 </script>
+
 
 <template>
   <main class="main">
@@ -24,8 +24,11 @@ const openProfile = () => {
           v-for="route in mainRoutes "
           :key=" route.label "
           :to=" route.to "
+          @click="() => activeRoute = route"
         >
-          {{ route.label }}
+          <div :class="{'active': route.to == activeRoute?.to}">
+            {{ route.label }}
+          </div>
         </router-link>
       </nav>
 
@@ -34,7 +37,7 @@ const openProfile = () => {
         @click="openProfile"
       >
         <div>
-          <!-- <SvgIcon svgName="user-solid" /> -->
+          <SvgIcon svg-name="user-solid" />
         </div>
       </div>
     </section>
@@ -47,6 +50,7 @@ const openProfile = () => {
       <ToastPortal serviceProvider={ rootToastService }></ToastPortal>-->
   </main>
 </template>
+
 
 <style lang="scss" scoped>
 .main {
@@ -113,6 +117,11 @@ const openProfile = () => {
       padding: 0 1rem;
       display: grid;
       place-items: center;
+
+      &>*:hover {
+         cursor: pointer;
+         color: var(--blue-highlight-1);
+      }
    }
 }
 

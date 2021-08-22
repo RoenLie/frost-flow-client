@@ -14,7 +14,7 @@ import LinkAttributes from 'markdown-it-link-attributes';
 // @ts-expect-error missing types
 import importOverriderPlugin from './vite-plugins/importOverriderPlugin';
 
-import VueEyeshare from './vite-plugins/eyeshareVue.js';
+import VueEyeshare from './vite-plugins/eyeshareVue';
 
 const markdownWrapperClasses = 'prose prose-sm m-auto text-left';
 
@@ -25,17 +25,14 @@ export default defineConfig( {
       },
    },
    plugins: [
-      importOverriderPlugin( {
-         verbose: false,
-         sourceMap: true,
-         entry: "src/overrides/index.ts"
+      VueEyeshare( {
+         overridePath: "src/overrides"
       } ),
-
-      VueEyeshare(),
 
       Vue( {
          include: [ /\.vue$/, /\.md$/ ],
       } ),
+
 
       // https://github.com/hannoeru/vite-plugin-pages
       Pages( {

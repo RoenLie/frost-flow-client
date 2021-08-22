@@ -15,18 +15,13 @@ const activeRoute = ref(epochRoutes.find(r => r.to == initialPath));
 </script>
 
 
-<eyeshare lang="yaml">
-invoice:
-   overridable: true
-</eyeshare>
-
-
 <template>
   <div class="host">
     <section class="nav">
       <router-link
         v-for="route in epochRoutes"
         :key="route.title"
+        :title="route.title"
         :to="route.to"
         :class="{' active': activeRoute?.to == route.to}"
         @click="() => activeRoute = route"
@@ -99,6 +94,6 @@ invoice:
 
 
 <route lang="yaml">
-meta:
-   layout: default
+   meta:
+      layout: default
 </route>
