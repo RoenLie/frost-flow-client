@@ -97,18 +97,19 @@ export default function VueEyeshare( options = {
       // enforce: 'pre',
       name: 'vue-eyeshare',
       warn: ( { code, message }: { code: string, message: string; } ) => { },
-      buildStart() { resolveOverrides(); },
-      handleHotUpdate() { resolveOverrides(); },
+      buildStart() {
+         resolveOverrides();
+      },
+      handleHotUpdate() {
+         resolveOverrides();
+      },
       transform( code: string, id: string ) {
          // console.log( overrides );
          // console.log( id );
 
-         console.log( id );
-
-
          // transform eyeshare codeblock and return to avoid compile errors.
          if ( /vue&type=eyeshare/.test( id ) ) return parseEyeshareBlock( code, id );
-
+         if ( /vue&type=style/.test( id ) ) return parseStyleBlock( code );
 
          // return if it is not a vue file.
          if ( !/\.vue$/.test( id ) ) return;
@@ -208,26 +209,26 @@ export default function VueEyeshare( options = {
             && parsedChangeEsBlock.overrides.includes( 'style' );
 
          if ( extendStyle ) {
-            console.log( 'extending styles' );
+            // console.log( 'extending styles' );
             const styles = fileParsed.descriptor.styles;
-            console.log( 'orig', styles[ 0 ].content );
+            // console.log( 'orig', styles[ 0 ].content );
 
             const end = styles.slice( -1 )[ 0 ].loc.end.offset;
             const content = overrideData.style.map( s => s.content ).join( "\n" );
-            console.log( 'new', content );
+            // console.log( 'new', content );
 
             magicString.appendRight( end, content );
             changed = true;
          } else if ( overrideStyle ) {
-            console.log( 'overriding styles' );
+            // console.log( 'overriding styles' );
 
             const styles = fileParsed.descriptor.styles;
-            console.log( 'orig', styles[ 0 ].content );
+            // console.log( 'orig', styles[ 0 ].content );
 
             const start = styles[ 0 ].loc.start.offset;
             const end = styles.slice( -1 )[ 0 ].loc.end.offset;
             const content = overrideData.style.map( s => s.content ).join( "\n" );
-            console.log( 'new', content );
+            // console.log( 'new', content );
 
             magicString.overwrite( start, end, content );
             changed = true;
@@ -262,6 +263,11 @@ export default function VueEyeshare( options = {
       }
    };
 }
+
+
+const parseStyleBlock = ( code: string ) => {
+   return code;
+};
 
 
 const parseEyeshareBlock = ( code: string, id: string ) => {
