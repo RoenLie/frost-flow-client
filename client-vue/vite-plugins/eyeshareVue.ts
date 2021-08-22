@@ -15,9 +15,13 @@ interface IOverrideBlock {
    eyeshare: VueCompiler.SFCBlock | undefined;
 }
 
-interface IEyeshareBlock {
+interface IEyeshareCoreBlock {
    overridable: ( 'template' | 'script' | 'style' )[];
    extendable: ( 'template' | 'script' | 'style' )[];
+}
+interface IEyeshareChangeBlock {
+   overrides: ( 'template' | 'script' | 'style' )[];
+   extends: ( 'template' | 'script' | 'style' )[];
 }
 
 
@@ -87,8 +91,6 @@ export default function VueEyeshare( options = {
       }, [] as IOverrideBlock[] );
 
       overrides = overrideBuilder || [];
-      // console.log( files );
-      // console.log(overrides);
    };
 
    return {
@@ -101,11 +103,16 @@ export default function VueEyeshare( options = {
          // console.log( overrides );
          // console.log( id );
 
+         console.log( id );
+
+
          // transform eyeshare codeblock and return to avoid compile errors.
          if ( /vue&type=eyeshare/.test( id ) ) return parseEyeshareBlock( code, id );
 
+
          // return if it is not a vue file.
          if ( !/\.vue$/.test( id ) ) return;
+
 
          // get filename from path.
          const filename = id.split( '/' ).slice( -1 )[ 0 ];
@@ -142,11 +149,22 @@ export default function VueEyeshare( options = {
          }
 
          // parse the content of the eyeshare block.
+         const parsedEsBlock = jsYaml
+            .safeLoad( eyeshareBlock.content.trim() ) as IEyeshareCoreBlock;
 
-         const parsedEsBlock = jsYaml.safeLoad( eyeshareBlock.content.trim() ) as IEyeshareBlock;
-
+         // return if eyeshare block cannot be parsed.
          if ( !parsedEsBlock ) {
             this.warn( ERROR_MESSAGES.errorParsingEyeshareBlock( id ) );
+            return;
+         }
+
+         // parse the content of override eyeshare block.
+         const parsedChangeEsBlock = jsYaml
+            .safeLoad( overrideData.eyeshare.content.trim() ) as IEyeshareChangeBlock;
+
+         // return if eyeshare change block cannot be parsed.
+         if ( !parsedChangeEsBlock ) {
+            this.warn( ERROR_MESSAGES.errorParsingEyeshareBlock( overrideData.path ) );
             return;
          }
 
@@ -157,28 +175,86 @@ export default function VueEyeshare( options = {
          let changed = false;
 
          // extend script tag
-         if ( parsedEsBlock.extendable.includes( 'script' ) ) {
+         const extendScript = parsedEsBlock.extendable.includes( 'script' )
+            && parsedChangeEsBlock.extends.includes( 'script' );
+
+         const overrideScript = parsedEsBlock.overridable.includes( 'script' )
+            && parsedChangeEsBlock.overrides.includes( 'script' );
+
+         if ( extendScript ) {
             const scriptSetup = fileParsed.descriptor.scriptSetup;
 
             const end = scriptSetup?.loc.end.offset as number;
             const content = overrideData.script?.content || "";
-            // const content = `console.log( 'RANDOM OVERWRITE DIRECTLY FROM COMPILER' );`;
             magicString.appendRight( end, content );
+
+            changed = true;
+         } else if ( overrideScript ) {
+            const scriptSetup = fileParsed.descriptor.scriptSetup;
+
+            const start = scriptSetup?.loc.start.offset as number;
+            const end = scriptSetup?.loc.end.offset as number;
+            const content = overrideData.script?.content || "";
+            magicString.overwrite( start, end, content );
 
             changed = true;
          }
 
-         // console.log( fileParsed );
-         // console.log( scriptSetup );
-         // console.log( scriptAst );
+         // extend style tag
+         const extendStyle = parsedEsBlock.extendable.includes( 'style' )
+            && parsedChangeEsBlock.extends.includes( 'style' );
 
+         const overrideStyle = parsedEsBlock.overridable.includes( 'style' )
+            && parsedChangeEsBlock.overrides.includes( 'style' );
 
+         if ( extendStyle ) {
+            console.log( 'extending styles' );
+            const styles = fileParsed.descriptor.styles;
+            console.log( 'orig', styles[ 0 ].content );
 
-         // const ast = CompilerDOM.parse( fileData );
-         // ast.children.forEach( node => {
-         //    console.log( node );
+            const end = styles.slice( -1 )[ 0 ].loc.end.offset;
+            const content = overrideData.style.map( s => s.content ).join( "\n" );
+            console.log( 'new', content );
 
-         // } );
+            magicString.appendRight( end, content );
+            changed = true;
+         } else if ( overrideStyle ) {
+            console.log( 'overriding styles' );
+
+            const styles = fileParsed.descriptor.styles;
+            console.log( 'orig', styles[ 0 ].content );
+
+            const start = styles[ 0 ].loc.start.offset;
+            const end = styles.slice( -1 )[ 0 ].loc.end.offset;
+            const content = overrideData.style.map( s => s.content ).join( "\n" );
+            console.log( 'new', content );
+
+            magicString.overwrite( start, end, content );
+            changed = true;
+         }
+
+         // extend template tag
+         const extendTemplate = parsedEsBlock.extendable.includes( 'template' )
+            && parsedChangeEsBlock.extends.includes( 'template' );
+
+         const overrideTemplate = parsedEsBlock.overridable.includes( 'template' )
+            && parsedChangeEsBlock.overrides.includes( 'template' );
+
+         if ( extendTemplate ) {
+            const end = fileParsed.descriptor.template?.loc.end.offset as number;
+            const content = overrideData.template?.content as string;
+
+            magicString.appendRight( end, content );
+            changed = true;
+         } else if ( overrideTemplate ) {
+            const start = fileParsed.descriptor.template?.loc.start.offset as number;
+            const end = fileParsed.descriptor.template?.loc.end.offset as number;
+            const content = overrideData.template?.content as string;
+
+            magicString.overwrite( start, end, content );
+
+            changed = true;
+         }
 
          return {
             code: changed ? magicString.toString() : code
@@ -187,16 +263,11 @@ export default function VueEyeshare( options = {
    };
 }
 
+
 const parseEyeshareBlock = ( code: string, id: string ) => {
    if ( /\.ya?ml$/.test( id ) ) {
       code = JSON.stringify( jsYaml.safeLoad( code.trim() ) );
    }
-
-   // const objCode = JSON.parse( code ) as eyeshareOptions;
-   // const fullPath = id.split( '?' )[ 0 ];
-   // const fileData = readFileSync( fullPath, 'utf8' );
-   // const fileParsed = VueCompiler.parse( fileData );
-   // console.log( fileParsed.descriptor.customBlocks );
 
    return `export default Comp => {
       Comp.eyeshare = ${ code }

@@ -1,15 +1,12 @@
 <script lang="ts" setup>
-console.log("hello from card override");
-
-const kake2 = "not cake";
+console.log("hello from card extend");
 </script>
 
 <!--  -->
 
 <template>
-  <div>
+  <div class="card">
     CARD OVERRIDDEN TEMPLATE
-    {{ kake2 }}
   </div>
 </template>
 
@@ -17,7 +14,7 @@ const kake2 = "not cake";
 
 <style scoped lang="scss">
 .card {
-   background-color: seagreen;
+   background-color: seagreen !important;
    color: white;
 }
 </style>
@@ -27,7 +24,7 @@ const kake2 = "not cake";
 <eyeshare lang="yaml">
 overrides:
    - template
+   - style
 extends:
    - script
-   - style
 </eyeshare>

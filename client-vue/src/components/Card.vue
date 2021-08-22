@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-console.log("hello from card");
+// console.log("hello from card");
 
 const kake = "kake";
 

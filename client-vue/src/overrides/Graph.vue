@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-console.log("hello from graph override");
+console.log("hello from graph extend");
 </script>
    
 <!--  -->
    
 <template>
-  <div>
+  <div class="graph">
     GRAPH OVERRIDDEN TEMPLATE
   </div>
 </template>
-   
+
 <!--  -->
 
 <style scoped lang="scss">
 .graph {
-   background-color: seagreen;
+   background-color: seagreen !important;
    color: white;
 }
 </style>
@@ -25,6 +25,6 @@ console.log("hello from graph override");
 overrides:
    - template
 extends:
-   - script
    - style
+   - script
 </eyeshare>
