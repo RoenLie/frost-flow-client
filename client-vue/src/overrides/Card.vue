@@ -22,8 +22,9 @@ console.log("hello from card extend");
 <!--  -->
 
 <eyeshare lang="yaml">
-extends:
+overrides:
    - template
+extends:
    - style
    - script
 </eyeshare>

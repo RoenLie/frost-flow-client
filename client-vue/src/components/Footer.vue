@@ -57,3 +57,9 @@ const toggleLocales = () => {
     </a>
   </nav>
 </template>
+
+<style>
+.test {
+   color: white;
+}
+</style>
