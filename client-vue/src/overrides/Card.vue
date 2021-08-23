@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-console.log("hello from card extend");
+console.log("hello from card extend.");
 </script>
 
 <!--  -->
@@ -14,7 +14,7 @@ console.log("hello from card extend");
 
 <style scoped lang="scss">
 .card {
-   background-color: purple;
+   // background-color: purple;
    color: white;
 }
 </style>

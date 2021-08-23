@@ -1,10 +1,10 @@
 // @ts-expect-error missing types
 import jsYaml from "js-yaml";
-import { readFileSync, readdirSync } from "fs";
+import { readFileSync } from "fs";
 import fsPath from "path";
 import MagicString from 'magic-string';
-import VueCompiler from "@vue/compiler-sfc";
 import fastGlob from "fast-glob";
+import VueCompiler from "@vue/compiler-sfc";
 
 
 interface IOverrideBlock {
@@ -51,19 +51,18 @@ const ERROR_MESSAGES = {
 
 
 export default function VueEyeshare( options = {
-   overridePath: fsPath.join( process.cwd(), '/src/overrides' )
+   pathGlob: fsPath.join( process.cwd(), '/src/overrides/**/*' )
 } ) {
 
    let overrides: IOverrideBlock[] = [];
 
    const resolveOverrides = () => {
-      const files = readdirSync( options.overridePath );
+      const files = fastGlob.sync( 'src/overrides/**/*' );
 
-      const overrideBuilder = files.reduce( ( acc: IOverrideBlock[] = [], filename ) => {
-         const fileContent = readFileSync(
-            options.overridePath + '/' + filename,
-            'utf8'
-         );
+      const overrideBuilder = files.reduce( ( acc: IOverrideBlock[] = [], path ) => {
+         const filename = path.split( '/' ).splice( -1 )[ 0 ];
+
+         const fileContent = readFileSync( path, 'utf8' );
          const fileParsed = VueCompiler.parse( fileContent );
 
          const template = fileParsed.descriptor.template;
@@ -78,16 +77,9 @@ export default function VueEyeshare( options = {
             return true;
          } );
 
-         if ( !eyeshare ) return;
+         if ( !eyeshare ) return acc;
 
-         acc.push( {
-            path: options.overridePath + '/' + filename,
-            filename,
-            template,
-            script,
-            style,
-            eyeshare
-         } );
+         acc.push( { path, filename, template, script, style, eyeshare } );
          return acc;
       }, [] as IOverrideBlock[] );
 
@@ -108,7 +100,7 @@ export default function VueEyeshare( options = {
       const eyeshareBlock = fileParsed.descriptor.customBlocks
          .find( b => b.type == 'eyeshare' );
 
-      if ( !eyeshareBlock ) return code;
+      if ( !eyeshareBlock ) return [ code, null ];
 
       // parse the content of the eyeshare block.
       const parsedEsBlock = jsYaml
@@ -149,8 +141,11 @@ export default function VueEyeshare( options = {
          changed = true;
       }
 
+      const watchPath = fsPath.join( process.cwd(), overrideData.path );
       const magicStringCleaned = magicString.toString().replace( /\/\/.*;/g, '' );
-      return changed ? magicStringCleaned : code;
+      const returnCode = changed ? magicStringCleaned : code;
+
+      return [ returnCode, watchPath ];
    };
 
    const parseEyeshareBlock = ( code: string, id: string ) => {
@@ -170,7 +165,7 @@ export default function VueEyeshare( options = {
       addWatchFile: ( file: string ) => { },
       buildStart() {
          resolveOverrides();
-         const files = fastGlob.sync( 'src/overrides/**/*' );
+         // const files = fastGlob.sync( 'src/overrides/**/*' );
          // files.forEach( file => {
          //    this.addWatchFile( fsPath.join( process.cwd(), file ) );
          //    console.log( 'adding file to watch', fsPath.join( process.cwd(), file ) );
@@ -182,7 +177,11 @@ export default function VueEyeshare( options = {
       transform( code: string, id: string ) {
          // transform eyeshare codeblock and return to avoid compile errors.
          if ( /vue&type=eyeshare/.test( id ) ) return parseEyeshareBlock( code, id );
-         if ( /vue&type=style/.test( id ) ) return parseStyleBlock( code, id );
+         if ( /vue&type=style/.test( id ) ) {
+            const [ style, watchPath ] = parseStyleBlock( code, id );
+            if ( watchPath ) this.addWatchFile( watchPath + '?vue&type=style&index=0&scoped=true&lang.scss' );
+            return style;
+         }
 
          // return if it is not a vue file.
          if ( !/\.vue$/.test( id ) ) return;
@@ -325,9 +324,8 @@ export default function VueEyeshare( options = {
             changed = true;
          }
 
-         // const overridingFilePath = fsPath.join( process.cwd(), overrideData.path );
-         // this.addWatchFile( overridingFilePath );
-         // console.log( 'finished processing', id );
+         const watchPath = fsPath.join( process.cwd(), overrideData.path );
+         this.addWatchFile( watchPath );
 
          return {
             code: changed ? magicString.toString() : code
