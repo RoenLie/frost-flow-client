@@ -2,7 +2,7 @@
    "compilerOptions": {
       "baseUrl": ".",
       "module": "ESNext",
-      "target": "es2016",
+      "target": "es2017",
       "lib": [
          "DOM",
          "ESNext"
@@ -16,10 +16,13 @@
       "noUnusedLocals": true,
       "strictNullChecks": true,
       "forceConsistentCasingInFileNames": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
       "types": [
          "vite/client",
          "vite-plugin-pages/client",
-         "vite-plugin-vue-layouts/client"
+         "vite-plugin-vue-layouts/client",
+         "reflect-metadata"
       ],
       "paths": {
          "~/*": [

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-console.log("hello from graph extend");
+// console.log("hello from graph extend");
 </script>
    
 <!--  -->

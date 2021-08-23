@@ -71,19 +71,19 @@ html.dark {
    background-color: var(--dark-1);
 }
 
-div::-webkit-scrollbar {
+*::-webkit-scrollbar {
    width: var(--scrollbar-height-1);
    height: var(--scrollbar-width-1);
 }
 
-div::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
    background: var(--scrollbar-track-1);
 }
 
-div::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
    background: var(--scrollbar-thumb-1);
 }
 
-div::-webkit-scrollbar-corner {
+*::-webkit-scrollbar-corner {
    background: rgba(0, 0, 0, 0);
 }

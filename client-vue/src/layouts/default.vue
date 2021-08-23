@@ -4,7 +4,11 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const initialRoute = '/' + router.currentRoute.value.path.split('/')[1];
 
-const mainRoutes = [ { label: "Home", to: "/home" }, { label: "Epoch", to: "/epoch" } ];
+const mainRoutes = [
+   { label: "Home", to: "/home" },
+   { label: "Epoch", to: "/epoch" },
+   { label: "Workspace", to: "/workspace" },
+];
 const activeRoute = ref(mainRoutes.find(r => r.to == initialRoute));
 
 const openProfile = () => {

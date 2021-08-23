@@ -9,9 +9,12 @@
    "dependencies": {
       "@vueuse/core": "^6.0.0",
       "@vueuse/head": "^0.6.0",
+      "di4js": "^1.1.5",
+      "inversify": "^5.1.1",
       "nprogress": "^0.2.0",
       "pinia": "^2.0.0-0",
       "prism-theme-vars": "^0.2.2",
+      "reflect-metadata": "^0.1.13",
       "vue": "^3.2.2",
       "vue-global-api": "^0.4.1",
       "vue-i18n": "^9.1.7",

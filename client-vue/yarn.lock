@@ -2059,6 +2059,11 @@ detect-node@^2.0.4:
   resolved "https://registry.yarnpkg.com/detect-node/-/detect-node-2.1.0.tgz#c9c70775a49c3d03bc2c06d9a73be550f978f8b1"
   integrity sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==
 
+di4js@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/di4js/-/di4js-1.1.5.tgz#9ffc5d2f969aafeec9c6666e35472fd92d4fc1db"
+  integrity sha512-nojDYzkumoiXZia0JA/nj8olHIUtWRCZVOcwE+6NkTQLteltRUZEA1ZWjn6s4nHcX4Y+V8y8UsbjWa+m7D7zAg==
+
 dir-glob@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/dir-glob/-/dir-glob-3.0.1.tgz#56dbf73d992a4a93ba1584f4534063fd2e41717f"
@@ -2957,6 +2962,11 @@ internal-slot@^1.0.3:
     has "^1.0.3"
     side-channel "^1.0.4"
 
+inversify@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/inversify/-/inversify-5.1.1.tgz#6fbd668c591337404e005a1946bfe0d802c08730"
+  integrity sha512-j8grHGDzv1v+8T1sAQ+3boTCntFPfvxLCkNcxB1J8qA0lUN+fAlSyYd+RXKvaPRL4AGyPxViutBEJHNXOyUdFQ==
+
 ipaddr.js@1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-1.9.1.tgz#bff38543eeb8984825079ff3a2a8e6cbd46781b3"
@@ -3800,9 +3810,9 @@ pinia@^2.0.0-0:
     vue-demi "*"
 
 pnpm@^6.13.0:
-  version "6.14.2"
-  resolved "https://registry.yarnpkg.com/pnpm/-/pnpm-6.14.2.tgz#5405324822c12bc3f59e01420dc207ad73e17905"
-  integrity sha512-//XNynSNTgx9al/Z+idIhW65vVCV+kAckCEK8K48D1UgUozveZUDznejkGU6hOcqUMsXg5konDruwpzl1NVI2Q==
+  version "6.14.3"
+  resolved "https://registry.yarnpkg.com/pnpm/-/pnpm-6.14.3.tgz#6dd4d49bd1e679e12d6d76dcd3a9dd72fbd2c608"
+  integrity sha512-9fU65+uSa2kB5+/b2crLT3lLcauExf9v6vPkDa4javQVnrz3/HDa6TLEshgo5BXXks3wThq+eCrDlVvD7AUwOQ==
 
 postcss-modules-extract-imports@^3.0.0:
   version "3.0.0"
@@ -4115,6 +4125,11 @@ readdirp@~3.6.0:
   integrity sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==
   dependencies:
     picomatch "^2.2.1"
+
+reflect-metadata@^0.1.13:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.1.13.tgz#67ae3ca57c972a2aa1642b10fe363fe32d49dc08"
+  integrity sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
 
 regenerate-unicode-properties@^8.2.0:
   version "8.2.0"
