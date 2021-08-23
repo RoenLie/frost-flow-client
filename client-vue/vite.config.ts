@@ -13,10 +13,10 @@ import Prism from 'markdown-it-prism';
 import LinkAttributes from 'markdown-it-link-attributes';
 // @ts-expect-error missing types
 import importOverriderPlugin from './vite-plugins/importOverriderPlugin';
-
 import VueEyeshare from './vite-plugins/eyeshareVue';
 
 const markdownWrapperClasses = 'prose prose-sm m-auto text-left';
+
 
 export default defineConfig( {
    resolve: {
@@ -24,6 +24,7 @@ export default defineConfig( {
          '~/': `${ path.resolve( __dirname, 'src' ) }/`,
       },
    },
+
    plugins: [
       VueEyeshare( {
          overridePath: "src/overrides"
@@ -32,7 +33,6 @@ export default defineConfig( {
       Vue( {
          include: [ /\.vue$/, /\.md$/ ],
       } ),
-
 
       // https://github.com/hannoeru/vite-plugin-pages
       Pages( {

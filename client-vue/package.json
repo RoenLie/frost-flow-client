@@ -31,6 +31,7 @@
       "cross-env": "^7.0.3",
       "eslint": "7.0.0",
       "eslint-plugin-vue": "7.0.0",
+      "fast-glob": "^3.2.7",
       "https-localhost": "^4.6.5",
       "markdown-it-link-attributes": "^3.0.0",
       "markdown-it-prism": "^2.1.8",

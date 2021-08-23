@@ -6,7 +6,7 @@ console.log("hello from card extend");
 
 <template>
   <div class="card">
-    CARD OVERRIDDEN TEMPLATE
+    CARD OVERRIDE
   </div>
 </template>
 
@@ -14,7 +14,7 @@ console.log("hello from card extend");
 
 <style scoped lang="scss">
 .card {
-   background-color: seagreen !important;
+   background-color: purple;
    color: white;
 }
 </style>
@@ -22,9 +22,8 @@ console.log("hello from card extend");
 <!--  -->
 
 <eyeshare lang="yaml">
-overrides:
+extends:
    - template
    - style
-extends:
    - script
 </eyeshare>
