@@ -2,9 +2,9 @@
 import { RouteLocationNormalized, useRouter } from "vue-router";
 import { Container } from "inversify";
 import { IWorkflowContext } from "~/inversify/context/interfaces";
-import { TYPES } from "~/inversify/context/types";
-import { ModuleContext, Travel } from "~/inversify/context/entities";
-import { TravelIntegration } from "~/inversify/context/plugins/int.travel.container";
+// import { TYPES } from "~/inversify/context/types";
+// import { ModuleContext, Travel } from "~/inversify/context/entities";
+// import { TravelIntegration } from "~/inversify/context/plugins/int.travel.container";
 
 const workspaceRoutes = [
    {title: 'home', to: '/workspace/home', icon: 'home-solid'},
@@ -35,19 +35,21 @@ watch(activeRoute, val => {
 
 const setContext = async (route: RouteLocationNormalized) => {
    // console.log('before resolve arg', route);
-   const moduleName = route.params['module'];
-   const module = workspaceModules.find(m => m.name == moduleName);
-   if (!module) return;
+   // const moduleName = route.params['module'];
+   // const module = workspaceModules.find(m => m.name == moduleName);
+   // if (!module) return;
 
-   const container = await module.container();
+   // const container = await module.container();
+
+
    // const resolvedContext = container.get<IWorkflowContext>(TYPES.Workflow);
    // const resolvedContext = container.getAll<IWorkflowContext>(TYPES.Workflow);
    // const resolvedContext = container.resolve<IWorkflowContext>(Travel);
-   const resolvedContext = container.get<ModuleContext>(TYPES.Context);
+   // const resolvedContext = container.get<ModuleContext>(TYPES.Context);
 
-   console.log(resolvedContext);
+   // console.log(resolvedContext);
 
-   context.value = resolvedContext as IWorkflowContext;
+   // context.value = resolvedContext as IWorkflowContext;
 }
 
 const beforeResolveHook = router.beforeResolve( async (route) => {

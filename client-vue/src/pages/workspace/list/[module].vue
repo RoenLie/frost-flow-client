@@ -1,26 +1,32 @@
 <script lang="ts" setup>
-import { Container } from "inversify";
-import { Ref } from "vue";
-import { IWorkflowContext } from "~/inversify/context/interfaces";
 
-const injectedContainer = inject<Ref<IWorkflowContext | Promise<Container> | null>>("WorkflowContext");
-const moduleContext = ref<IWorkflowContext>();
+import {accountingContainer, LAYER} from "~/inversify/CORE/accounting.container";
+const accounting = accountingContainer.get(LAYER.System);
+console.log(accounting);
 
-onBeforeMount(() => {
-   console.log(moduleContext.value);
-})
 
-onMounted(() => {
-   console.log("module list mounted");
-})
+// import { Container } from "inversify";
+// import { Ref } from "vue";
+// import { IWorkflowContext } from "~/inversify/context/interfaces";
 
-watch(() => injectedContainer?.value, async (val) => {
-   if (!val) return;
-   moduleContext.value = await val as IWorkflowContext;
+// const injectedContainer = inject<Ref<IWorkflowContext | Promise<Container> | null>>("WorkflowContext");
+// const moduleContext = ref<IWorkflowContext>();
 
-   console.log(moduleContext.value);
-},
-{ immediate: true });
+// onBeforeMount(() => {
+//    console.log(moduleContext.value);
+// })
+
+// onMounted(() => {
+//    console.log("module list mounted");
+// })
+
+// watch(() => injectedContainer?.value, async (val) => {
+//    if (!val) return;
+//    moduleContext.value = await val as IWorkflowContext;
+
+//    console.log(moduleContext.value);
+// },
+// { immediate: true });
 
 </script>
 
