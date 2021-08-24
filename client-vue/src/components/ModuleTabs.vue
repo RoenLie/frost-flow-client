@@ -1,21 +1,25 @@
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
-const tabs = ref(['new', 'inprogress', 'ready', 'transferred']);
+
+const tabs = ref(['invoice', 'costinvoice', 'travel']);
 const tab = ref(tabs.value[0]);
 
 const router = useRouter();
 const currentRoute = router.currentRoute.value;
 router.push({
    ...currentRoute,
+   params: {
+      ...currentRoute.params,
+      module: currentRoute.params['module']  || tab.value
+   },
    query: {
       ...currentRoute.query,
-      module: currentRoute.query['module']  || tab.value
    }
 });
 
 watch(tab, (val) => {
    tab.value = val;
-   router.push({...router.currentRoute.value, query: {...router.currentRoute.value.query, module: tab.value}});
+   router.push({...router.currentRoute.value, params: { module: tab.value }, query: {...router.currentRoute.value.query}});
 })
 
 const selectModule = (module: string) => {
@@ -23,19 +27,21 @@ const selectModule = (module: string) => {
 }
 </script>
 
+
 <template>
   <div class="moduleTabsHost">
     <div
       v-for="tab in tabs"
       :key="tab"
       class="moduleTab"
-      :class="{'active': router.currentRoute.value.query['module'] == tab}"
+      :class="{'active': router.currentRoute.value.params['module'] == tab}"
       @click="() => selectModule(tab)"
     >
       {{ tab }}
     </div>
   </div>
 </template>
+
 
 <style lang="scss" scoped>
 .moduleTabsHost {

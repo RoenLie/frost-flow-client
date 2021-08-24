@@ -1,33 +1,78 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-   
-const epochRoutes = [
+import { RouteLocationNormalized, useRouter } from "vue-router";
+import { Container } from "inversify";
+import { IWorkflowContext } from "~/inversify/context/interfaces";
+import { TYPES } from "~/inversify/context/types";
+import { ModuleContext, Travel } from "~/inversify/context/entities";
+import { TravelIntegration } from "~/inversify/context/plugins/int.travel.container";
+
+const workspaceRoutes = [
    {title: 'home', to: '/workspace/home', icon: 'home-solid'},
    {title: 'list', to: '/workspace/list', icon: 'list-solid'},
    {title: 'document', to: '/workspace/document', icon: 'file-regular'},
    {title: 'settings', to: '/workspace/settings', icon: 'cog-solid'},
 ]
 
-const router = useRouter();
-const initialPath = router.currentRoute.value.path
-const activeRoute = ref(epochRoutes.find(r => r.to == initialPath));
+const workspaceModules = [
+   {name: 'invoice', container: () => import("~/inversify/context/containers/invoice.container").then(_=>_.invoiceContainer)},
+   {name: 'costinvoice', container: () => import("~/inversify/context/containers/costInvoice.container").then(_=>_.costInvoiceContainer)},
+   {name: 'travel', container: () => import("~/inversify/context/containers/travel.container").then(_=>_.travelContainer)},
+]
 
-watch(activeRoute, val => {
-   router.push({path: val?.to, query: {...router.currentRoute.value.query}});
-});
+const router = useRouter();
+const currentRoute = router.currentRoute;
+const initialModuleName = currentRoute.value.params['module'];
+const initialModule = workspaceModules.find(m => m.name == initialModuleName);
+const initialPath = router.currentRoute.value.path;
+const activeRoute = ref(workspaceRoutes.find(r => r.to == initialPath));
 
 const selectRoute = (route: {title: string, to: string, icon: string}) => {
    activeRoute.value = route
 }
+watch(activeRoute, val => {
+   router.push({path: val?.to, params: { ...router.currentRoute.value.params }, query: {...router.currentRoute.value.query}});
+});
+
+const setContext = async (route: RouteLocationNormalized) => {
+   // console.log('before resolve arg', route);
+   const moduleName = route.params['module'];
+   const module = workspaceModules.find(m => m.name == moduleName);
+   if (!module) return;
+
+   const container = await module.container();
+   // const resolvedContext = container.get<IWorkflowContext>(TYPES.Workflow);
+   // const resolvedContext = container.getAll<IWorkflowContext>(TYPES.Workflow);
+   // const resolvedContext = container.resolve<IWorkflowContext>(Travel);
+   const resolvedContext = container.get<ModuleContext>(TYPES.Context);
+
+   console.log(resolvedContext);
+
+   context.value = resolvedContext as IWorkflowContext;
+}
+
+const beforeResolveHook = router.beforeResolve( async (route) => {
+   await setContext(route);
+})
+
+onBeforeMount(async () => {
+   await setContext(router.currentRoute.value);
+});
+
+onBeforeUnmount(() => {
+   beforeResolveHook();
+})
+
+const context = ref<IWorkflowContext[] | Promise<Container> | null>(initialModule ? initialModule.container() : null);
+provide("WorkflowContext", context);
 
 </script>
    
    
 <template>
-  <div class="host">
+  <div class="workspaceHost">
     <section class="nav">
       <router-link
-        v-for="route in epochRoutes"
+        v-for="route in workspaceRoutes"
         :key="route.title"
         :title="route.title"
         :to="route.to"
@@ -55,7 +100,7 @@ const selectRoute = (route: {title: string, to: string, icon: string}) => {
    
    
 <style scoped lang="scss">
-.host {
+.workspaceHost {
    height: 100%;
 
    display: grid;

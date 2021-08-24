@@ -8,6 +8,7 @@
          "ESNext"
       ],
       "strict": true,
+      "strictPropertyInitialization": false,
       "esModuleInterop": true,
       "incremental": false,
       "skipLibCheck": true,

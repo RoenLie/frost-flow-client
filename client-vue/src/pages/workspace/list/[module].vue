@@ -1,9 +1,32 @@
 <script lang="ts" setup>
+import { Container } from "inversify";
+import { Ref } from "vue";
+import { IWorkflowContext } from "~/inversify/context/interfaces";
+
+const injectedContainer = inject<Ref<IWorkflowContext | Promise<Container> | null>>("WorkflowContext");
+const moduleContext = ref<IWorkflowContext>();
+
+onBeforeMount(() => {
+   console.log(moduleContext.value);
+})
+
+onMounted(() => {
+   console.log("module list mounted");
+})
+
+watch(() => injectedContainer?.value, async (val) => {
+   if (!val) return;
+   moduleContext.value = await val as IWorkflowContext;
+
+   console.log(moduleContext.value);
+},
+{ immediate: true });
+
 </script>
 
 
 <template>
-  <div class="host">
+  <div class="listHost">
     <section class="moduleTabs">
       <ModuleTabs />
     </section>
@@ -24,7 +47,7 @@
 
 
 <style lang="scss" scoped>
-.host {
+.listHost {
    display: grid;
    grid-template-areas: 
    "moduleTabs moduleTabs moduleTabs"
@@ -63,3 +86,7 @@
    background-color: rgb(35,35,35);
 }
 </style>
+
+<route>
+
+</route>

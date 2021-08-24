@@ -3,7 +3,6 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
-    CarbonWarning: typeof import('virtual:vite-icons/carbon/warning')['default']
     Card: typeof import('./src/components/Card.vue')['default']
     DocumentView: typeof import('./src/components/DocumentView.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
