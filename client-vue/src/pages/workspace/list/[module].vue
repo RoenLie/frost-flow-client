@@ -1,13 +1,41 @@
 <script lang="ts" setup>
+import implement from "~/inversify/APP/implement";
+import "~/inversify/APP/CORE/features/getContainer";
+import { getContainer } from "~/inversify/APP/CORE/features/getContainer";
 
-import {accountingContainer, LAYER} from "~/inversify/CORE/accounting.container";
-const accounting = accountingContainer.get(LAYER.System);
-console.log(accounting);
+getContainer(implement.modules.accounting);
 
 
-// import { Container } from "inversify";
-// import { Ref } from "vue";
-// import { IWorkflowContext } from "~/inversify/context/interfaces";
+
+
+
+
+
+
+
+
+
+// import { container as sysContainer } from "~/inversify/APP/SYS/sys.container";
+// import { AccountingService } from "~/inversify/APP/CORE/accounting/accounting.service";
+
+// const container = coreContainer;
+// const container = sysContainer;
+// const accounting = container.get(AccountingService);
+// const accounting = container.getNamed(Accounting, 'sys');
+// const accounting = container.getAll(Accounting);
+// console.log(accounting);
+// const ListContext = container.get<AccountingListContext>(AccountingListContext);
+// console.log(ListContext);
+
+
+// const container = sysContainer;
+// const test = container.get(AccountingService);
+// console.log(test);
+
+
+
+// const test = container.resolve(Accounting);
+// console.log(test);
 
 // const injectedContainer = inject<Ref<IWorkflowContext | Promise<Container> | null>>("WorkflowContext");
 // const moduleContext = ref<IWorkflowContext>();
