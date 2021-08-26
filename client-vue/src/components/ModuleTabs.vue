@@ -1,30 +1,13 @@
 <script lang="ts" setup>
+import { Ref } from "vue";
 import { useRouter } from "vue-router";
+import { Injected, WORKFLOW_PROVIDERS } from "~/features/workspace/providers";
 
-const tabs = ref(['invoice', 'costinvoice', 'travel']);
-const tab = ref(tabs.value[0]);
+const tabs = inject<Ref<string[]>>(WORKFLOW_PROVIDERS.Modules);
+const { set: setModule } = inject(WORKFLOW_PROVIDERS.Module) as Injected<string>;
 
 const router = useRouter();
-const currentRoute = router.currentRoute.value;
-router.push({
-   ...currentRoute,
-   params: {
-      ...currentRoute.params,
-      module: currentRoute.params['module']  || tab.value
-   },
-   query: {
-      ...currentRoute.query,
-   }
-});
-
-watch(tab, (val) => {
-   tab.value = val;
-   router.push({...router.currentRoute.value, params: { module: tab.value }, query: {...router.currentRoute.value.query}});
-})
-
-const selectModule = (module: string) => {
-   tab.value = module;
-}
+const currentRoute = router.currentRoute;
 </script>
 
 
@@ -34,8 +17,8 @@ const selectModule = (module: string) => {
       v-for="tab in tabs"
       :key="tab"
       class="moduleTab"
-      :class="{'active': router.currentRoute.value.params['module'] == tab}"
-      @click="() => selectModule(tab)"
+      :class="{'active': currentRoute.query['module'] == tab}"
+      @click="() => setModule(tab)"
     >
       {{ tab }}
     </div>

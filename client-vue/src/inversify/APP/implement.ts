@@ -1,7 +1,22 @@
 export default {
    modules: {
-      accounting: [
-         'cus', 'int', 'core'
-      ]
+      costinvoice: {
+         domain: {
+            default: [
+               [ 'core' ],
+               [ 'int1', 'int2' ],
+               [ 'cus' ]
+            ]
+         }
+      },
+      travel: {
+         domain: {
+            default: [
+               [ 'core' ],
+               [ 'int1', 'int2' ],
+               [ 'cus' ]
+            ]
+         }
+      },
    }
 }

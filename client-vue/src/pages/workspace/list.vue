@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import implement from "~/inversify/APP/implement";
-import "~/inversify/APP/CORE/features/getContainer";
-import { getContainer } from "~/inversify/APP/CORE/features/getContainer";
+// import implement from "~/inversify/APP/implement";
+// import "~/inversify/APP/CORE/features/getContainer";
+// import { getContainer } from "~/inversify/APP/CORE/features/getContainer";
 
-getContainer(implement.modules.accounting);
+// getContainer(implement.modules.accounting);
 
 
 

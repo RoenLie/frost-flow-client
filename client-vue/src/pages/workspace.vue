@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { RouteLocationNormalized, useRouter } from "vue-router";
-import { Container } from "inversify";
-import { IWorkflowContext } from "~/inversify/context/interfaces";
-// import { TYPES } from "~/inversify/context/types";
-// import { ModuleContext, Travel } from "~/inversify/context/entities";
-// import { TravelIntegration } from "~/inversify/context/plugins/int.travel.container";
+import { dummyDomains, dummyModules } from "~/features/workspace/dummydata";
+import { jsonToMapNodeTree, MapNode } from "~/features/workspace/helpers/jsonToMapNode";
+import { WORKFLOW_PROVIDERS } from "~/features/workspace/providers";
 
 const workspaceRoutes = [
    {title: 'home', to: '/workspace/home', icon: 'home-solid'},
@@ -13,60 +11,114 @@ const workspaceRoutes = [
    {title: 'settings', to: '/workspace/settings', icon: 'cog-solid'},
 ]
 
-const workspaceModules = [
-   {name: 'invoice', container: () => import("~/inversify/context/containers/invoice.container").then(_=>_.invoiceContainer)},
-   {name: 'costinvoice', container: () => import("~/inversify/context/containers/costInvoice.container").then(_=>_.costInvoiceContainer)},
-   {name: 'travel', container: () => import("~/inversify/context/containers/travel.container").then(_=>_.travelContainer)},
-]
+const domains = ref(jsonToMapNodeTree(dummyDomains));
+const defaultDomain = 'SYS';
+const domain = ref(defaultDomain);
+const setDomain = (v: string) => domain.value = v;
 
+const modules = ref(dummyModules);
+const defaultModule = 'costinvoice';
+const module = ref(defaultModule);
+const setModule = (v: string) => {
+   module.value = v;
+}
+
+/* Router logic */
 const router = useRouter();
 const currentRoute = router.currentRoute;
-const initialModuleName = currentRoute.value.params['module'];
-const initialModule = workspaceModules.find(m => m.name == initialModuleName);
+
 const initialPath = router.currentRoute.value.path;
 const activeRoute = ref(workspaceRoutes.find(r => r.to == initialPath));
 
 const selectRoute = (route: {title: string, to: string, icon: string}) => {
    activeRoute.value = route
 }
-watch(activeRoute, val => {
-   router.push({path: val?.to, params: { ...router.currentRoute.value.params }, query: {...router.currentRoute.value.query}});
-});
 
-const setContext = async (route: RouteLocationNormalized) => {
-   // console.log('before resolve arg', route);
-   // const moduleName = route.params['module'];
-   // const module = workspaceModules.find(m => m.name == moduleName);
-   // if (!module) return;
+const ensureMandatoryQueriesExist = (route: RouteLocationNormalized) => {
+   const _query = JSON.parse(JSON.stringify(route.query));
 
-   // const container = await module.container();
+   const existingModuleQuery = _query['module'] || '';
+   const existingDomainQuery = _query['domain'] || '';
+   
+   const moduleIsValid = modules.value.includes(existingModuleQuery as string);
+   const domainIsValid = allDomainsFlat.value.includes(existingDomainQuery);
 
+   if (!moduleIsValid) _query['module'] = defaultModule;
+   if (!domainIsValid) _query['domain'] = defaultDomain;
 
-   // const resolvedContext = container.get<IWorkflowContext>(TYPES.Workflow);
-   // const resolvedContext = container.getAll<IWorkflowContext>(TYPES.Workflow);
-   // const resolvedContext = container.resolve<IWorkflowContext>(Travel);
-   // const resolvedContext = container.get<ModuleContext>(TYPES.Context);
-
-   // console.log(resolvedContext);
-
-   // context.value = resolvedContext as IWorkflowContext;
+   return _query;
 }
 
+/* Router hooks */
 const beforeResolveHook = router.beforeResolve( async (route) => {
-   await setContext(route);
+   const query = ensureMandatoryQueriesExist(route);
+   route.query = query;
 })
 
-onBeforeMount(async () => {
-   await setContext(router.currentRoute.value);
+/* Computed properties */
+
+const allDomainsFlat = computed(() => {
+   const domainList = [] as any[];
+
+   const returnValues = (map: MapNode) => {
+      const values = [] as any[]
+      if (!map.size) return values;
+
+      const keys = map.keys();
+      for (const key of keys) {
+         values.push([key]);
+      }
+
+      map.forEach(m => {
+         values.push(returnValues(m));
+      })
+
+      return values;
+   }
+
+   domains.value.forEach(d => domainList.push(returnValues(d)));
+
+   const flattened = domainList.flat(Infinity);
+   return flattened;
 });
 
+/* Watchers */
+watch(activeRoute, val => {
+   router.push({path: val?.to, query: {...router.currentRoute.value.query}});
+});
+
+watch(domain, val => {
+   const query = ensureMandatoryQueriesExist(currentRoute.value);
+   router.push({
+      path: currentRoute.value.path,
+      query: {...query, domain: val}
+   });
+})
+
+watch(module, val => {
+   const query = ensureMandatoryQueriesExist(currentRoute.value);
+   router.push({
+      path: currentRoute.value.path,
+      query: {...query, module: val}
+   });
+})
+
+/* Lifecycle hooks */
+onBeforeMount(() => {
+   // const query = ensureMandatoryQueriesExist(currentRoute.value);
+   // router.push({path: initialPath, query: {...query}});
+});
+   
 onBeforeUnmount(() => {
    beforeResolveHook();
 })
 
-const context = ref<IWorkflowContext[] | Promise<Container> | null>(initialModule ? initialModule.container() : null);
-provide("WorkflowContext", context);
+/* Providers */
 
+provide(WORKFLOW_PROVIDERS.Domains, domains );
+provide(WORKFLOW_PROVIDERS.Modules, modules );
+provide(WORKFLOW_PROVIDERS.Domain, {get: domain, set: setDomain} );
+provide(WORKFLOW_PROVIDERS.Module, {get: module, set: setModule} );
 </script>
    
    
@@ -99,8 +151,8 @@ provide("WorkflowContext", context);
     </section>
   </div>
 </template>
-   
-   
+
+
 <style scoped lang="scss">
 .workspaceHost {
    height: 100%;

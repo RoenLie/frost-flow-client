@@ -7,7 +7,7 @@ module.exports = {
    rules: {
       // override/add rules settings here, such as:
       // 'vue/no-unused-vars': 'warning',
-      indent: ["error", 3]
+      indent: ["error", 3],
    },
    overrides: [
       {
@@ -17,6 +17,8 @@ module.exports = {
          ],
          files: ["*.ts", "*.js"],
          extends: [],
+         rules: {
+         },
       },
       {
          files: ['*.vue'],
@@ -24,7 +26,9 @@ module.exports = {
             'plugin:vue/essential',
             'plugin:vue/vue3-recommended',
             '@vue/typescript'
-         ]
+         ],
+         rules: {
+         },
       }
    ]
 };
