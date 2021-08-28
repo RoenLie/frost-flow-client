@@ -1,6 +1,5 @@
 import { Container } from "inversify";
-import { containerModule } from "~/inversify/APP/CORE/modules/core.query-service";
-
+import { containerModule } from "~/inversify/APP/INT/modules/int1.query-service.module";
 
 export const container = new Container();
 export const loader = () => {

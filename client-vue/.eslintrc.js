@@ -13,7 +13,7 @@ module.exports = {
       {
          parser: "@typescript-eslint/parser",
          plugins: [
-            "@typescript-eslint"
+            // "@typescript-eslint"
          ],
          files: ["*.ts", "*.js"],
          extends: [],

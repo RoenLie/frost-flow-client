@@ -3,7 +3,9 @@ import { ViteSSG } from 'vite-ssg';
 import generatedRoutes from 'virtual:generated-pages';
 import { setupLayouts } from 'virtual:generated-layouts';
 import App from './App.vue';
-import "reflect-metadata"; // used by inversify
+
+// used by inversify
+import "reflect-metadata";
 
 // your custom styles here
 import './styles/main.css';

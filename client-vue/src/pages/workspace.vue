@@ -1,127 +1,122 @@
-<script setup lang="ts">
-import { RouteLocationNormalized, useRouter } from "vue-router";
-import { dummyDomains, dummyModules } from "~/features/workspace/dummydata";
-import { jsonToMapNodeTree, MapNode } from "~/features/workspace/helpers/jsonToMapNode";
-import { WORKFLOW_PROVIDERS } from "~/features/workspace/providers";
+<script lang="ts">
+const loadedCargo = cargoLoader('workspace', 'SYS');
 
-const workspaceRoutes = [
+type BeforeRouteEnterHook = (to: any, from: any, next: (vm?: any) => void) => void;
+export default {
+   // called before the route that renders this component is confirmed.
+   // does NOT have access to `this` component instance,
+   // because it has not been created yet when this guard is called!
+   beforeRouteEnter: function(to, from, next) {
+      // console.log("workspace: before route enter");
+
+      const queryService = loadedCargo.get<IQueryService>(IQueryService);
+      const domains = queryService
+         .flattenMapNodeTree(queryService
+            .jsonToMapNodeTree(dummyDomains));
+
+      const correctedQuery = queryService.ensureMandatoryQueriesExist(to.query, dummyModules, domains);
+      const queryCorrect = queryService.queryCompare(correctedQuery, to.query);
+
+      if (!queryCorrect) next({...to, query: {...to.query, ...correctedQuery}});
+      else next();
+   } as BeforeRouteEnterHook,
+   // called when the route that renders this component has changed.
+   // This component being reused (by using an explicit `key`) in the new route or not doesn't change anything.
+   // For example, for a route with dynamic params `/foo/:id`, when we
+   // navigate between `/foo/1` and `/foo/2`, the same `Foo` component instance
+   // will be reused (unless you provided a `key` to `<router-view>`), and this hook will be called when that happens.
+   // has access to `this` component instance.
+   // beforeRouteUpdate(to, from, next) {
+   //    console.log("workspace: before route update");
+   //    next();
+   // },
+   // called when the route that renders this component is about to
+   // be navigated away from.
+   // has access to `this` component instance.
+   // beforeRouteLeave(to, from, next) {
+   //    console.log("workspace: before route leave");
+   //    next();
+   // }
+}
+</script>
+
+
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+import { WORKFLOW_PROVIDERS } from "~/features/workspace/providers";
+import { dummyDomains, dummyModules } from "~/features/workspace/dummydata";
+import { cargoLoader } from "~/inversify/APP/CORE/features/cargoLoader";
+import { IQueryService } from "~/inversify/APP/CORE/services/core.query-service";
+
+const queryService = loadedCargo.get<IQueryService>(IQueryService);
+
+type WorkspaceRoute = {title: string, to: string, icon: string};
+const workspaceRoutes: WorkspaceRoute[] = [
    {title: 'home', to: '/workspace/home', icon: 'home-solid'},
    {title: 'list', to: '/workspace/list', icon: 'list-solid'},
    {title: 'document', to: '/workspace/document', icon: 'file-regular'},
    {title: 'settings', to: '/workspace/settings', icon: 'cog-solid'},
 ]
 
-const domains = ref(jsonToMapNodeTree(dummyDomains));
-const defaultDomain = 'SYS';
-const domain = ref(defaultDomain);
+const domains = ref(queryService.jsonToMapNodeTree(dummyDomains));
+const domain = ref(queryService.defaultDomain);
 const setDomain = (v: string) => domain.value = v;
 
 const modules = ref(dummyModules);
-const defaultModule = 'costinvoice';
-const module = ref(defaultModule);
-const setModule = (v: string) => {
-   module.value = v;
-}
+const module = ref(queryService.defaultModule);
+const setModule = (v: string) => module.value = v;
 
 /* Router logic */
 const router = useRouter();
 const currentRoute = router.currentRoute;
 
+const initialModule = router.currentRoute.value.query['module'];
+const initialDomain = router.currentRoute.value.query['domain'];
+if (initialModule) module.value = initialModule as string;
+if (initialDomain) domain.value = initialDomain as string;
+
 const initialPath = router.currentRoute.value.path;
 const activeRoute = ref(workspaceRoutes.find(r => r.to == initialPath));
 
-const selectRoute = (route: {title: string, to: string, icon: string}) => {
-   activeRoute.value = route
+const selectRoute = (route: WorkspaceRoute) => activeRoute.value = route;
+
+const updatePath = (
+   to: string | undefined,
+   keepQuery: boolean = true,
+   keepParams: boolean = false
+) => {
+   const query = keepQuery ? {...router.currentRoute.value.query} : {};
+   const params = keepParams ? {...router.currentRoute.value.params} : {};
+   router.push({ path: to || '', query, params });
 }
 
-const ensureMandatoryQueriesExist = (route: RouteLocationNormalized) => {
-   const _query = JSON.parse(JSON.stringify(route.query));
-
-   const existingModuleQuery = _query['module'] || '';
-   const existingDomainQuery = _query['domain'] || '';
-   
-   const moduleIsValid = modules.value.includes(existingModuleQuery as string);
-   const domainIsValid = allDomainsFlat.value.includes(existingDomainQuery);
-
-   if (!moduleIsValid) _query['module'] = defaultModule;
-   if (!domainIsValid) _query['domain'] = defaultDomain;
-
-   return _query;
+const updateQuery = (key: string, value: string) => {
+   router.push({
+      path: currentRoute.value.path,
+      query: {...currentRoute.value.query, [key]: value}
+   });
 }
 
 /* Router hooks */
-const beforeResolveHook = router.beforeResolve( async (route) => {
-   const query = ensureMandatoryQueriesExist(route);
-   route.query = query;
-})
-
 /* Computed properties */
 
-const allDomainsFlat = computed(() => {
-   const domainList = [] as any[];
-
-   const returnValues = (map: MapNode) => {
-      const values = [] as any[]
-      if (!map.size) return values;
-
-      const keys = map.keys();
-      for (const key of keys) {
-         values.push([key]);
-      }
-
-      map.forEach(m => {
-         values.push(returnValues(m));
-      })
-
-      return values;
-   }
-
-   domains.value.forEach(d => domainList.push(returnValues(d)));
-
-   const flattened = domainList.flat(Infinity);
-   return flattened;
-});
-
 /* Watchers */
-watch(activeRoute, val => {
-   router.push({path: val?.to, query: {...router.currentRoute.value.query}});
-});
-
-watch(domain, val => {
-   const query = ensureMandatoryQueriesExist(currentRoute.value);
-   router.push({
-      path: currentRoute.value.path,
-      query: {...query, domain: val}
-   });
-})
-
-watch(module, val => {
-   const query = ensureMandatoryQueriesExist(currentRoute.value);
-   router.push({
-      path: currentRoute.value.path,
-      query: {...query, module: val}
-   });
-})
+watch(activeRoute, val => updatePath(val?.to));
+watch(domain, val => updateQuery('domain', val));
+watch(module, val => updateQuery('module', val));
 
 /* Lifecycle hooks */
-onBeforeMount(() => {
-   // const query = ensureMandatoryQueriesExist(currentRoute.value);
-   // router.push({path: initialPath, query: {...query}});
-});
-   
-onBeforeUnmount(() => {
-   beforeResolveHook();
-})
+onBeforeMount(() => { });
+onBeforeUnmount(() => { });
 
 /* Providers */
-
 provide(WORKFLOW_PROVIDERS.Domains, domains );
 provide(WORKFLOW_PROVIDERS.Modules, modules );
 provide(WORKFLOW_PROVIDERS.Domain, {get: domain, set: setDomain} );
 provide(WORKFLOW_PROVIDERS.Module, {get: module, set: setModule} );
 </script>
-   
-   
+
+
 <template>
   <div class="workspaceHost">
     <section class="nav">

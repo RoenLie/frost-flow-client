@@ -5,16 +5,6 @@
 
 // getContainer(implement.modules.accounting);
 
-
-
-
-
-
-
-
-
-
-
 // import { container as sysContainer } from "~/inversify/APP/SYS/sys.container";
 // import { AccountingService } from "~/inversify/APP/CORE/accounting/accounting.service";
 
@@ -120,7 +110,3 @@
    background-color: rgb(35,35,35);
 }
 </style>
-
-<route>
-
-</route>
