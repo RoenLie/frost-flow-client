@@ -1,6 +1,4 @@
 interface IImplement {
-   containerEntry: string;
-   initialIntegration: string;
    defaults: {
       hierarchy: string[];
    };
@@ -14,9 +12,6 @@ interface IImplement {
 
 
 export default {
-   containerEntry: 'custom',
-   initialIntegration: 'int1',
-
    defaults: {
       hierarchy: [ 'custom', 'int1', 'core' ]
    },
@@ -27,7 +22,19 @@ export default {
             domain: 'SYS',
             // hierarchy: [ 'core' ]
             // hierarchy: [ 'int2', 'core' ]
-            hierarchy: [ 'custom', 'int2', 'core' ]
+            hierarchy: [ 'core', 'int1', 'custom' ]
+         }
+      ],
+      list: [
+         {
+            domain: 'SYS',
+            hierarchy: [ 'core', 'int1', 'custom' ]
+         }
+      ],
+      document: [
+         {
+            domain: 'SYS',
+            hierarchy: [ 'core', 'custom' ]
          }
       ]
    }

@@ -1,5 +1,5 @@
 <script lang="ts">
-const loadedCargo = cargoLoader('workspace', 'SYS');
+const cargo = cargoLoader2(['workspace'], 'SYS', {debug:false});
 
 type BeforeRouteEnterHook = (to: any, from: any, next: (vm?: any) => void) => void;
 export default {
@@ -9,7 +9,8 @@ export default {
    beforeRouteEnter: function(to, from, next) {
       // console.log("workspace: before route enter");
 
-      const queryService = loadedCargo.get<IQueryService>(IQueryService);
+      const queryService = cargo.get<IQueryService>(IQueryService);
+
       const domains = queryService
          .flattenMapNodeTree(queryService
             .jsonToMapNodeTree(dummyDomains));
@@ -45,10 +46,10 @@ export default {
 import { useRouter } from "vue-router";
 import { WORKFLOW_PROVIDERS } from "~/features/workspace/providers";
 import { dummyDomains, dummyModules } from "~/features/workspace/dummydata";
-import { cargoLoader } from "~/inversify/APP/CORE/features/cargoLoader";
-import { IQueryService } from "~/inversify/APP/CORE/services/core.query-service";
+import { cargoLoader2 } from "~/inversify/APP/CORE/features/cargoLoader-v2";
+import { IQueryService } from "~/inversify/APP/CORE/modules/core.workspace.module";
 
-const queryService = loadedCargo.get<IQueryService>(IQueryService);
+const queryService = cargo.get<IQueryService>(IQueryService);
 
 type WorkspaceRoute = {title: string, to: string, icon: string};
 const workspaceRoutes: WorkspaceRoute[] = [

@@ -1,5 +1,5 @@
-import { injectable } from "inversify";
-import { QueryService } from "~/inversify/APP/CORE/services/core.query-service";
+import { ContainerModule, injectable } from "inversify";
+import { IQueryService, QueryService } from "~/inversify/APP/CORE/modules/core.workspace.module";
 
 
 @injectable()
@@ -11,3 +11,8 @@ export class IntQueryService1 extends QueryService {
       return super.queryCompare( ...args );
    }
 }
+
+
+export const module = new ContainerModule( ( bind ) => {
+   bind<IQueryService>( IQueryService ).to( IntQueryService1 );
+} );

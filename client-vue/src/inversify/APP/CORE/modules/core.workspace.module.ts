@@ -1,9 +1,13 @@
-import { injectable } from "inversify";
+import { ContainerModule, injectable } from "inversify";
+
 
 type JsonNodeTree = Array<JsonNode>;
 type JsonNode = { k: string; v: Array<JsonNode>; };
 type MapNodeTree = Map<string, MapNode>;
 type MapNode = Map<string, MapNodeTree>;
+
+
+export const IQueryService = Symbol( 'IQueryService' );
 export interface IQueryService {
    defaultModule: string;
    defaultDomain: string;
@@ -14,7 +18,6 @@ export interface IQueryService {
       availableDomains: string[] ) => { [ key: string ]: string; };
    queryCompare: ( ...args: any[] ) => boolean;
 };
-export const IQueryService = Symbol( 'IQueryService' );
 
 
 @injectable()
@@ -91,3 +94,7 @@ export class QueryService implements IQueryService {
       return allEqual;
    }
 }
+
+export const module = new ContainerModule( ( bind ) => {
+   bind<IQueryService>( IQueryService ).to( QueryService );
+} );
