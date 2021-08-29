@@ -1,9 +1,11 @@
 import { Container, ContainerModule } from "inversify";
 import implement from "~/inversify/APP/implement";
 
+/* --------------------------------------------------------------------------------------------- */
 
-const cargoCache = [] as { identifier: string[]; container: Container; }[];
+const cargoCache = [] as { modules: string[]; domain: string; container: Container; }[];
 
+/* --------------------------------------------------------------------------------------------- */
 
 const cargoContainer = ( modules: ContainerModule[], parent?: Container ) => {
    const container = new Container();
@@ -13,6 +15,7 @@ const cargoContainer = ( modules: ContainerModule[], parent?: Container ) => {
    return container;
 };
 
+/* --------------------------------------------------------------------------------------------- */
 
 /* builds up the container parent child structure and loads the correct modules */
 export const cargoLoader2 = ( modules: string[], domain: string, { debug = false } ) => {
@@ -20,14 +23,15 @@ export const cargoLoader2 = ( modules: string[], domain: string, { debug = false
    if ( !implement?.defaults?.hierarchy ) throw new Error( "Fallback default hierarchy has not been defined" );
 
    const cached = cargoCache.find( cc => {
-      const exists = cc.identifier.every( id => modules.includes( id ) ) &&
-         cc.identifier.length == modules.length;
+      const exists = cc.modules.every( id => modules.includes( id ) ) &&
+         cc.modules.length == modules.length &&
+         cc.domain == domain;
 
       return exists;
    } );
 
    if ( cached ) {
-      console.log( 'this cargo load has been cached' );
+      console.log( 'returning cached cargo load.' );
       return cached.container;
    }
 
@@ -41,8 +45,15 @@ export const cargoLoader2 = ( modules: string[], domain: string, { debug = false
    if ( debug ) console.log( 'cargoHierarchies', cargoHierarchies );
 
    /* find all available modules, transform import data into a useable form */
+   const imports = import.meta.globEager( '../../**/*.module.*' );
+
+   // change it to lazy import modules so that the use of this function will not pull all modules.
+   // doing this will make this function async, but that should be survivable.
+   // const imports = import.meta.glob( '../../**/*.module.*' ); 
+
+
    const availableModules = Object
-      .entries( import.meta.globEager( '../../**/*.module.*' ) )
+      .entries( imports )
       .map( entry => {
          const nameData = entry[ 0 ].split( '/' ).slice( -1 )[ 0 ].split( '.' ).slice( 0, 2 );
          const containerName = nameData[ 0 ];
@@ -111,7 +122,8 @@ export const cargoLoader2 = ( modules: string[], domain: string, { debug = false
    // };
 
    cargoCache.push( {
-      identifier: modules,
+      modules: modules,
+      domain: domain,
       container: containers[ containers.length - 1 ]
    } );
 

@@ -1,5 +1,4 @@
 <script lang="ts">
-const cargo = cargoLoader2(['workspace'], 'SYS', {debug:false});
 
 type BeforeRouteEnterHook = (to: any, from: any, next: (vm?: any) => void) => void;
 export default {
@@ -8,7 +7,8 @@ export default {
    // because it has not been created yet when this guard is called!
    beforeRouteEnter: function(to, from, next) {
       // console.log("workspace: before route enter");
-
+      const initialDomain = to.query['domain'];
+      const cargo = cargoLoader2(['workspace'], initialDomain, {debug:false});
       const queryService = cargo.get<IQueryService>(IQueryService);
 
       const domains = queryService
@@ -49,6 +49,13 @@ import { dummyDomains, dummyModules } from "~/features/workspace/dummydata";
 import { cargoLoader2 } from "~/inversify/APP/CORE/features/cargoLoader-v2";
 import { IQueryService } from "~/inversify/APP/CORE/modules/core.workspace.module";
 
+const router = useRouter();
+const currentRoute = router.currentRoute;
+const initialModule = router.currentRoute.value.query['module']  as string || '';
+const initialDomain = router.currentRoute.value.query['domain'] as string || '';
+const initialPath = router.currentRoute.value.path;
+
+const cargo = cargoLoader2(['workspace'], initialDomain, {debug:false});
 const queryService = cargo.get<IQueryService>(IQueryService);
 
 type WorkspaceRoute = {title: string, to: string, icon: string};
@@ -66,19 +73,12 @@ const setDomain = (v: string) => domain.value = v;
 const modules = ref(dummyModules);
 const module = ref(queryService.defaultModule);
 const setModule = (v: string) => module.value = v;
+const activeRoute = ref(workspaceRoutes.find(r => r.to == initialPath));
 
-/* Router logic */
-const router = useRouter();
-const currentRoute = router.currentRoute;
-
-const initialModule = router.currentRoute.value.query['module'];
-const initialDomain = router.currentRoute.value.query['domain'];
 if (initialModule) module.value = initialModule as string;
 if (initialDomain) domain.value = initialDomain as string;
 
-const initialPath = router.currentRoute.value.path;
-const activeRoute = ref(workspaceRoutes.find(r => r.to == initialPath));
-
+/* Actions */
 const selectRoute = (route: WorkspaceRoute) => activeRoute.value = route;
 
 const updatePath = (

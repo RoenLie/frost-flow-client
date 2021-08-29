@@ -5,7 +5,7 @@ import { CoreDocumentService, IDocumentService } from "~/inversify/APP/CORE/modu
 @injectable()
 export class CustomDocumentService extends CoreDocumentService {
    override documentTitle = 'Custom Document Service';
-   randomdata = new Array( 9999999 ).fill( {} );
+   // randomdata = new Array( 9999999 ).fill( {} );
 }
 
 

@@ -1,10 +1,11 @@
 import { ContainerModule, injectable } from "inversify";
 import { IQueryService, QueryService } from "~/inversify/APP/CORE/modules/core.workspace.module";
+import { IntQueryService1 } from "~/inversify/APP/INT/modules/int1.workspace.module";
 
 
 @injectable()
-export class CustomQueryService extends QueryService {
-   override defaultDomain = "CUSTOM";
+export class CustomQueryService1 extends IntQueryService1 {
+   override defaultDomain = "CUSTOM1";
    constructor () { super(); }
    override queryCompare( ...args: any[] ) {
       console.log( 'query compare has been overridden' );
@@ -14,5 +15,5 @@ export class CustomQueryService extends QueryService {
 
 
 export const module = new ContainerModule( ( bind ) => {
-   bind<IQueryService>( IQueryService ).to( CustomQueryService );
+   bind<IQueryService>( IQueryService ).to( CustomQueryService1 );
 } );

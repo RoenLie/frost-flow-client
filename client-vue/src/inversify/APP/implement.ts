@@ -22,7 +22,13 @@ export default {
             domain: 'SYS',
             // hierarchy: [ 'core' ]
             // hierarchy: [ 'int2', 'core' ]
-            hierarchy: [ 'core', 'int1', 'custom' ]
+            hierarchy: [ 'core', 'int1', 'custom1' ]
+         },
+         {
+            domain: 'google',
+            // hierarchy: [ 'core' ]
+            // hierarchy: [ 'int2', 'core' ]
+            hierarchy: [ 'core', 'int2', 'custom2' ]
          }
       ],
       list: [
