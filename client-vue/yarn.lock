@@ -1850,6 +1850,11 @@ constantinople@^4.0.1:
     "@babel/parser" "^7.6.0"
     "@babel/types" "^7.6.1"
 
+container-ioc@^1.7.19:
+  version "1.7.19"
+  resolved "https://registry.yarnpkg.com/container-ioc/-/container-ioc-1.7.19.tgz#a50fc71a69ebc1fda2eb7a326d8bb78cdc1e2046"
+  integrity sha1-pQ/HGmnrwf2i63oybYu3jNweIEY=
+
 content-disposition@0.5.3:
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/content-disposition/-/content-disposition-0.5.3.tgz#e130caf7e7279087c5616c2007d0485698984fbd"

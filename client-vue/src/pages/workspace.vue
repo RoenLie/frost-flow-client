@@ -8,7 +8,7 @@ export default {
    beforeRouteEnter: function(to, from, next) {
       // console.log("workspace: before route enter");
       const initialDomain = to.query['domain'];
-      const cargo = cargoLoader2(['workspace'], initialDomain, {debug:false});
+      const [cargo] = cargoLoader2(['workspace'], initialDomain, {debug:false});
       const queryService = cargo.get<IQueryService>(IQueryService);
 
       const domains = queryService
@@ -55,7 +55,7 @@ const initialModule = router.currentRoute.value.query['module']  as string || ''
 const initialDomain = router.currentRoute.value.query['domain'] as string || '';
 const initialPath = router.currentRoute.value.path;
 
-const cargo = cargoLoader2(['workspace'], initialDomain, {debug:false});
+const [cargo, unloader] = cargoLoader2(['workspace'], initialDomain, {debug:false});
 const queryService = cargo.get<IQueryService>(IQueryService);
 
 type WorkspaceRoute = {title: string, to: string, icon: string};
@@ -108,7 +108,7 @@ watch(module, val => updateQuery('module', val));
 
 /* Lifecycle hooks */
 onBeforeMount(() => { });
-onBeforeUnmount(() => { });
+onBeforeUnmount(() => { unloader(); });
 
 /* Providers */
 provide(WORKFLOW_PROVIDERS.Domains, domains );

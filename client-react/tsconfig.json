@@ -15,6 +15,7 @@
       "skipLibCheck": false,
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true,
+      "experimentalDecorators": true,
       "allowUnusedLabels": true,
       "forceConsistentCasingInFileNames": true,
       "strictPropertyInitialization": false,

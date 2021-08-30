@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import { App } from 'core';
 import './main.css';
 import 'shared/prototypeExtensions/object';
+import 'reflect-metadata'; // used by infersify
 
 render(
    <StrictMode>
@@ -10,7 +11,6 @@ render(
    </StrictMode>,
    document.getElementById( 'root' )
 );
-
 
 // This is for react 18 which doesn't work with react dom router yet.
 // const container = document.getElementById( 'root' );
@@ -20,4 +20,3 @@ render(
 //       <App />
 //    </React.StrictMode>
 // );
-

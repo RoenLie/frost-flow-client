@@ -8,10 +8,12 @@
    },
    "dependencies": {
       "axios": "^0.21.1",
+      "inversify": "^5.1.1",
       "lit": "^2.0.0-rc.2",
-      "react": "next",
-      "react-dom": "next",
+      "react": "^0.0.0-experimental-46a0f050a-20210828",
+      "react-dom": "^0.0.0-experimental-46a0f050a-20210828",
       "react-router-dom": "^5.2.0",
+      "reflect-metadata": "^0.1.13",
       "uuid": "^8.3.2",
       "valtio": "^1.0.7"
    },

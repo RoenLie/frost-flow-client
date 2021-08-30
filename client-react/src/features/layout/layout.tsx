@@ -44,9 +44,9 @@ export const Layout = memo( ( { layout, children }: any ) => {
    useMemo( () => layoutService.bind( Layout, setLayout ), [] );
    useMemo( () => layoutService.setLayout[ layout || 'default' ](), [ layout ] );
 
-
    return (
-      <Suspense fallback={ <></> }>
+      // <Suspense fallback={ <></> }>
+      <Suspense fallback={ null }>
          <Layout>{ children }</Layout>
       </Suspense>
    );

@@ -45,9 +45,9 @@ export default ( { children }: any ) => {
          </div>
 
          <section className={ styles.content }>
-            <Suspense fallback={ <div>⟳</div> }>
-               { children }
-            </Suspense>
+            {/* <Suspense fallback={ <div>⟳</div> }> */ }
+            { children }
+            {/* </Suspense> */ }
          </section>
 
          <ModalPortal serviceProvider={ rootModalService }></ModalPortal>

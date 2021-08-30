@@ -10,6 +10,9 @@ const routeComponents = {
    epochList: lazy( () => import( './epoch.list.route' ) ),
    epochRecord: lazy( () => import( './epoch.record.route' ) ),
    epochSettings: lazy( () => import( './epoch.settings.route' ) ),
+   workflow: lazy( () => import( './workflow.route' ) ),
+   workflowHome: lazy( () => import( './workflow.home.route' ) ),
+   workflowList: lazy( () => import( './workflow.list.route' ) ),
    notFound: lazy( () => import( './not-found.route' ) )
 };
 
@@ -70,7 +73,27 @@ export const routes: IReactRoute[] = [
       label: 'Workflow',
       path: '/workflow',
       layout: 'default',
-      component: routeComponents.notFound
+      component: routeComponents.workflow,
+      redirect: {
+         from: [ '/workflow', '/workflow/' ],
+         to: '/workflow/home'
+      },
+      routes: [
+         {
+            label: 'Home',
+            path: '/workflow/home',
+            layout: 'default',
+            icon: 'home-solid',
+            component: routeComponents.workflowHome
+         },
+         {
+            label: 'List',
+            path: '/workflow/list',
+            layout: 'default',
+            icon: 'list-solid',
+            component: routeComponents.workflowList
+         },
+      ]
    },
    {
       path: '/',

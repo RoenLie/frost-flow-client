@@ -1,5 +1,5 @@
 import { Container, ContainerModule } from "inversify";
-import implement from "~/inversify/APP/implement";
+import implement from "features/inversify/APP/implement";
 
 /* --------------------------------------------------------------------------------------------- */
 
