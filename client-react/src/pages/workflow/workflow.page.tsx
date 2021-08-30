@@ -22,13 +22,13 @@ export const Workflow = ( { routes }: any ) => {
          </section>
 
          <section className={ styles.content }>
-            {/* <Suspense fallback={ <div>Loading epoch...</div> }> */ }
-            <Switch>
-               { routes.map( ( route: any, i: number ) => (
-                  <RouteWithSubRoutes key={ i } { ...route } />
-               ) ) }
-            </Switch>
-            {/* </Suspense> */ }
+            <Suspense fallback={ <div>Loading workflow...</div> }>
+               <Switch>
+                  { routes.map( ( route: any, i: number ) => (
+                     <RouteWithSubRoutes key={ i } { ...route } />
+                  ) ) }
+               </Switch>
+            </Suspense>
          </section>
 
       </div>
