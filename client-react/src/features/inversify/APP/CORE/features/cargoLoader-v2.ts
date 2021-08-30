@@ -46,11 +46,10 @@ export const cargoLoader2 = ( modules: string[], domain: string, { debug = false
       return exists;
    } );
 
-
-   // if ( cached ) {
-   //    console.log( 'returning cached cargo load.' );
-   //    return [ cached.container, () => unloader( cached.container ) ] as [ Container, () => void ];
-   // }
+   if ( cached ) {
+      console.log( 'returning cached cargo load.' );
+      return [ cached.container, () => unloader( cached.container ) ] as [ Container, () => void ];
+   }
 
 
    /* defined the hierarchy to be loaded into the differernt containers */
@@ -135,11 +134,11 @@ export const cargoLoader2 = ( modules: string[], domain: string, { debug = false
    const returnContainer = containers[ containers.length - 1 ];
 
 
-   // cargoCache.push( {
-   //    modules: modules,
-   //    domain: domain,
-   //    container: containers[ containers.length - 1 ]
-   // } );
+   cargoCache.push( {
+      modules: modules,
+      domain: domain,
+      container: containers[ containers.length - 1 ]
+   } );
 
 
    return [ returnContainer, () => unloader( returnContainer ) ] as [ Container, () => void ];
