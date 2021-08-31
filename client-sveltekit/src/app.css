@@ -1,0 +1,88 @@
+*, *::before, *::after {
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+}
+
+html, body {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+   "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+   sans-serif;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+   display: grid;
+   height: 100vh;
+   width: 100vw;
+   font-size: 1rem;
+}
+
+html {
+   --light-txt-1: rgba(255, 255, 255, 1);
+   --light-txt-2: rgba(225, 225, 225, 1);
+   --light-txt-3: rgba(200, 200, 200, 1);
+
+   --black-txt-1: rgba(0, 0, 0, 1);
+
+   --dark-0: rgba(15, 15, 15, 1);
+   --dark-1: rgba(30, 30, 30, 1);
+   --dark-2: rgba(35, 35, 35, 1);
+   --dark-3: rgba(40, 40, 40, 1);
+   --dark-4: rgba(45, 45, 45, 1);
+   --dark-5: rgba(50, 50, 50, 1);
+
+   --dark-blue-1: hsla(197,13%,11%,1);
+   --dark-blue-2: hsl(200, 8%, 15%);
+   --dark-blue-3: hsla(200,8%,15%,1);
+   --dark-blue-4: hsla(195, 80%, 10%,1);
+   --dark-blue-5: hsla(201, 96%, 11%,1);
+   --dark-blue-6: hsla(200, 96%, 21%,1);
+
+   --red-deep-1: rgba(81, 35, 35, 1);
+
+   --border-radius-1: 0.2rem;
+   --border-radius-2: 0.4rem;
+   --border-radius-3: 0.6rem;
+
+   --border-grey-strong-1: hsla(240, 3%, 42%, 1);
+   --border-grey-weak-1: hsla(240, 3%, 42%, 0.2);
+
+   --scrollbar-height-1: 0.75rem;
+   --scrollbar-height-2: 0.5rem;
+   --scrollbar-height-3: 0.25rem;
+   --scrollbar-width-1: 0.75rem;
+   --scrollbar-width-2: 0.5rem;
+   --scrollbar-width-3: 0.25rem;
+   --scrollbar-track-1: rgba(0, 0, 0, 0.15);
+   --scrollbar-thumb-1: rgba(255, 255, 255, 0.09);
+
+   --blue-highlight-1: rgba(178, 235, 242, 1);
+
+   --grey-highlight-weak: rgba(150, 150, 150, 0.5);
+   --grey-highlight-medium: rgba(150, 150, 150, 0.75);
+   --grey-highlight-strong: rgba(150, 150, 150, 1);
+
+   color: var(--light-txt-1);
+   background-color: var(--dark-1);
+}
+
+*::-webkit-scrollbar {
+   width: var(--scrollbar-height-1);
+   height: var(--scrollbar-width-1);
+}
+
+*::-webkit-scrollbar-track {
+   background: var(--scrollbar-track-1);
+}
+
+*::-webkit-scrollbar-thumb {
+   background: var(--scrollbar-thumb-1);
+}
+
+*::-webkit-scrollbar-corner {
+   background: rgba(0, 0, 0, 0);
+}
