@@ -15,7 +15,6 @@
             />
          </a>
          <a sveltekit:prefetch href="/workflow/list">
-            <!-- <a href="/workflow/list"> -->
             <SvgIcon
                svgName="list-solid"
                style={$page.path === "/workflow/list"

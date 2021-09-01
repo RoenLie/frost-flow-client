@@ -1,47 +1,52 @@
-interface IImplement {
-   defaults: {
-      hierarchy: string[];
-   };
-   modules: {
-      [ key: string ]: {
-         domain: string;
-         hierarchy: string[];
-      }[];
-   };
-}
+export type ModuleDefaults = { hierarchy: string[]; dependencies: string[]; };
+export type ModuleExplicit = { realm: string; hierarchy: string[]; dependencies?: string[]; };
+export type ModuleInfo = { defaults?: ModuleDefaults; explicits?: ModuleExplicit[]; };
+export interface IDeclaration { defaults: ModuleDefaults; modules: { [ key: string ]: ModuleInfo; }; }
 
 
-export default {
+export const declaration: IDeclaration = {
    defaults: {
-      hierarchy: [ 'custom', 'int1', 'core' ]
+      hierarchy: [ 'custom', 'int1', 'core' ],
+      dependencies: []
    },
 
    modules: {
-      workspace: [
-         {
-            domain: 'SYS',
-            // hierarchy: [ 'core' ]
-            // hierarchy: [ 'int2', 'core' ]
-            hierarchy: [ 'core', 'int1', 'custom1' ]
+      workspace: {
+         defaults: {
+            hierarchy: [ 'custom', 'int1', 'core' ],
+            dependencies: []
          },
-         {
-            domain: 'google',
-            // hierarchy: [ 'core' ]
-            // hierarchy: [ 'int2', 'core' ]
-            hierarchy: [ 'core', 'int2', 'custom2' ]
-         }
-      ],
-      list: [
-         {
-            domain: 'SYS',
-            hierarchy: [ 'core', 'int1', 'custom' ]
-         }
-      ],
-      document: [
-         {
-            domain: 'SYS',
-            hierarchy: [ 'core', 'custom' ]
-         }
-      ]
+         explicits: []
+      },
+      list: {
+         defaults: {
+            hierarchy: [ 'custom', 'int1', 'core' ],
+            dependencies: [ 'logger' ]
+         },
+         explicits: []
+      },
+      document: {
+         defaults: {
+            hierarchy: [ 'custom', 'int1', 'core' ],
+            dependencies: [ 'logger' ]
+         },
+         explicits: [
+            {
+               realm: 'SYS',
+               hierarchy: [ 'custom', 'int1', 'core' ],
+               dependencies: [ 'logger' ]
+            }
+         ]
+      },
+      logger: {
+         defaults: {
+            hierarchy: [ 'custom', 'int1', 'core' ],
+            dependencies: [ 'workspace' ]
+         },
+         explicits: []
+      }
    }
-} as IImplement;
+};
+
+export default {};
+
