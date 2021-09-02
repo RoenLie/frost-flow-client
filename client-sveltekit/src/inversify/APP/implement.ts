@@ -34,7 +34,7 @@ export const declaration: IDeclaration = {
             {
                realm: 'SYS',
                hierarchy: [ 'custom', 'int1', 'core' ],
-               dependencies: [ 'logger' ]
+               dependencies: [ 'logger', 'list' ]
             }
          ]
       },

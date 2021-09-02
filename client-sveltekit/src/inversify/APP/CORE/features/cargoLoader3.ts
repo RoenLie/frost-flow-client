@@ -1,12 +1,13 @@
 import { Container, ContainerModule } from "inversify";
 import { mutateObject } from "~/inversify/APP/CORE/features/mutateObject";
-import { StringCompareMap } from "~/inversify/APP/CORE/features/StringCompareMap";
 import { declaration } from "~/inversify/APP/implement";
 import type { IDeclaration } from "~/inversify/APP/implement";
-import { getExplicitDetails, mapDependencies } from "~/inversify/APP/CORE/features/cargoLoaderHelpers";
+import { getExplicitDetails, mapDependencies, StringCompareMap } from "~/inversify/APP/CORE/features/cargoLoaderHelpers";
 /* --------------------------------------------------------------------------------------------- */
 
-const cargoCache = [] as { modules: string[]; realm: string; container: Container; }[];
+// const cargoCache = [] as { modules: string[]; realm: string; container: Container; }[];
+const containerCache = new StringCompareMap<string[], Container>( [ [ [ 'document', 'custom', 'int1', 'core' ], new Container() ] ] );
+const containerCatalog = new StringCompareMap<string[], Container>();
 
 /* --------------------------------------------------------------------------------------------- */
 
@@ -79,12 +80,24 @@ export const cargoLoader3: CargoLoader = ( module, realm, options = { debug: fal
       declaration,
       realm,
       moduleDetails.dependencies,
-      new Map( [ [ moduleDetails.module, moduleDetails ] ] )
+      new StringCompareMap( [ [ moduleDetails.module, moduleDetails ] ] )
    );
 
    console.log( dependencyMap );
 
    /* Check cache if each dependency exists with the correct hierarchy */
+   const cachedContainerList = dependencyMap.reduce<string[]>( ( acc, cur ) => {
+      const check = [ cur[ 0 ], ...cur[ 1 ].hierarchy ];
+      console.log( check );
+
+      const exists = containerCache.has( check );
+
+      console.log( exists );
+
+
+      return [ "hei" ];
+   }, [] );
+
 
 
    /* if any of the hierarchies do not exist, create them using any already cached containers */
@@ -95,6 +108,8 @@ export const cargoLoader3: CargoLoader = ( module, realm, options = { debug: fal
 
 
 
+
+   /* do import stuff */
    const imports = import.meta.globEager( '../../**/*.module.*' );
 
    const extractRealmAndModule = ( s: string ) => s.split( '/' ).pop().split( '.' ).slice( 0, 2 ).join();
