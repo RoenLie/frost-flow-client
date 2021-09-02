@@ -29,10 +29,15 @@ export const mapDependencies: MapDependencies = ( declaration, realm, deps, mapo
 
    deps.forEach( d => {
       const details = getExplicitDetails( declaration, d, realm );
-      if ( moduleInfo.has( d ) ) return;
+
+      if ( moduleInfo.has( d ) )
+         throw new Error( `Circular dependency on module: '${ d }' for realm: '${ realm }'` );
+
       moduleInfo.set( d, details );
 
-      if ( !details?.dependencies ) return;
+      if ( !details?.dependencies )
+         return;
+
       mapDependencies( declaration, realm, details.dependencies, moduleInfo );
    } );
 
